@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>weBug通关功略 | Yyx</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://www.yyxyy.xyz//favicon.ico?v=1622952381444">
+<link rel="stylesheet" href="https://www.yyxyy.xyz//styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="webug通关攻略
+第一关 很简单的get注入
+加引号，报错。需要闭合单引号来注入。
+could not to the database You have an error in your SQL syntax; check the man..." />
+    <meta name="keywords" content="" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://www.yyxyy.xyz/">
+        <img src="https://www.yyxyy.xyz//images/avatar.png?v=1622952381444" class="site-logo">
+        <h1 class="site-title">Yyx</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      记得在这杂乱的生活里，带点微笑
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://www.yyxyy.xyz//atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">weBug通关功略</h2>
+            <div class="post-date">2021-06-06</div>
+            
+            <div class="post-content" v-pre>
+              <h1 id="webug通关攻略">webug通关攻略</h1>
+<h3 id="第一关-很简单的get注入">第一关 很简单的get注入</h3>
+<p>加引号，报错。需要闭合单引号来注入。<br>
+could not to the database You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near <em><strong>''1'''</strong></em> at line 1</p>
+<p>注入过程：</p>
+<ul>
+<li>order by 5</li>
+</ul>
+<p>%23报错<br>
+2. order by 4 %23返回正常列表<br>
+3. union select database(),2,3,4 %23 爆出数据库 pentesterlab<br>
+4. union select group_concat(table_name),2,3,4 from information_schema.tables where table_schema=database() %23 爆出表 comment,flag,goods,user<br>
+5. union select group_concat(column_name),2,3,4 from information_schema.columns where table_name= 'flag' %23 爆出列id,flag<br>
+6. union select flag,2,3,4 from flag %23 查看flag值204f704fbbcf6acf398ffee11989b377</p>
+<h3 id="第二关-从图片中找到有用的信息">第二关 从图片中找到有用的信息</h3>
+<p>这题 只能找到 123.txt 密码123，然后就。。。。。。。题有问题吧</p>
+<h3 id="第三关-渗透网站的时候目录也很重要">第三关 渗透网站的时候目录也很重要</h3>
+<p>可以拿御剑扫描目录<br>
+也可以自己翻一翻目录<br>
+1.http://10.10.10.144/pentest/test/san/index33.htm 进入的页面<br>
+2.http://10.10.10.144/pentest/test/san 上一级目录，里面有3个目录<br>
+3.http://10.10.10.144/pentest/test/san/test/ 看test目录，让把目录用MD5加密，test加密过后为 4621d373cade4e83 后另外一个目录一样。<br>
+4.http://10.10.10.144/pentest/test/san/4621d373cade4e83/ 得到 flag{人人都知道站长是个大帅比}</p>
+<h3 id="第四关-当遇到五位验证码的时候可以爆破">第四关 当遇到五位验证码的时候可以爆破</h3>
+<p>题目说5位验证码，<br>
+直接用burp爆破，得到密码 admin123</p>
+<h3 id="第五关-头部的一个注入">第五关 头部的一个注入</h3>
+<p>头部注入想到了XFF头，用burp抓包，然后加X-forwarded-For: ' 报错了：你改变了浏览器发送的数据，并输入了 ' could not to the database You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ''' at line 1<br>
+剩下的和第一关一样了。。。<br>
+爆出 flag 204f704fbbcf6acf398ffee11989b377<br>
+推荐火狐的一个插件 SIMPLE MODIFY HEADERS  可以修改http头。</p>
+<h3 id="第六关-支付问题用最少的钱去购买到一本书">第六关 支付问题：用最少的钱去购买到一本书！</h3>
+<p>账号密码是第7关的，看题目意思，不花钱的就是最少了，用burp抓包试试，发现了书的钱是post上传的，bill1=10&amp;bill2=20&amp;num1=2&amp;num2=1&amp;uid=1，那么我就把书的价格改成0，发现买书能够成功。<br>
+后面又发现第一本书可以输入-2和第二本书输入1后面的价格抵消。。。</p>
+<h3 id="第七关-越权">第七关 越权</h3>
+<p>进入里面，只有一个修改密码，题目越权，就先看了一下cookie，发现什么东西都没有嘛，然后点修改密码，发现url： <strong>?name=tom</strong>，这不是可以修改别人的密码嘛，试一试修改admin，发现修改成功了。但是登陆不了admin，，，抓包看看***username=tom&amp;password1=123456789&amp;password2=123456789&amp;password3=123456789***发现这样改密码，把tom改成admin，后面admin登陆成功。</p>
+<h3 id="第八关-csrf-管理员每天晚上10点上线">第八关 csrf 管理员每天晚上10点上线</h3>
+<p>进去后还是只有一个更改密码的界面。用burp拦截更改密码页面，可以用burp一键生成csrf poc，保存为html文件，管理员打开就被修改密码了，完成了csrf</p>
+<h3 id="第九关-url跳转-你能跳转到百度页面吗">第九关 url跳转 你能跳转到百度页面吗？</h3>
+<p>按下f12会发现  &lt;  a href=&quot;index.php?url=#&quot;  &gt;I&lt;  /a  &gt;<br>
+这就是url跳转，直接http://10.10.10.144/pentest/test/5/index.php?url=http://www.baidu.com这样就跳转到百度页面了</p>
+<h3 id="第十关-文件下载">第十关 文件下载</h3>
+<p><em><strong>not found</strong></em></p>
+<h3 id="第十一关">第十一关</h3>
+<p>标题是帮管理员找回密码。<br>
+然后抓包试试，发现<br>
+<em><strong>pic=dog_cat.jpg&amp;submit=%E4%B8%8B%E8%BD%BD</strong></em><br>
+pic能改文件路径。构造这样的就能得到密码。<br>
+<strong>pic=../../../pentest/test/7/1/db/config.php&amp;submit=%E4%B8%8B%E8%BD%BD</strong></p>
+<h3 id="第十二关-我忘记了系统密码">第十二关 我忘记了系统密码</h3>
+<p>有上传，没有任何和过滤，直接上传一句话，拿菜刀连接，题目说是密码在D盘，但是D盘什么都没有。<br>
+上win密码抓取神器mimikatz。但是我上传成功了，输入命令没有回显。很蛋疼。。。直接拿靶机跑，也报错了，未能抓取密码，尴尬。。。后面百度原来用管理员权限运行就可以使用。<br>
+还得继续学习😭。</p>
+<h3 id="第十三关-xss">第十三关 XSS</h3>
+<p>进入有个666，我点了一下发现url，就试了一试xss，然后可以<br>
+http://10.10.10.144/pentest/test/9/?id=%3Cscript%3Ealert(%22xss%22)%3C/script%3E</p>
+<h3 id="第十四关-储存型xss">第十四关 储存型xss</h3>
+<p>有个留言，果然储存型xss，无任何过滤，直接 &lt;script&gt;alert(111)&lt;/script&gt;</p>
+<h3 id="第十五关-图片上传不了">第十五关 图片上传不了</h3>
+<p>先上传php，不是图片上传不了，上传图片，发现上传不成功，又上传图片，抓包把其后缀改为php就能上传了。</p>
+<h3 id="第十六关-明天双十一">第十六关 明天双十一</h3>
+<p>知名网站瞬间想到了<em><em><em>www.taobao.com*** ，但是只能10.10.10.10访问，修改xff也没用，只好修改host，弹出nono，郁闷。。。看源码，需要把 Referer: www.topsec.com.cn 这个修改了就好了。<br>
+flag:83242lkjKJ(</em>&amp;</em>^</em>&amp;k0  但是不对，我也搞不懂。只好看源码，需要MD5加密<br>
+源码</p>
+<pre><code class="language-php">if(isset($_POST[&quot;flag&quot;]))
+{
+	$flag=$_POST[&quot;flag&quot;];
+	$flag = mysql_real_escape_string($flag);//防止SQL注入
+	
+	if(md5(&quot;263b4b51e98a64e8af1a95f8c60ad3aa&quot;)==md5($flag)){
+		echo &quot;&lt;font color='green'&gt;success,请记录您的flag&lt;/font&gt;&quot;;
+	}else{
+		echo &quot;&lt;font color='red'&gt;加油努力，快去剁手&lt;/font&gt;&quot;;
+	}
+}else{
+	$url=$_REQUEST['url'];
+if($url!=null||$url!=&quot;&quot;){
+	if(strstr($url,&quot;www.taobao.com&quot;)){
+		if($_SERVER['HTTP_HOST']==&quot;10.10.10.10&quot;){
+		if(strstr($_SERVER['HTTP_REFERER'],&quot;www.topsec.com.cn&quot;)){
+		if(strstr($_SERVER['HTTP_REFERER'],&quot;www.topsec.com.cn&quot;)){
+		echo &quot;剁手了，请记录截图!!!flag:83242lkjKJ(*&amp;*^*&amp;k0&quot;.&quot;&lt;br/&gt;&quot;;
+	}else{
+		echo &quot;不想剁手了&quot;.&quot;&lt;br/&gt;&quot;;
+	}
+	}else{
+		echo &quot;nono&quot;.&quot;&lt;br/&gt;&quot;;
+	}
+	}else{
+		echo &quot;哎呀，这里只允许10.10.10.10访问！！！&quot;.&quot;&lt;br/&gt;&quot;;
+	}
+	}else{
+		echo &quot;这个地方剁手不好，换个地方！&quot;;
+	}
+}
+}
+</code></pre>
+
+            </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://www.yyxyy.xyz/post/ccf-ti-mu-ji-lu/">
+                  <h3 class="post-title">
+                    CCF题目记录
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>DES学习 | Yyx</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://www.yyxyy.xyz//favicon.ico?v=1622952381444">
+<link rel="stylesheet" href="https://www.yyxyy.xyz//styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="DES加密运算步骤
+
+输入64位明文数据，并进行初始置换IP；
+在初始置换IP后，明文数据再被分为左右两部分，每部分32位，以L0，R0表示；
+在秘钥的控制下，经过16轮运算(f)；
+16轮后，左、右两部分交换，并连接再一起，再进行逆置换；..." />
+    <meta name="keywords" content="密码学" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://www.yyxyy.xyz/">
+        <img src="https://www.yyxyy.xyz//images/avatar.png?v=1622952381444" class="site-logo">
+        <h1 class="site-title">Yyx</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      记得在这杂乱的生活里，带点微笑
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://www.yyxyy.xyz//atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">DES学习</h2>
+            <div class="post-date">2021-06-06</div>
+            
+            <div class="post-content" v-pre>
+              <h4 id="des加密运算步骤">DES加密运算步骤</h4>
+<ol>
+<li>输入64位明文数据，并进行初始置换IP；</li>
+<li>在初始置换IP后，明文数据再被分为左右两部分，每部分32位，以L0，R0表示；</li>
+<li>在秘钥的控制下，经过16轮运算(f)；</li>
+<li>16轮后，左、右两部分交换，并连接再一起，再进行逆置换；</li>
+<li>输出64位密文。</li>
+</ol>
+<h4 id="初始置换">初始置换</h4>
+<p>这里要使用<strong>IP置换表。</strong></p>
+<pre><code class="language-html">58,50,42,34,26,18,10,2,
+60,52,44,36,28,20,12,4,
+62,54,46,38,30,22,14,6,
+64,56,48,40,32,24,16,8,
+57,49,41,33,25,17, 9,1,
+59,51,43,35,27,19,11,3,
+61,53,45,37,29,21,13,5,
+63,55,47,39,31,23,15,7,
+</code></pre>
+<p>这里的意思是将输入的64位明文按照表排列，即第58位明文排在第一位，第50位明文排在第二位，依次类推获得一个新的64位的串</p>
+<h4 id="密钥生成器">密钥生成器</h4>
+<p>密钥移位表</p>
+<figure data-type="image" tabindex="1"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/cryptography/20160908103542907.jpg" alt="" loading="lazy"></figure>
+<p>64位密钥压缩为56位表</p>
+<pre><code class="language-html">57,49,41,33,25,17,9,1,
+58,50,42,34,26,18,10,2,
+59,51,43,35,27,19,11,3,
+60,52,44,36,63,55,47,39,
+31,23,15,7,62,54,46,38,
+30,22,14,6,61,53,45,37,
+29,21,13,5,28,20,12,4
+
+56位密钥压缩为48位表
+14,17,11,24,1,5,3,28, 
+15,6,21,10,23,19,12,4,
+26,8,16,7,27,20,13,2,
+41,52,31,37,47,55,30,40,
+51,45,33,48,44,49,39,56,
+34,53,46,42,50,36,29,32
+</code></pre>
+<p>将这个56位表分成前28位和后28位，即C0和D0表</p>
+<p>又将64位密钥按照C0和D0表置换成28位L0和28位R0(置换规则和前面一样)</p>
+<p>将L0和R0按照加密轮数进行移位。(tips:每次移位是接着上次已经移位后的串继续移位)</p>
+<p>将L0和R0拼接为一个56位的串key_56。</p>
+<p>将key_56按照48位表置换得到key_48(置换规则和ip置换一样)</p>
+<p>这里已经获得了一个key，按照移位表进行循环一共得到16个key。</p>
+<h4 id="密钥生成流程图">密钥生成流程图</h4>
+<figure data-type="image" tabindex="2"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/cryptography/1281268-20180720073949486-1474910065.png" alt="des" loading="lazy"></figure>
+<h4 id="ep扩展">E/p扩展</h4>
+<p>新一轮加密的开始</p>
+<p>第一轮使用I/P置换得到的64位串，下一轮使用P置换得到的64位串。</p>
+<p>将得到的64位串分成两部分，前32位为左L0，后32位右R0。</p>
+<p>将右32位进行E/P扩展变成48位。</p>
+<figure data-type="image" tabindex="3"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/cryptography/20160908111040111.jpg" alt="" loading="lazy"></figure>
+<p>E/P扩展置换表</p>
+<pre><code class="language-html">置换规则和ip置换一样
+32,1,2,3,4,5,
+4,5,6,7,8,9,
+8,9,10,11,12,13,
+12,13,14,15,16,17,
+16,17,18,19,20,21,
+20,21,22,23,24,25,
+24,25,26,27,28,29,
+28,29,30,31,32,1
+</code></pre>
+<p>E/P结束后我们得到了一个48位的串R1</p>
+<h4 id="r1与key异或">R1与key异或</h4>
+<p>将R1与key进行异或运算得到新的R1</p>
+<pre><code class="language-python">tmp+=bin(int(r1,2)^int(keys[i],2))[2:] #R1和key对应异或
+        while len(tmp)&lt;48:
+            tmp='0'+tmp
+        return tmp
+</code></pre>
+<h4 id="s盒置换">S盒置换</h4>
+<p>有8个S盒置换表（太多这里先不写出来放在后面代码中）</p>
+<figure data-type="image" tabindex="4"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/cryptography/12817.jpg" alt="" loading="lazy"></figure>
+<p>流程如图，将上一步异或得到的R1每6位分为一组，共计8组。</p>
+<p>每组6位，将高一位和低一位组合形成行，中间4位作为列进行S盒置换。</p>
+<p>例如</p>
+<p>​	111001 那么对应11就是行，1100就是列。</p>
+<figure data-type="image" tabindex="5"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/cryptography/211.jpg" alt="" loading="lazy"></figure>
+<p>每组我们能够获得4位的串，一共8组，将8组数进行拼接得到32位的新的R1串。</p>
+<h4 id="p置换">P置换</h4>
+<p>P置换表</p>
+<pre><code class="language-html">16,7,20,21,29,12,28,17,1,15,23,26,5,18,31,10,
+2,8,24,14,32,27,3,9,19,13,30,6,22,11,4,25,
+</code></pre>
+<p>将S盒置换后得到的32位R1进行P置换得到新的32位R1  (置换规则和IP置换一样)</p>
+<p>这里将前面E/P置换得到的L0和这个R1进行异或运算得到新的R1</p>
+<p>令L1＝E/P置换得到的R0。</p>
+<p>将L1和R1组合得到一个新的64位串</p>
+<p>到这儿，我们已经进行了一轮加密。后面将这64位串传给E/P置换，进行下一轮。</p>
+<h4 id="ip逆置换">IP逆置换</h4>
+<p>IP逆置换表</p>
+<pre><code class="language-html">
+40,8,48,16,56,24,64,32,39,7,47,15,55,23,63,31,
+38,6,46,14,54,22,62,30,37,5,45,13,53,21,61,29,
+36,4,44,12,52,20,60,28,35,3,43,11,51,19,59,27,
+34,2,42,10,50,18,58 26,33,1,41, 9,49,17,57,25,
+</code></pre>
+<p>经过前面16轮加密，我们得到了一个64位串。</p>
+<p>但是我们每一轮结束有一个L1和R1交换的操作，最后一轮结束是不需要L1和R1交换</p>
+<p>所以我们将这个64位串分割成左32位和右32位，然后左右交换组合新的64位串</p>
+<p>将这个64位串进行ip逆置换，得到加密结果（置换规则和IP置换规则一样）</p>
+<h4 id="解密">解密</h4>
+<p>解密就是将第16位key作为第一位key，第15位作为第二位key，依次类推。得到一个逆序的key，进行加密就ok。</p>
+<p>因为解密是加密的一个逆过程。</p>
+<h4 id="des流程图">DES流程图</h4>
+<figure data-type="image" tabindex="6"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/cryptography/1281268-20180722085234376-365550304.png" alt="key" loading="lazy"></figure>
+<h3 id="代码">代码</h3>
+<pre><code class="language-python">#data='1001100001110110010101000011001000010001010001110010010110000011'
+#secret_key='0001001000110100010101100111100010010001001000110100010101100111'
+#加密结果 0111110010101110111011000000001001001010111000011010110111001011
+#加密结果 0x7caeec024ae1adcb
+
+
+#ip置换表
+ip=[58,50,42,34,26,18,10,2,
+60,52,44,36,28,20,12,4,
+62,54,46,38,30,22,14,6,
+64,56,48,40,32,24,16,8,
+57,49,41,33,25,17, 9,1,
+59,51,43,35,27,19,11,3,
+61,53,45,37,29,21,13,5,
+63,55,47,39,31,23,15,7]
+
+#ip逆置换表
+ip_=[40, 8, 48, 16, 56, 24, 64, 32, 39, 7,47, 15, 55, 23, 63, 31,
+		38, 6, 46, 14, 54, 22, 62, 30, 37, 5, 45,13, 53, 21, 61, 29,
+		36, 4, 44, 12, 52, 20, 60, 28, 35, 3, 43, 11,51, 19, 59, 27,
+		34, 2, 42, 10, 50, 18, 58, 26, 33, 1, 41, 9, 49, 17, 57, 25]
+
+#s盒
+s1 = [
+		[ 14, 4, 13, 1, 2, 15, 11, 8, 3, 10, 6, 12, 5, 9, 0, 7 ],
+		[ 0, 15, 7, 4, 14, 2, 13, 1, 10, 6, 12, 11, 9, 5, 3, 8 ],
+		[ 4, 1, 14, 8, 13, 6, 2, 11, 15, 12, 9, 7, 3, 10, 5, 0 ],
+		[ 15, 12, 8, 2, 4, 9, 1, 7, 5, 11, 3, 14, 10, 0, 6, 13 ] ]
+ 
+s2 = [
+		[ 15, 1, 8, 14, 6, 11, 3, 4, 9, 7, 2, 13, 12, 0, 5, 10 ],
+		[ 3, 13, 4, 7, 15, 2, 8, 14, 12, 0, 1, 10, 6, 9, 11, 5 ],
+		[ 0, 14, 7, 11, 10, 4, 13, 1, 5, 8, 12, 6, 9, 3, 2, 15 ],
+		[ 13, 8, 10, 1, 3, 15, 4, 2, 11, 6, 7, 12, 0, 5, 14, 9 ] ]
+ 
+s3 = [
+		[ 10, 0, 9, 14, 6, 3, 15, 5, 1, 13, 12, 7, 11, 4, 2, 8 ],
+		[ 13, 7, 0, 9, 3, 4, 6, 10, 2, 8, 5, 14, 12, 11, 15, 1 ],
+		[ 13, 6, 4, 9, 8, 15, 3, 0, 11, 1, 2, 12, 5, 10, 14, 7 ],
+		[ 1, 10, 13, 0, 6, 9, 8, 7, 4, 15, 14, 3, 11, 5, 2, 12 ] ]
+ 
+s4 = [
+		[ 7, 13, 14, 3, 0, 6, 9, 10, 1, 2, 8, 5, 11, 12, 4, 15 ],
+		[ 13, 8, 11, 5, 6, 15, 0, 3, 4, 7, 2, 12, 1, 10, 14, 9 ],
+		[ 10, 6, 9, 0, 12, 11, 7, 13, 15, 1, 3, 14, 5, 2, 8, 4 ],
+		[ 3, 15, 0, 6, 10, 1, 13, 8, 9, 4, 5, 11, 12, 7, 2, 14 ] ]
+ 
+s5 = [
+		[ 2, 12, 4, 1, 7, 10, 11, 6, 8, 5, 3, 15, 13, 0, 14, 9 ],
+		[ 14, 11, 2, 12, 4, 7, 13, 1, 5, 0, 15, 10, 3, 9, 8, 6 ],
+		[ 4, 2, 1, 11, 10, 13, 7, 8, 15, 9, 12, 5, 6, 3, 0, 14 ],
+		[ 11, 8, 12, 7, 1, 14, 2, 13, 6, 15, 0, 9, 10, 4, 5, 3 ] ]
+ 
+s6 = [
+		[ 12, 1, 10, 15, 9, 2, 6, 8, 0, 13, 3, 4, 14, 7, 5, 11 ],
+		[ 10, 15, 4, 2, 7, 12, 9, 5, 6, 1, 13, 14, 0, 11, 3, 8 ],
+		[ 9, 14, 15, 5, 2, 8, 12, 3, 7, 0, 4, 10, 1, 13, 11, 6 ],
+		[ 4, 3, 2, 12, 9, 5, 15, 10, 11, 14, 1, 7, 6, 0, 8, 13 ] ]
+ 
+s7 = [
+		[ 4, 11, 2, 14, 15, 0, 8, 13, 3, 12, 9, 7, 5, 10, 6, 1 ],
+		[ 13, 0, 11, 7, 4, 9, 1, 10, 14, 3, 5, 12, 2, 15, 8, 6 ],
+		[ 1, 4, 11, 13, 12, 3, 7, 14, 10, 15, 6, 8, 0, 5, 9, 2 ],
+		[ 6, 11, 13, 8, 1, 4, 10, 7, 9, 5, 0, 15, 14, 2, 3, 12 ] ]
+ 
+s8 = [
+		[ 13, 2, 8, 4, 6, 15, 11, 1, 10, 9, 3, 14, 5, 0, 12, 7 ],
+		[ 1, 15, 13, 8, 10, 3, 7, 4, 12, 5, 6, 11, 0, 14, 9, 2 ],
+		[ 7, 11, 4, 1, 9, 12, 14, 2, 0, 6, 10, 13, 15, 3, 5, 8 ],
+		[ 2, 1, 14, 7, 4, 10, 8, 13, 15, 12, 9, 0, 3, 5, 6, 11 ] ]
+
+# p置换表
+p=[16, 7, 20, 21, 29, 12, 28, 17, 1, 15, 23, 26, 5, 18, 31, 10,2, 8, 24, 14, 32, 27, 3, 9, 19, 13, 30, 6, 22, 11, 4, 25] 
+
+#压缩密钥到56位
+cre_56key=[57,49,41,33,25,17,9,1, 
+58,50,42,34,26,18,10,2,
+59,51,43,35,27,19,11,3,
+60,52,44,36,63,55,47,39,
+31,23,15,7,62,54,46,38,
+30,22,14,6,61,53,45,37,
+29,21,13,5,28,20,12,4]
+
+#压缩密钥到48位
+cre_48key=[14,17,11,24,1,5,3,28, 
+15,6,21,10,23,19,12,4,
+26,8,16,7,27,20,13,2,
+41,52,31,37,47,55,30,40,
+51,45,33,48,44,49,39,56,
+34,53,46,42,50,36,29,32]
+
+#左移动次数
+mobile_n=[1,1,2,2,2,2,2,2,1,2,2,2,2,2,2,1] 
+
+#轮密钥
+keys=[]
+
+#E扩展矩阵
+E= [32, 1, 2, 3, 4, 5,
+4, 5, 6, 7, 8, 9,
+8, 9, 10, 11, 12, 13,
+12, 13, 14, 15, 16, 17,
+16, 17, 18, 19, 20, 21,
+20, 21, 22, 23, 24, 25,
+24, 25, 26, 27, 28, 29,
+28, 29, 30, 31, 32, 1]
+
+#ip置换
+def ip_replace(tem_data):
+    c=[]
+    for i in ip:
+        c.append(tem_data[i-1])
+    return c
+
+#E/P扩展
+def Extension(r0):
+    r1=[]
+    for i in E:
+        r1.append(str(r0[i-1]))
+    return r1
+
+#轮密钥生成
+def cre_keys(secret_key):
+    temp=[]
+    for i in cre_56key:
+        temp.append(secret_key[i-1])
+    c0=cre_56key[0:28]
+    d0=cre_56key[28:]
+    L0=[]
+    R0=[]
+    for i in c0:
+        L0.append(secret_key[i-1])
+    for i in d0:
+        R0.append(secret_key[i-1])
+    for i in range(16):
+        L0=L0[mobile_n[i]:]+L0[0:mobile_n[i]]
+        R0=R0[mobile_n[i]:]+R0[0:mobile_n[i]]
+        temp_k=L0+R0
+        
+        key1=[]
+        for i in cre_48key:
+            key1.append(str(temp_k[i-1]))
+        keys.append(&quot;&quot;.join(key1))
+
+#S盒替换
+def s_replace(r1):
+    s_box=['s1[r][c]','s2[r][c]','s3[r][c]','s4[r][c]','s5[r][c]','s6[r][c]','s7[r][c]','s8[r][c]']
+    s_dates=&quot;&quot;
+    for i in range(8):
+        if i!=7:
+            s_data=r1[i*6:(i+1)*6]
+        else:
+            s_data=r1[i*6:]
+        r=int(s_data[0]+s_data[-1],2)
+        c=int(s_data[1:-1],2)
+        
+        s_da=bin(eval(s_box[i]))[2:]
+        
+        patter=4-len(s_da)
+        s_da='0'*patter+s_da
+        s_dates+=s_da
+    return s_dates
+
+#P置换
+def P_replace(l0,s_dates,old_r0):
+    temp_r=''
+    temp_l=''
+    temp=''
+    for i in p:
+        temp_r+=s_dates[i-1]
+    for i in l0:
+        temp_l+=str(i)
+    temp=bin(int(temp_l,2)^int(temp_r,2))[2:]
+    while len(temp)&lt;32:
+        temp='0'+temp
+    r1=[]
+    l1=old_r0
+    for i in temp:
+        r1.append(int(i))
+    temp_data=l1+r1
+    return temp_data
+
+#ip逆置换
+def _ip_replace(temp_data):
+    data=temp_data[32:]+temp_data[0:32]
+    cipher=[]
+    for i in ip_:
+        cipher.append(data[i-1])
+    return cipher
+
+if __name__ == &quot;__main__&quot;:
+    #data=input('输入data:')
+    #secret_key=input('输入密钥:')
+    data='1001100001110110010101000011001000010001010001110010010110000011'
+    secret_key='0001001000110100010101100111100010010001001000110100010101100111'
+    tem_data=[]
+    cre_keys(secret_key)
+    for i in range(len(data)):
+        if i==&quot; &quot;:
+            continue
+        tem_data.append(int(data[i]))
+    c=ip_replace(tem_data)
+    for i in range(16):
+        l0=c[0:32]
+        r0=c[32:]
+        r1=Extension(r0)
+        r1=&quot;&quot;.join(r1)
+        tmp=&quot;&quot;
+        tmp+=bin(int(r1,2)^int(keys[i],2))[2:]
+        while len(tmp)&lt;48:
+            tmp='0'+tmp
+        s_dates=s_replace(tmp)
+        
+        c=P_replace(l0,s_dates,r0)
+    cipher=_ip_replace(c)
+    secret=''
+    for i in cipher:
+        secret+=str(i)
+    print('DES加密结果:',secret)
+    print('DES加密结果:',hex(int(secret,2)))
+</code></pre>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://www.yyxyy.xyz/tag/R5uLyhMQA/" class="tag">
+                    密码学
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://www.yyxyy.xyz/post/chuan-tong-mi-ma/">
+                  <h3 class="post-title">
+                    传统密码
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

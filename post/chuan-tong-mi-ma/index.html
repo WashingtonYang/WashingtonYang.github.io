@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>传统密码 | Yyx</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://www.yyxyy.xyz//favicon.ico?v=1622952381444">
+<link rel="stylesheet" href="https://www.yyxyy.xyz//styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="代表代替密码
+凯撒密码
+加密 C=(p+3)mod26
+Playfair密码
+Playfair算法基于一个5*5的字母矩阵，该矩阵使用一个关键词构造，方法是按从左到右、从上到下顺序，填入关键词的字母(去除重复字母)后，将字母表其作余字母填入..." />
+    <meta name="keywords" content="密码学" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://www.yyxyy.xyz/">
+        <img src="https://www.yyxyy.xyz//images/avatar.png?v=1622952381444" class="site-logo">
+        <h1 class="site-title">Yyx</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      记得在这杂乱的生活里，带点微笑
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://www.yyxyy.xyz//atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">传统密码</h2>
+            <div class="post-date">2021-06-06</div>
+            
+            <div class="post-content" v-pre>
+              <h4 id="代表代替密码">代表代替密码</h4>
+<h6 id="凯撒密码">凯撒密码</h6>
+<p>加密 C=(p+3)mod26</p>
+<h6 id="playfair密码">Playfair密码</h6>
+<p>Playfair算法基于一个5*5的字母矩阵，该<strong>矩阵使用一个关键词构造</strong>，方法是按从左到右、从上到下顺序，填入关键词的字母(去除重复字母)后，将字母表其作余字母填入。</p>
+<p>关键词取:monarchy（密钥） 得到一个playfair矩阵</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center"></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">M</td>
+<td>O</td>
+<td>N</td>
+<td>A</td>
+<td>R</td>
+</tr>
+<tr>
+<td style="text-align:center">C</td>
+<td>H</td>
+<td>Y</td>
+<td>B</td>
+<td>D</td>
+</tr>
+<tr>
+<td style="text-align:center">E</td>
+<td>F</td>
+<td>G</td>
+<td>I/J</td>
+<td>K</td>
+</tr>
+<tr>
+<td style="text-align:center">L</td>
+<td>P</td>
+<td>Q</td>
+<td>S</td>
+<td>T</td>
+</tr>
+<tr>
+<td style="text-align:center">U</td>
+<td>V</td>
+<td>W</td>
+<td>X</td>
+<td>Z</td>
+</tr>
+</tbody>
+</table>
+<p>加解密规则参考<a href="https://www.cnblogs.com/0zcl/p/6105825.html">https://www.cnblogs.com/0zcl/p/6105825.html</a></p>
+<h6 id="hill-密码">Hill 密码</h6>
+<p>定义M的逆矩阵M^(-1) 有M*M^(-1)=I,I为单位矩阵.</p>
+<p>C=E(K,P)=PKmod26</p>
+<p>P=D(K,C)=CK<sup>(-1)mod26=CKK</sup>(-1)=C</p>
+<h6 id="字母频率统计攻击">字母频率统计攻击</h6>
+<ol>
+<li>对单表代换密码的破译步骤：</li>
+<li>统计密文字母出现频率</li>
+<li>将统计结果与自然语言频率表对比，确定部分密钥</li>
+<li>结合连接特征和重复特征，确定部分密钥</li>
+<li>语义上，猜测其它密钥<br>
+双、三字母的频率统计表往往很有帮助</li>
+</ol>
+<h4 id="多表替换">多表替换</h4>
+<h6 id="维吉尼亚密码">维吉尼亚密码</h6>
+<figure data-type="image" tabindex="1"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/weijiniya.jpg" alt="[d804122d43323968001c920a.jfif]" loading="lazy"></figure>
+<h6 id="一次一密">一次一密</h6>
+<ul>
+<li>使用与消息一样长且无重复的随机密钥来加密消息。密钥只对一个消息加解密，之后丢弃不用。</li>
+<li>不可攻破</li>
+</ul>
+<p>难点</p>
+<ul>
+<li>产生大规模随机密钥有实际困难</li>
+<li>密钥的保护和分配</li>
+</ul>
+<h4 id="置换密码">置换密码</h4>
+<h6 id="栅栏技术">栅栏技术</h6>
+<h6 id="轮转机">轮转机</h6>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://www.yyxyy.xyz/tag/R5uLyhMQA/" class="tag">
+                    密码学
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://www.yyxyy.xyz/post/di-shi-er-jie-da-xue-sheng-xin-xi-an-quan-guo-sai/">
+                  <h3 class="post-title">
+                    第十二届大学生信息安全国赛
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

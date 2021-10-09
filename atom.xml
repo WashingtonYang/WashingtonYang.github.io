@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://www.yyxyy.xyz/</id>
     <title>Yyx</title>
-    <updated>2021-10-09T04:48:33.084Z</updated>
+    <updated>2021-10-09T09:12:27.405Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://www.yyxyy.xyz/"/>
     <link rel="self" href="https://www.yyxyy.xyz/atom.xml"/>
@@ -10,6 +10,145 @@
     <logo>https://www.yyxyy.xyz/images/avatar.png</logo>
     <icon>https://www.yyxyy.xyz/favicon.ico</icon>
     <rights>All rights reserved 2021, Yyx</rights>
+    <entry>
+        <title type="html"><![CDATA[DeDe远程代码执行分析&复现]]></title>
+        <id>https://www.yyxyy.xyz/post/dede-yuan-cheng-dai-ma-zhi-xing-fen-xi-andfu-xian/</id>
+        <link href="https://www.yyxyy.xyz/post/dede-yuan-cheng-dai-ma-zhi-xing-fen-xi-andfu-xian/">
+        </link>
+        <updated>2021-10-09T09:09:09.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="0x01-安装dedecms">0x01 安装dedecms</h1>
+<p>dedecms安装链接:</p>
+<pre><code class="language-html">https://github.com/dedecms/DedeCMS/releases/tag/v5.8.1
+</code></pre>
+<h1 id="0x02-漏洞分析">0x02 漏洞分析</h1>
+<p>1.plus/flink.php脚本内部</p>
+<pre><code class="language-php">if ($dopost == 'save') {
+    $validate = isset($validate) ? strtolower(trim($validate)) : '';
+    $svali = GetCkVdValue();
+    if ($validate == '' || $validate != $svali) {
+        ShowMsg('验证码不正确!', '-1');
+        exit();
+    }
+}
+</code></pre>
+<p>这里调用了ShowMsg(),跟进这个函数</p>
+<p>2.include/common.func.php</p>
+<pre><code class="language-php">function ShowMsg($msg, $gourl, $onlymsg = 0, $limittime = 0)
+{
+​    if (empty($GLOBALS['cfg_plus_dir'])) {
+​        $GLOBALS['cfg_plus_dir'] = '..';
+​    }
+​    if ($gourl == -1) {
+​        $gourl = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
+​        if ($gourl == &quot;&quot;) {
+​            $gourl = -1;
+​        }
+​    }
+    ...............................................................
+        
+​    $tpl = new DedeTemplate();
+​    $tpl-&gt;LoadString($msg);
+​    $tpl-&gt;Display();
+}
+</code></pre>
+<p>首先当<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>g</mi><mi>o</mi><mi>u</mi><mi>r</mi><mi>l</mi><mo>=</mo><mo>−</mo><mn>1</mn><mi mathvariant="normal">时</mi><mi mathvariant="normal">，</mi><mi>H</mi><mi>T</mi><mi>T</mi><msub><mi>P</mi><mi>R</mi></msub><mi>E</mi><mi>F</mi><mi>E</mi><mi>R</mi><mi>E</mi><mi>R</mi><mi mathvariant="normal">时</mi><mi mathvariant="normal">可</mi><mi mathvariant="normal">控</mi><mi mathvariant="normal">的</mi><mi mathvariant="normal">，</mi><mi mathvariant="normal">后</mi><mi mathvariant="normal">续</mi><mi mathvariant="normal">会</mi><mi mathvariant="normal">在</mi><mi>L</mi><mi>o</mi><mi>a</mi><mi>d</mi><mi>S</mi><mi>t</mi><mi>r</mi><mi>i</mi><mi>n</mi><mi>g</mi><mo>(</mo></mrow><annotation encoding="application/x-tex">gourl=-1时，HTTP_REFERER时可控的，后续会在LoadString(</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="mord mathdefault" style="margin-right:0.03588em;">g</span><span class="mord mathdefault">o</span><span class="mord mathdefault">u</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">−</span><span class="mord">1</span><span class="mord cjk_fallback">时</span><span class="mord cjk_fallback">，</span><span class="mord mathdefault" style="margin-right:0.08125em;">H</span><span class="mord mathdefault" style="margin-right:0.13889em;">T</span><span class="mord mathdefault" style="margin-right:0.13889em;">T</span><span class="mord"><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.32833099999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.13889em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.00773em;">R</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord mathdefault" style="margin-right:0.05764em;">E</span><span class="mord mathdefault" style="margin-right:0.13889em;">F</span><span class="mord mathdefault" style="margin-right:0.05764em;">E</span><span class="mord mathdefault" style="margin-right:0.00773em;">R</span><span class="mord mathdefault" style="margin-right:0.05764em;">E</span><span class="mord mathdefault" style="margin-right:0.00773em;">R</span><span class="mord cjk_fallback">时</span><span class="mord cjk_fallback">可</span><span class="mord cjk_fallback">控</span><span class="mord cjk_fallback">的</span><span class="mord cjk_fallback">，</span><span class="mord cjk_fallback">后</span><span class="mord cjk_fallback">续</span><span class="mord cjk_fallback">会</span><span class="mord cjk_fallback">在</span><span class="mord mathdefault">L</span><span class="mord mathdefault">o</span><span class="mord mathdefault">a</span><span class="mord mathdefault">d</span><span class="mord mathdefault" style="margin-right:0.05764em;">S</span><span class="mord mathdefault">t</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault">i</span><span class="mord mathdefault">n</span><span class="mord mathdefault" style="margin-right:0.03588em;">g</span><span class="mopen">(</span></span></span></span>msg)加载，在Display()调用解析。</p>
+<p>3.include/dedetemplate.class.php</p>
+<pre><code class="language-php">public function LoadString($str = '')
+{
+    $this-&gt;sourceString = $str;
+    $hashcode = md5($this-&gt;sourceString);
+    $this-&gt;cacheFile = $this-&gt;cacheDir . &quot;/string_&quot; . $hashcode . &quot;.inc&quot;;
+    $this-&gt;configFile = $this-&gt;cacheDir . &quot;/string_&quot; . $hashcode . &quot;_config.inc&quot;;
+    $this-&gt;ParseTemplate();
+}
+
+</code></pre>
+<pre><code class="language-php">public function Display()
+{
+    global $gtmpfile;
+    extract($GLOBALS, EXTR_SKIP);
+    $this-&gt;WriteCache();
+    include $this-&gt;cacheFile;
+}
+</code></pre>
+<p><code>sourceString</code>设置与攻击者控制的<code>$msg</code>会在writeCache被调用。</p>
+<p>跟进WriteCache()</p>
+<pre><code class="language-php">public function WriteCache($ctype = 'all')
+​    {
+​        if (!file_exists($this-&gt;cacheFile) || $this-&gt;isCache == false
+​            || (file_exists($this-&gt;templateFile) &amp;&amp; (filemtime($this-&gt;templateFile) &gt; filemtime($this-&gt;cacheFile)))
+​        ) {
+​            if (!$this-&gt;isParse) {
+​                $this-&gt;ParseTemplate();
+​            }
+​            $fp = fopen($this-&gt;cacheFile, 'w') or dir(&quot;Write Cache File Error! &quot;);
+​            flock($fp, 3);
+​            $result = trim($this-&gt;GetResult());
+​            $errmsg = '';
+​            //var_dump($result);exit();
+​            if (!$this-&gt;CheckDisabledFunctions($result, $errmsg)) {
+​                fclose($fp);
+​                @unlink($this-&gt;cacheFile);
+​                die($errmsg);
+​         }
+​     fwrite($fp, $result);
+​     fclose($fp);
+    .........
+}
+</code></pre>
+<pre><code class="language-php">public function GetResult()
+{
+​    if (!$this-&gt;isParse) {
+​        $this-&gt;ParseTemplate();
+​    }
+​    $addset = '';
+​    $addset .= '&lt;' . '?php' . &quot;\r\n&quot; . 'if(!isset($GLOBALS[\'_vars\'])) $GLOBALS[\'_vars\'] = array(); ' . &quot;\r\n&quot; . '$fields = array();' . &quot;\r\n&quot; . '?' . '&gt;';
+​    return preg_replace(&quot;/\?&quot; . &quot;&gt;[ \r\n\t]{0,}&lt;&quot; . &quot;\?php/&quot;, &quot;&quot;, $addset . $this-&gt;sourceString);
+}
+</code></pre>
+<p>调用<code>GetResult</code>返回值<code>sourceString</code>来设置<code>$result</code>变量，该变量现在包含攻击者控制的输入。然后在<code>CheckDisabledFunctions</code>函数在<code>$result</code>变量上被调用</p>
+<pre><code class="language-php">public function CheckDisabledFunctions($str, &amp;$errmsg = '')
+{
+    global $cfg_disable_funs;
+    $cfg_disable_funs = isset($cfg_disable_funs) ? $cfg_disable_funs : 'phpinfo,eval,exec,passthru,shell_exec,system,proc_open,popen,curl_exec,curl_multi_exec,parse_ini_file,show_source,file_put_contents,fsockopen,fopen,fwrite';
+// 模板引擎增加disable_functions
+    if (!defined('DEDEDISFUN')) {
+        $tokens = token_get_all_nl($str);
+        $disabled_functions = explode(',', $cfg_disable_funs);
+        foreach ($tokens as $token) {
+            if (is_array($token)) {
+                if ($token[0] = '306' &amp;&amp; in_array($token[1], $disabled_functions)) {
+                    $errmsg = 'DedeCMS Error:function disabled &quot;' . $token[1] . '&quot; &lt;a href=&quot;http://help.dedecms.com/install-use/apply/2013/0711/2324.html&quot; target=&quot;_blank&quot;&gt;more...&lt;/a&gt;';
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
+}
+</code></pre>
+<p>GetResult()方法执行后返回结果通过CheckDisabledFunctions过滤，然后经过include $this-&gt;cacheFile;</p>
+<p>到这儿就可以通过控制 Referer请求头，来控制模版的渲染，绕过 CheckDisabledFunctions()方法的过滤 造成远程命令执行</p>
+<p>通过正则找到受影响且无需身份认证的文件，来进行命令执行</p>
+<ol>
+<li><code>/plus/flink.php?dopost=save</code></li>
+<li><code>/plus/users_products.php?oid=1337</code></li>
+<li><code>/plus/download.php?aid=1337</code></li>
+<li><code>/plus/showphoto.php?aid=1337</code></li>
+<li><code>/plus/users-do.php?fmdo=sendMail</code></li>
+<li><code>/plus/posttocar.php?id=1337</code></li>
+<li><code>/plus/vote.php?dopost=view</code></li>
+<li><code>/plus/carbuyaction.php?do=clickout</code></li>
+<li><code>/plus/recommend.php</code></li>
+<li>…</li>
+</ol>
+<h1 id="0x03-漏洞复现">0x03 漏洞复现</h1>
+<p>这里我发现没有禁止反引号，就直接拿反引号执行命令</p>
+<figure data-type="image" tabindex="1"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/web/1633766116159.png" alt="1633766116159" loading="lazy"></figure>
+<h1 id="0x04-参考链接">0x04 参考链接</h1>
+<p>https://srcincite.io/blog/2021/09/30/chasing-a-dream-pwning-the-biggest-cms-in-china.html</p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[靶场练习2]]></title>
         <id>https://www.yyxyy.xyz/post/ba-chang-lian-xi-2/</id>
@@ -999,37 +1138,6 @@ docker ps -a
  
 docker-compose down        //要进入另一个漏洞靶场，则先要结束掉当前漏洞靶场
 </code></pre>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[CVE-2018-8715复现]]></title>
-        <id>https://www.yyxyy.xyz/post/cve-2018-8715-fu-xian/</id>
-        <link href="https://www.yyxyy.xyz/post/cve-2018-8715-fu-xian/">
-        </link>
-        <updated>2021-06-06T03:57:21.000Z</updated>
-        <content type="html"><![CDATA[<h1 id="cve-2018-8715复现">CVE-2018-8715复现</h1>
-<h4 id="前提条件">前提条件</h4>
-<p>首先得已知一个用户名</p>
-<h4 id="appweb简介">AppWeb简介</h4>
-<p>AppWeb是Embedthis Software LLC公司负责开发维护的一个基于GPL开源协议的嵌入式Web Server。他使用C/C++来编写，能够运行在几乎先进所有流行的操作系统上。当然他最主要的应用场景还是为嵌入式设备提供Web Application容器。</p>
-<p>AppWeb可以进行认证配置，其认证方式包括以下三种：</p>
-<ul>
-<li>1.basic 传统HTTP基础认证</li>
-<li>2.digest 改进版HTTP基础认证，认证成功后将使用Cookie来保存状态，而不用再传递Authorization头</li>
-<li>3.form 表单认证</li>
-</ul>
-<h4 id="漏洞描述">漏洞描述</h4>
-<p>其7.0.3之前的版本中，对于digest和form两种认证方式，如果用户传入的密码为<code>null</code>（也就是没有传递密码参数），appweb将因为一个逻辑错误导致直接认证成功，并返回session。</p>
-<h4 id="漏洞复现">漏洞复现</h4>
-<p>0x1 访问目标站</p>
-<p>输入已知账号，然后抓包。</p>
-<figure data-type="image" tabindex="1"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/vulhub/CVE-2018-8715/1.png" alt="" loading="lazy"></figure>
-<p>0x2 修改请求方式，添加session</p>
-<figure data-type="image" tabindex="2"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/vulhub/CVE-2018-8715/2.png" alt="" loading="lazy"></figure>
-<figure data-type="image" tabindex="3"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/vulhub/CVE-2018-8715/3.png" alt="" loading="lazy"></figure>
-<p>这一步拿到session我们也可以直接在浏览器添加cookie，也能完成。</p>
-<figure data-type="image" tabindex="4"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/vulhub/CVE-2018-8715/4.png" alt="" loading="lazy"></figure>
-<p>[+]具体参考链接<a href="https://www.freebuf.com/column/221660.html">https://www.freebuf.com/column/221660.html</a></p>
 ]]></content>
     </entry>
 </feed>

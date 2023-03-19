@@ -1,0 +1,319 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    
+<meta charset="utf-8" >
+
+<title>反射学习 | Yyx</title>
+<meta name="description" content="&lt;marquee&gt;&lt;script type=&#34;text/javascript&#34; src=&#34;https://api.xygeng.cn/one/get/&#34;&gt;&lt;/script&gt;&lt;/marquee&gt;">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://www.yyxyy.xyz//favicon.ico?v=1679215383527">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://www.yyxyy.xyz//styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+      <div class="site-header-container">
+  <div class="site-header">
+    <div class="left">
+      <a href="https://www.yyxyy.xyz/">
+        <img class="avatar" src="https://www.yyxyy.xyz//images/avatar.png?v=1679215383527" alt="" width="32px" height="32px">
+      </a>
+      <a href="https://www.yyxyy.xyz/">
+        <h1 class="site-title">Yyx</h1>
+      </a>
+    </div>
+    <div class="right">
+      <transition name="fade">
+        <i class="icon" :class="{ 'icon-close-outline': menuVisible, 'icon-menu-outline': !menuVisible }" @click="menuVisible = !menuVisible"></i>
+      </transition>
+    </div>
+  </div>
+</div>
+
+<transition name="fade">
+  <div class="menu-container" style="display: none;" v-show="menuVisible">
+    <div class="menu-list">
+      
+        
+          <a href="/" class="menu purple-link">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="menu purple-link">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="menu purple-link">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="menu purple-link">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+</transition>
+
+
+      <div class="content-container">
+        <div class="post-detail">
+          
+          <h2 class="post-title">反射学习</h2>
+          <div class="post-info post-detail-info">
+            <span><i class="icon-calendar-outline"></i> 2022-03-23</span>
+            
+              <span>
+                <i class="icon-pricetags-outline"></i>
+                
+                  <a href="https://www.yyxyy.xyz/tag/java/">
+                    JAVA
+                    
+                  </a>
+                
+              </span>
+            
+          </div>
+          <div class="post-content">
+            <h1 id="反射概念">反射概念</h1>
+<p>Java反射机制是在运行状态时，对于任意一个类，都能够获取到这个类的所有属性和方法，对于任意一个对象，都能够调用它的任意一个方法和属性(包括私有的方法和属性)，这种动态获取的信息以及动态调用对象的方法的功能就称为java语言的反射机制。</p>
+<p>简单讲让其具有动态特性。</p>
+<p>动态特性即⼀段代码，改变其中的变量，将会导致 这段代码产⽣功能性的变化，我称之为动态特性。</p>
+<h1 id="java-常用的方法">JAVA 常用的方法</h1>
+<p>获取类的⽅法： forName</p>
+<p>实例化类对象的⽅法： newInstance</p>
+<p>获取函数的⽅法： getMethod</p>
+<p>执⾏函数的⽅法： invoke</p>
+<pre><code class="language-java">public void execute(String className, String methodName) throws Exception {
+    Class clazz = Class.forName(className); 
+    clazz.getMethod(methodName).invoke(clazz.newInstance()); 
+}
+</code></pre>
+<h1 id="java-反射组成相关的类">Java 反射组成相关的类</h1>
+<p>反射机制相关操作一般位于java.lang.reflect包中。</p>
+<p>而java反射机制组成需要重点注意以下的类：</p>
+<p>java.lang.Class：类对象;</p>
+<p>java.lang.reflect.Constructor：类的构造器对象;</p>
+<p>java.lang.reflect.Field：类的属性对象;</p>
+<p>java.lang.reflect.Method：类的方法对象;</p>
+<h1 id="反射的简单使用">反射的简单使用</h1>
+<h2 id="1实例化对象">1.实例化对象</h2>
+<p>JVM为每个加载的class创建了对应的Class实例，并在实例中保存了该class的所有信息；因此，如果获取了某个Class实例，我们就可以通过这个Class实例获取到该实例对应的class的所有信息</p>
+<h3 id="0x01-直接通过一个class的静态变量class获取">0x01 直接通过一个class的静态变量class获取：</h3>
+<pre><code class="language-java">Class c = String.class;
+</code></pre>
+<h3 id="0x02-通过该实例变量提供的getclass方法获取">0x02 通过该实例变量提供的getClass()方法获取:</h3>
+<pre><code class="language-java">String s = &quot;test&quot;;
+Class c = s.getClass();
+</code></pre>
+<h3 id="0x03-知道一个class的完整类名可以通过静态方法classforname获取">0x03 知道一个class的完整类名，可以通过静态方法Class.forName()获取</h3>
+<pre><code class="language-java">Class c = Class.forName(&quot;java.lang.String&quot;);
+</code></pre>
+<p>由于Class实例在JVM中是唯一的，所以，上述方法获取的Class实例是同一个实例.</p>
+<h2 id="2获取成员变量-field">2.获取成员变量 Field</h2>
+<p>获取成员变量Field位于 java.lang.reflect.Field 包中</p>
+<p>Field[] getFields() ：获取所有 public 修饰的成员变量，包括父类中的变量。</p>
+<p>Field[] getDeclaredFields() 获取所有的成员变量，即包括public、private和proteced，但是不包括父类的申明变量。</p>
+<p>Field getField(String name) 获取指定名称的 public 修饰的成员变量</p>
+<p>Field getDeclaredField(String name) 获取指定的成员变量</p>
+<pre><code class="language-java">package ysoserial.mytest;
+
+import java.lang.reflect.Field;
+
+public class test {
+    public static void main(String[] args) throws Exception {
+        Class stiClass = StuInfo.class;
+        // 获取public字段&quot;age&quot;:
+        System.out.println(stiClass.getField(&quot;age&quot;));
+        // 获取继承的public字段&quot;name&quot;:
+        System.out.println(stiClass.getField(&quot;name&quot;));
+        // 获取private字段&quot;money&quot;:
+        System.out.println(stiClass.getDeclaredField(&quot;money&quot;));
+        // 获得值,name.get里面参数需要该类对象，而不是.class
+        Field name = stiClass.getField(&quot;name&quot;);
+        System.out.println(name.get(stiClass.newInstance()));
+        // 设置值
+        StuInfo stuInfo = new StuInfo();
+        Field money = stiClass.getDeclaredField(&quot;money&quot;);
+        money.setAccessible(true);
+        money.set(stuInfo,2);
+        System.out.println(stuInfo);
+
+
+
+
+    }
+}
+
+class StuInfo extends PersonInfo{
+    public int age;
+    private int money;
+
+    @Override
+    public String toString() {
+        return &quot;StuInfo{&quot; +
+            &quot;name=&quot; + name +
+            &quot;, money=&quot; + money +
+            '}';
+    }
+}
+
+class PersonInfo{
+    public String name = &quot;test&quot;;
+}
+</code></pre>
+<h2 id="3-获取成员方法-method">3. 获取成员方法 Method</h2>
+<p>Class类提供了以下几个方法来获取Method：</p>
+<ul>
+<li>Method getMethod(name, Class...)：获取某个public的Method（包括父类）</li>
+<li>Method getDeclaredMethod(name, Class...)：获取当前类的某个Method（不包括父类）</li>
+<li>Method[] getMethods()：获取所有public的Method（包括父类）</li>
+<li>Method[] getDeclaredMethods()：获取当前类的所有Method（不包括父类）</li>
+</ul>
+<h3 id="通过反射来使用substring">通过反射来使用substring</h3>
+<pre><code class="language-java">String name = &quot;test123&quot;;
+Method substring = String.class.getMethod(&quot;substring&quot;, int.class);
+System.out.println(substring.invoke(name,3));
+</code></pre>
+<h3 id="调用的方法是静态方法-那么invoke方法传入的第一个参数永远为null">调用的方法是静态方法。那么invoke方法传入的第一个参数永远为null</h3>
+<pre><code class="language-java">// 获取Integer.parseInt(String)方法，参数为String:
+Method m = Integer.class.getMethod(&quot;parseInt&quot;, String.class);
+// 调用该静态方法并获取结果:
+Integer n = (Integer) m.invoke(null, &quot;23333&quot;);
+System.out.println(n);
+</code></pre>
+<h2 id="4获取构造函数-constructor">4.获取构造函数 Constructor</h2>
+<p>通过Class实例获取Constructor的方法如下：</p>
+<pre><code class="language-java">getConstructor(Class...)：获取某个public的Constructor；
+getDeclaredConstructor(Class...)：获取某个Constructor；
+getConstructors()：获取所有public的Constructor；
+getDeclaredConstructors()：获取所有Constructor。
+</code></pre>
+<p>调用非public的Constructor时，必须首先通过setAccessible(true)设置允许访问。setAccessible(true)可能会失败。</p>
+<h1 id="反射的进阶使用">反射的进阶使用</h1>
+<h2 id="反射创建对象">反射创建对象</h2>
+<pre><code class="language-java">Class c = Class.forName(&quot;类的名称&quot;); // 创建Class对象 
+Object m1 =  c.newInstance(); // 创建类对象
+</code></pre>
+<h2 id="反射修改被final关键字修饰的成员变量">反射修改被final关键字修饰的成员变量</h2>
+<pre><code class="language-java">// 反射获取Field类的modifiers
+Field modifiers = field.getClass().getDeclaredField(&quot;modifiers&quot;);
+// 设置modifiers修改权限
+modifiers.setAccessible(true);
+// 修改成员变量的Field对象的modifiers值
+modifiers.setInt(field, field.getModifiers() &amp;~Modifier.FINAL);
+// 修改成员变量值
+field.set(类实例对象, 修改后的值);
+</code></pre>
+<h2 id="利用反射弹计算器">利用反射弹计算器</h2>
+<pre><code class="language-plain">package org.example;
+
+import java.lang.reflect.Method;
+
+public class ReflectionTest01 {
+    public static void main(String[] args) throws Exception{
+        Class c1 = Class.forName(&quot;java.lang.Runtime&quot;);
+        Method method = c1.getMethod(&quot;exec&quot;, String.class);
+        Method RuntimeMethod = c1.getMethod(&quot;getRuntime&quot;);
+        Object o1 = RuntimeMethod.invoke(c1);
+        method.invoke(o1, &quot;deepin-calculator&quot;);
+    }
+}
+</code></pre>
+<p>写到一句话</p>
+<pre><code class="language-plain">package org.example;
+
+import java.lang.reflect.Method;
+
+public class ReflectionTest01 {
+    public static void main(String[] args) throws Exception{
+        /*Class c1 = Class.forName(&quot;java.lang.Runtime&quot;);
+        Method method = c1.getMethod(&quot;exec&quot;, String.class);
+        Method RuntimeMethod = c1.getMethod(&quot;getRuntime&quot;);
+        Object o1 = RuntimeMethod.invoke(c1);
+        method.invoke(o1, &quot;deepin-calculator&quot;);*/
+      	//执行命令
+        Class.forName(&quot;java.lang.Runtime&quot;).getMethod(&quot;exec&quot;, String.class).invoke(Class.forName(&quot;java.lang.Runtime&quot;).getMethod(&quot;getRuntime&quot;).invoke(Class.forName(&quot;java.lang.Runtime&quot;)),&quot;deepin-calculator&quot;);
+    }
+}
+</code></pre>
+<h2 id="java执行命令的三种方式">JAVA执行命令的三种方式</h2>
+<h3 id="0x01-调用-runtime-类进行命令执行">0x01 调用 Runtime 类进行命令执行</h3>
+<h3 id="0x02-processbuilder">0x02 ProcessBuilder</h3>
+<h3 id="0x03-使用-processimpl">0x03 使用 ProcessImpl</h3>
+
+          </div>
+        </div>
+
+        
+          <div class="next-post">
+            <a class="purple-link" href="https://www.yyxyy.xyz/post/java-xu-lie-hua-yu-fan-xu-lie-hua/">
+              <h3 class="post-title">
+                下一篇：JAVA序列化与反序列化
+              </h3>
+            </a>
+          </div>
+          
+      </div>
+
+      
+
+      <div class="site-footer">
+  <div class="slogan"><marquee><script type="text/javascript" src="https://api.xygeng.cn/one/get/"></script></marquee></div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+  Powered by Gridea | <a class="rss" href="https://www.yyxyy.xyz//atom.xml" target="_blank">RSS</a>
+</div>
+
+
+    </div>
+    <script type="application/javascript">
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

